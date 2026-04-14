@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiero que me Cuides · Cuidadores de confianza</title>
+  <meta name="description" content="Niñeras, cuidadores de adultos mayores y empleadas domésticas verificadas, con todas las garantías de seguridad y profesionalidad." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__row">
+      <a class="brand" href="/" aria-label="Quiero que me Cuides">
+        <img class="brand__logo" src="assets/logo.png" alt="Quiero que me Cuides" />
+      </a>
+      <nav class="topbar__nav">
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#para-cuidadores">Soy cuidador/a</a>
+        <a href="#" class="btn btn--ghost">Ingresar</a>
+        <a href="#" class="btn btn--primary">Registrarme</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <p class="hero__kicker">Las personas, lo primero</p>
+      <h1 class="hero__title">Cuidadores de confianza,<br/>cerca tuyo.</h1>
+      <p class="hero__subtitle">
+        Niñeras, cuidado de adultos mayores y empleadas domésticas con todas
+        las garantías de <strong>seguridad y profesionalidad</strong>.
+      </p>
+
+      <form id="searchForm" class="search">
+        <div class="search__field">
+          <label for="tipo">Tipo de cuidado</label>
+          <select id="tipo" name="tipo">
+            <option value="todos">Todos</option>
+            <option value="ninera">Niñera</option>
+            <option value="adulto_mayor">Adulto mayor</option>
+            <option value="domestica">Empleada doméstica</option>
+          </select>
+        </div>
+        <div class="search__field search__field--grow">
+          <label for="zona">Zona</label>
+          <input id="zona" name="zona" type="text" placeholder="Ej: Palermo, Belgrano, San Isidro…" />
+        </div>
+        <button type="submit" class="btn btn--primary btn--lg">Buscar</button>
+      </form>
+    </div>
+  </section>
+
+  <main class="container results">
+    <aside class="results__list" id="resultsList">
+      <p class="results__hint">Buscá para ver cuidadores en el mapa.</p>
+    </aside>
+    <div id="map" class="results__map"></div>
+  </main>
+
+  <!-- Modal ficha del cuidador -->
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__content">
+      <button class="modal__close" aria-label="Cerrar" data-close>&times;</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container footer__row">
+      <span>© <span id="year"></span> Quiero que me Cuides</span>
+      <em class="footer__tagline">"Las pequeñas cosas hacen la diferencia"</em>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
