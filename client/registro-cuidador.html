@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <title>Registro de cuidador/a · Cuidy</title>
+  <meta name="description" content="Registrate como cuidador/a en menos de 1 minuto. Solo necesitás tu DNI y una selfie." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script src="js/analytics.js"></script>
+</head>
+<body class="page-wizard">
+  <header class="topbar">
+    <div class="container topbar__row">
+      <a class="brand" href="/" aria-label="Cuidy">
+        <img class="brand__logo" src="assets/logo.svg" alt="Cuidy" />
+      </a>
+      <nav class="topbar__nav">
+        <a href="/">Volver al inicio</a>
+        <a href="login.html" class="btn btn--ghost">Ingresar</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wizard">
+    <div class="container wizard__container wizard__container--wide">
+      <header class="wizard__head">
+        <p class="wizard__kicker">Primer paso</p>
+        <h1 class="wizard__title">Sumate a Cuidy</h1>
+        <p class="wizard__lede">
+          Para garantizar que cada persona en nuestra base es real, te pedimos algunos datos y una verificación de identidad. Es rápido y solo lleva un minuto.
+          <br/><br/>
+          Nuestro equipo revisa la información y, si está todo bien, te enviamos un email para que completes tu perfil profesional y empieces a conectar con familias.
+        </p>
+      </header>
+
+      <!-- Barra de progreso simplificada -->
+      <ol class="steps steps--compact" aria-label="Progreso del registro">
+        <li class="steps__item is-active" data-step="0"><span class="steps__dot">1</span><span class="steps__label">Datos</span></li>
+        <li class="steps__item" data-step="1"><span class="steps__dot">2</span><span class="steps__label">Identidad</span></li>
+        <li class="steps__item" data-step="2"><span class="steps__dot">✓</span><span class="steps__label">Enviar</span></li>
+      </ol>
+
+      <form id="wizardForm" class="wizard__form" novalidate>
+
+        <!-- ============ PASO 0 · DATOS PERSONALES + CONTACTO ============ -->
+        <section class="step is-active" data-step="0">
+          <h2 class="step__title">Tus datos personales</h2>
+          <p class="step__hint">Completá tus datos básicos. Deben coincidir con los de tu DNI.</p>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="nombre">Nombre *</label>
+              <input id="nombre" name="nombre" type="text" required autocomplete="given-name" />
+            </div>
+            <div class="field">
+              <label for="apellido">Apellido *</label>
+              <input id="apellido" name="apellido" type="text" required autocomplete="family-name" />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="dni">DNI *</label>
+              <input id="dni" name="dni" type="text" required inputmode="numeric" placeholder="Sin puntos, ej: 28345678" />
+            </div>
+            <div class="field">
+              <label for="fecha_nacimiento">Fecha de nacimiento *</label>
+              <input id="fecha_nacimiento" name="fecha_nacimiento" type="date" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="email">Email *</label>
+            <input id="email" name="email" type="email" required autocomplete="email" />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="telefono">Teléfono / WhatsApp *</label>
+              <input id="telefono" name="telefono" type="tel" required autocomplete="tel" placeholder="+54 9 11 ..." />
+            </div>
+            <div class="field">
+              <label for="password">Contraseña *</label>
+              <input id="password" name="password" type="password" required minlength="8" autocomplete="new-password" />
+              <p class="field__hint">Mínimo 8 caracteres.</p>
+            </div>
+          </div>
+
+          <h3 class="step__subtitle">¿Dónde vivís?</h3>
+          <div class="field-row">
+            <div class="field">
+              <label for="provincia">Provincia *</label>
+              <select id="provincia" name="provincia" required>
+                <option value="">Seleccionar…</option>
+                <option value="caba">CABA</option>
+                <option value="bsas">Buenos Aires</option>
+                <option value="cordoba">Córdoba</option>
+                <option value="santafe">Santa Fe</option>
+                <option value="mendoza">Mendoza</option>
+                <option value="tucuman">Tucumán</option>
+                <option value="otra">Otra</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="localidad">Localidad *</label>
+              <input id="localidad" name="localidad" type="text" required placeholder="Ej: Palermo, San Isidro" />
+            </div>
+          </div>
+
+          <h3 class="step__subtitle">¿Qué tipo de cuidado ofrecés?</h3>
+          <p class="step__hint">Seleccioná al menos una opción. Después vas a poder agregar más detalles.</p>
+          <div class="choice-grid" data-name="especialidades">
+            <label class="choice">
+              <input type="checkbox" name="especialidades" value="ninera" />
+              <span class="choice__icon" aria-hidden="true">👶</span>
+              <span class="choice__title">Niñera</span>
+              <span class="choice__sub">Cuidado de niños y niñas</span>
+            </label>
+            <label class="choice">
+              <input type="checkbox" name="especialidades" value="adulto_mayor" />
+              <span class="choice__icon" aria-hidden="true">🧓</span>
+              <span class="choice__title">Adulto mayor</span>
+              <span class="choice__sub">Acompañamiento lúdico y recreativo</span>
+            </label>
+            <label class="choice">
+              <input type="checkbox" name="especialidades" value="domestica" />
+              <span class="choice__icon" aria-hidden="true">🏠</span>
+              <span class="choice__title">Empleada doméstica</span>
+              <span class="choice__sub">Tareas del hogar</span>
+            </label>
+            <label class="choice">
+              <input type="checkbox" name="especialidades" value="cocinera" />
+              <span class="choice__icon" aria-hidden="true">🍳</span>
+              <span class="choice__title">Cocinera</span>
+              <span class="choice__sub">Cocina y preparación de comidas</span>
+            </label>
+          </div>
+        </section>
+
+        <!-- ============ PASO 1 · VERIFICACIÓN DE IDENTIDAD ============ -->
+        <section class="step" data-step="1">
+          <h2 class="step__title">Verificación de identidad</h2>
+          <p class="step__hint">Necesitamos validar que sos quien decís ser. Subí una foto del frente de tu DNI y sacate una selfie sosteniéndolo.</p>
+
+          <div class="verify-grid">
+            <!-- DNI frente -->
+            <div class="verify-card" id="dniCardCuid">
+              <div class="verify-card__icon">🪪</div>
+              <h4 class="verify-card__title">Foto del DNI (frente)</h4>
+              <p class="verify-card__desc">Sacá una foto al frente de tu DNI donde se vean bien tus datos y tu foto.</p>
+              <div class="verify-card__preview" id="dniPreviewCuid">
+                <img id="dniImgCuid" src="" alt="DNI cargado" />
+              </div>
+              <label class="btn btn--ghost btn--sm verify-card__btn" id="dniLabelCuid">
+                <input type="file" id="dniInputCuid" accept="image/*" capture="environment" hidden />
+                Subir foto del DNI
+              </label>
+              <p class="verify-card__status" id="dniStatusCuid"></p>
+            </div>
+
+            <!-- Selfie -->
+            <div class="verify-card" id="selfieCardCuid">
+              <div class="verify-card__icon">🤳</div>
+              <h4 class="verify-card__title">Selfie sosteniendo el DNI</h4>
+              <p class="verify-card__desc">Abrí la cámara y sacate una foto sosteniendo el DNI cerca de tu cara.</p>
+              <div class="verify-card__preview" id="selfiePreviewCuid">
+                <img id="selfieImgCuid" src="" alt="Selfie capturada" />
+              </div>
+              <div class="verify-card__camera" id="cameraContainerCuid">
+                <video id="cameraVideoCuid" autoplay playsinline muted></video>
+                <canvas id="cameraCanvasCuid" hidden></canvas>
+              </div>
+              <button type="button" class="btn btn--ghost btn--sm verify-card__btn" id="btnStartCameraCuid">Abrir cámara</button>
+              <button type="button" class="btn btn--primary btn--sm verify-card__btn" id="btnCaptureCuid" hidden>Sacar foto</button>
+              <button type="button" class="btn btn--ghost btn--sm verify-card__btn" id="btnRetakeCuid" hidden>Sacar otra vez</button>
+              <p class="verify-card__status" id="selfieStatusCuid"></p>
+            </div>
+          </div>
+
+          <div class="verify-notice">
+            <strong>🔒 Tu privacidad es importante</strong>
+            Estas fotos solo las ve nuestro equipo de verificación. No se comparten con familias ni se publican en tu perfil.
+          </div>
+
+          <div class="consent-card" style="margin-top: 20px">
+            <h3 class="consent-card__title">📋 ¿Qué pasa después?</h3>
+            <ol class="consent-list consent-list--ordered">
+              <li>Nuestro equipo revisa tu identidad (24 a 48 hs)</li>
+              <li>Si todo está bien, te pedimos que completes tu perfil profesional</li>
+              <li>Coordinamos una entrevista virtual</li>
+              <li>Tu perfil se publica y empezás a recibir contactos de familias</li>
+            </ol>
+          </div>
+
+          <div class="field field--check" style="margin-top: 16px">
+            <label class="check">
+              <input type="checkbox" id="consent_privacidad" required />
+              <span>Acepto la <a href="#" class="link">política de privacidad</a> y doy mi consentimiento para la verificación de identidad.</span>
+            </label>
+          </div>
+          <div class="field field--check">
+            <label class="check">
+              <input type="checkbox" id="consent_datos_veraces" required />
+              <span>Declaro que la información que estoy enviando es <strong>verdadera y vigente</strong>.</span>
+            </label>
+          </div>
+        </section>
+
+        <!-- ============ PASO 2 · CONFIRMACIÓN ============ -->
+        <section class="step" data-step="2">
+          <h2 class="step__title">Revisá tus datos antes de enviar</h2>
+          <p class="step__hint">Verificá que todo esté bien. Después de enviar, nuestro equipo revisa tu identidad.</p>
+
+          <div id="resumenRegistro" class="resumen"></div>
+
+          <div class="consent-card consent-card--soft" style="margin-top: 20px">
+            <h3 class="consent-card__title">⏱️ ¿Cuánto tarda?</h3>
+            <p>La verificación de identidad suele tomar entre <strong>24 y 48 horas</strong>. Te avisamos por email cuando esté lista para que completes tu perfil profesional.</p>
+          </div>
+        </section>
+
+        <!-- Acciones de navegación -->
+        <div class="wizard__actions">
+          <button type="button" class="btn btn--ghost" id="btnPrev">← Atrás</button>
+          <div class="wizard__actions-right">
+            <button type="button" class="btn btn--primary" id="btnNext">Siguiente →</button>
+            <button type="submit" class="btn btn--primary" id="btnSubmit" hidden>Enviar registro</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__row">
+      <span>© <span id="year"></span> Cuidy</span>
+      <em class="footer__tagline">"Somos el punto de encuentro entre vos y quien te cuida"</em>
+    </div>
+  </footer>
+
+  <script src="registro-cuidador.js"></script>
+</body>
+</html>

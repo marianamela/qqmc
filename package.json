@@ -13,7 +13,9 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.103.0",
     "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "mercadopago": "^2.0.15",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "dotenv": "^17.4.2"

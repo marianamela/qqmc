@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <title>Agenda · Admin Cuidy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="page-admin">
+  <header class="admin-topbar">
+    <div class="container admin-topbar__row">
+      <a href="index.html" class="admin-brand">
+        <img src="../assets/logo.svg" alt="Cuidy" />
+        <span class="admin-brand__label">Panel interno</span>
+      </a>
+      <div class="admin-topbar__user">
+        <span id="adminUser">—</span>
+        <button id="btnLogout" class="btn btn--ghost">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container admin-main">
+    <header class="admin-main__head">
+      <h1>Agenda de entrevistas</h1>
+      <p class="admin-main__sub">Vista semanal con tus entrevistas virtuales programadas.</p>
+      <nav class="admin-subnav">
+        <a href="index.html">Candidaturas</a>
+        <a href="agenda.html" class="is-active">📅 Agenda</a>
+        <a href="horarios.html">⚙️ Mis horarios</a>
+      </nav>
+    </header>
+
+    <div class="agenda-week">
+      <div class="agenda-week__head">
+        <button class="btn btn--ghost" id="btnPrev">‹ Semana anterior</button>
+        <strong id="rangoSemana">—</strong>
+        <button class="btn btn--ghost" id="btnNext">Semana siguiente ›</button>
+      </div>
+      <div class="agenda-week__grid" id="gridSemana"></div>
+    </div>
+  </main>
+
+  <script src="admin.js"></script>
+  <script>
+    (async () => {
+      if (!await ensureSession()) return;
+      document.getElementById('adminUser').textContent = session.user;
+      document.getElementById('btnLogout').addEventListener('click', logout);
+
+      const grid = document.getElementById('gridSemana');
+      const rangoSpan = document.getElementById('rangoSemana');
+      let inicioSemana = getLunes(new Date());
+
+      function getLunes(d) {
+        const x = new Date(d);
+        const dia = (x.getDay() + 6) % 7; // 0 = Lunes
+        x.setDate(x.getDate() - dia);
+        x.setHours(0, 0, 0, 0);
+        return x;
+      }
+      function fmtCorta(d) {
+        return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+      }
+
+      async function cargar() {
+        const fin = new Date(inicioSemana);
+        fin.setDate(fin.getDate() + 7);
+        rangoSpan.textContent = `${fmtCorta(inicioSemana)} — ${fmtCorta(new Date(fin.getTime() - 864e5))}`;
+
+        grid.innerHTML = '<p class="admin-empty" style="grid-column: 1 / -1">Cargando…</p>';
+        const r = await adminFetch(`/admin/entrevistas?from=${inicioSemana.toISOString()}&to=${fin.toISOString()}`);
+        if (!r.ok) {
+          grid.innerHTML = `<p class="admin-empty" style="grid-column: 1 / -1">${r.error}</p>`;
+          return;
+        }
+
+        // Agrupar por día (YYYY-MM-DD)
+        const porDia = {};
+        (r.data || []).forEach(e => {
+          const f = new Date(e.fecha);
+          const key = `${f.getFullYear()}-${String(f.getMonth()+1).padStart(2,'0')}-${String(f.getDate()).padStart(2,'0')}`;
+          (porDia[key] = porDia[key] || []).push(e);
+        });
+
+        const DIAS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+        const celdas = [];
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(inicioSemana);
+          d.setDate(d.getDate() + i);
+          const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+          const evs = (porDia[key] || []).sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+          celdas.push(`
+            <div class="agenda-day">
+              <div class="agenda-day__head">
+                ${DIAS[i]}
+                <strong>${d.getDate()}</strong>
+              </div>
+              ${evs.length ? evs.map(e => `
+                <a class="agenda-entrevista" href="candidatura.html?id=${e.cuidador_id}">
+                  <strong>${fmtHora(e.fecha)}</strong>
+                  ${escapeHtml(e.cuidador_nombre)}
+                  ${e.link ? `<small>🎥 con link</small>` : ''}
+                </a>
+              `).join('') : '<p style="font-size:12px; color:var(--muted); margin:0">Sin entrevistas</p>'}
+            </div>
+          `);
+        }
+        grid.innerHTML = celdas.join('');
+      }
+
+      document.getElementById('btnPrev').addEventListener('click', () => {
+        inicioSemana.setDate(inicioSemana.getDate() - 7);
+        cargar();
+      });
+      document.getElementById('btnNext').addEventListener('click', () => {
+        inicioSemana.setDate(inicioSemana.getDate() + 7);
+        cargar();
+      });
+      cargar();
+    })();
+  </script>
+</body>
+</html>

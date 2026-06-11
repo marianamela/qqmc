@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <title>Mi Diario · Cuidy</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <meta name="theme-color" content="#006D77" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="diario.css" />
+  <script src="js/analytics.js"></script>
+</head>
+<body class="diario-app">
+
+  <!-- Header fijo -->
+  <header class="diario-header">
+    <div class="diario-header__top">
+      <img src="assets/logo.svg" alt="Cuidy" class="diario-header__logo" />
+      <div class="diario-header__info">
+        <span class="diario-header__greeting" id="greeting">Hola</span>
+        <span class="diario-header__person" id="personaCuidada"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Check-in / Check-out bar -->
+  <div class="diario-checkin" id="checkinBar">
+    <button class="diario-checkin__btn diario-checkin__btn--in" id="btnCheckin">
+      <span class="diario-checkin__icon">📍</span>
+      <span>Llegué</span>
+    </button>
+    <div class="diario-checkin__status hidden" id="checkinStatus">
+      <span class="diario-checkin__time" id="checkinTime"></span>
+      <button class="diario-checkin__btn diario-checkin__btn--out" id="btnCheckout">
+        <span>Me voy</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mensajes de la familia -->
+  <div class="diario-mensajes hidden" id="mensajesSection">
+    <h3 class="diario-section__title">Mensajes de la familia</h3>
+    <div id="mensajesList"></div>
+  </div>
+
+  <!-- Solicitudes de contacto de familias -->
+  <div class="diario-solicitudes hidden" id="solicitudesSection">
+    <h3 class="diario-section__title">Solicitudes de contacto</h3>
+    <div id="solicitudesList"></div>
+  </div>
+
+  <!-- Recordatorios del día -->
+  <div class="diario-recordatorios hidden" id="recordatorios">
+    <h3 class="diario-section__title">Recordatorios</h3>
+    <div id="recordatoriosList"></div>
+  </div>
+
+  <!-- Botones rápidos de categorías -->
+  <div class="diario-categorias" id="categorias">
+    <h3 class="diario-section__title">¿Qué estás haciendo?</h3>
+    <div class="diario-categorias__grid" id="categoriasGrid"></div>
+  </div>
+
+  <!-- Panel de carga (se abre al tocar una categoría) -->
+  <div class="diario-panel hidden" id="panel">
+    <div class="diario-panel__header">
+      <button class="diario-panel__back" id="panelBack" aria-label="Volver">←</button>
+      <span class="diario-panel__title" id="panelTitle"></span>
+    </div>
+    <div class="diario-panel__body" id="panelBody"></div>
+    <div class="diario-panel__actions">
+      <button class="diario-panel__photo" id="btnPhoto" aria-label="Agregar foto">📷 Foto</button>
+      <textarea class="diario-panel__note" id="panelNote" placeholder="Nota opcional…" rows="2"></textarea>
+      <button class="diario-panel__send btn btn--primary" id="btnSend">Guardar</button>
+    </div>
+  </div>
+
+  <!-- Botón flotante: nota libre / foto rápida -->
+  <div class="diario-fab" id="fab">
+    <button class="diario-fab__btn" id="btnNotaLibre" title="Nota o foto rápida">
+      <span>✏️</span>
+    </button>
+  </div>
+
+  <!-- Banner de invitación para cuidadores -->
+  <div class="invita-banner invita-banner--cuidador" id="invitaBanner">
+    <div class="invita-banner__content">
+      <span class="invita-banner__icon">🌟</span>
+      <div class="invita-banner__text">
+        <strong>Sumá más familias</strong>
+        <p>Pedí a tus empleadores que te recomienden en Cuidy</p>
+      </div>
+    </div>
+    <div class="invita-banner__actions">
+      <button class="invita-banner__btn invita-banner__btn--wa" id="btnInvitaWA">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.612.616l4.575-1.462A11.956 11.956 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.234 0-4.308-.726-5.992-1.958l-.418-.31-2.713.867.882-2.636-.34-.443A9.957 9.957 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+        Enviar por WhatsApp
+      </button>
+      <button class="invita-banner__btn invita-banner__btn--link" id="btnInvitaLink">
+        Copiar link
+      </button>
+    </div>
+  </div>
+
+  <!-- Timeline del día (lo que ya registré) -->
+  <div class="diario-timeline" id="timeline">
+    <h3 class="diario-section__title">Hoy</h3>
+    <div class="diario-timeline__list" id="timelineList">
+      <p class="diario-timeline__empty">Todavía no hay registros hoy. ¡Empezá con el check-in!</p>
+    </div>
+  </div>
+
+  <!-- Toast de confirmación -->
+  <div class="diario-toast hidden" id="toast"></div>
+
+  <script src="js/invita.js"></script>
+  <script src="diario-cuidador.js"></script>
+</body>
+</html>

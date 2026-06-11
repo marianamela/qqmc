@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <title>Registro enviado · Cuidy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="page-wizard">
+  <header class="topbar">
+    <div class="container topbar__row">
+      <a class="brand" href="/" aria-label="Cuidy">
+        <img class="brand__logo" src="assets/logo.svg" alt="Cuidy" />
+      </a>
+      <nav class="topbar__nav">
+        <a href="/">Volver al inicio</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="enviado">
+      <div class="enviado__emoji">📨</div>
+      <h1 class="enviado__title">¡Recibimos tu registro!</h1>
+      <p class="enviado__text">
+        Gracias por querer sumarte a <strong>Cuidy</strong>.
+        <br/>Ahora nuestro equipo va a verificar tu identidad. Te avisamos por email a
+        <strong id="emailReg">—</strong> en las próximas <strong>24 a 48 horas</strong>.
+      </p>
+
+      <ol class="timeline">
+        <li class="done">
+          <p class="timeline__title">Registro enviado ✓</p>
+          <p class="timeline__desc">Tus datos personales y verificación de identidad están registrados.</p>
+        </li>
+        <li class="current">
+          <p class="timeline__title">Verificación de identidad</p>
+          <p class="timeline__desc">Nuestro equipo revisa tu DNI y selfie. Suele tomar 24-48 hs.</p>
+        </li>
+        <li>
+          <p class="timeline__title">Completar perfil profesional</p>
+          <p class="timeline__desc">Te enviamos un email para que cargues tu experiencia, disponibilidad y referencias.</p>
+        </li>
+        <li>
+          <p class="timeline__title">Entrevista virtual</p>
+          <p class="timeline__desc">Coordinamos una videollamada de 20-30 minutos.</p>
+        </li>
+        <li>
+          <p class="timeline__title">¡Tu perfil se publica!</p>
+          <p class="timeline__desc">Las familias de tu zona van a poder ver tu perfil y contactarte.</p>
+        </li>
+      </ol>
+
+      <div class="consent-card consent-card--soft" style="text-align:left; margin-top: 28px">
+        <h3 class="consent-card__title">💡 Mientras tanto</h3>
+        <p>Revisá tu casilla de email (incluyendo spam). Te vamos a avisar cuando tu identidad esté verificada para que completes tu perfil profesional.</p>
+      </div>
+
+      <div class="consent-card" style="text-align:center; margin-top: 28px; background: linear-gradient(135deg, #ffe5e5 0%, #fff 100%); border-color: rgba(255,107,107,.2);">
+        <h3 class="consent-card__title">🌟 ¿Conocés familias que buscan cuidadores?</h3>
+        <p style="margin-bottom:14px">Invitalas a Cuidy. Mientras más familias se registren, más oportunidades vas a tener.</p>
+        <button id="btnShareWA" style="display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;border:none;padding:10px 20px;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.612.616l4.575-1.462A11.956 11.956 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.234 0-4.308-.726-5.992-1.958l-.418-.31-2.713.867.882-2.636-.34-.443A9.957 9.957 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+          Compartir por WhatsApp
+        </button>
+      </div>
+
+      <div style="margin-top: 20px">
+        <a href="/" class="btn btn--primary btn--lg">Ir al inicio</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__row">
+      <span>© <span id="year"></span> Cuidy</span>
+      <em class="footer__tagline">"Somos el punto de encuentro entre vos y quien te cuida"</em>
+    </div>
+  </footer>
+
+  <script src="js/analytics.js"></script>
+  <script>
+    (() => {
+      document.getElementById('year').textContent = new Date().getFullYear();
+      try {
+        const reg = JSON.parse(localStorage.getItem('qqmc_cuidador_enviado') || '{}');
+        if (reg.email) document.getElementById('emailReg').textContent = reg.email;
+      } catch {}
+
+      const btnShare = document.getElementById('btnShareWA');
+      if (btnShare) {
+        btnShare.addEventListener('click', () => {
+          const baseUrl = window.location.origin;
+          const msg = `¡Hola! Te cuento que me registré en *Cuidy* 💙\n\nEs una plataforma para encontrar cuidadores verificados cerca tuyo: niñeras, acompañantes de adultos mayores, cocineras y más.\n\nSi necesitás o conocés a alguien que necesite, mirá acá: ${baseUrl}/invita-familia.html?utm_source=whatsapp&utm_campaign=cuidador_post_registro`;
+          window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+          if (window.CuidyAnalytics) {
+            CuidyAnalytics.referralShared('cuidador', 'whatsapp', 'familia');
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <title>Admin · Candidaturas · Cuidy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="page-admin">
+  <header class="admin-topbar">
+    <div class="container admin-topbar__row">
+      <a href="index.html" class="admin-brand">
+        <img src="../assets/logo.svg" alt="Cuidy" />
+        <span class="admin-brand__label">Panel interno</span>
+      </a>
+      <div class="admin-topbar__user">
+        <span id="adminUser">—</span>
+        <button id="btnLogout" class="btn btn--ghost">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container admin-main">
+    <header class="admin-main__head">
+      <h1>Candidaturas de cuidadores</h1>
+      <p class="admin-main__sub">Revisá, contactá y gestioná los perfiles que esperan aprobación.</p>
+      <nav class="admin-subnav">
+        <a href="index.html" class="is-active">Candidaturas</a>
+        <a href="agenda.html">📅 Agenda</a>
+        <a href="horarios.html">⚙️ Mis horarios</a>
+      </nav>
+    </header>
+
+    <!-- Contadores por estado -->
+    <div class="estado-tabs" id="estadoTabs"></div>
+
+    <div class="admin-filters admin-filters--grid">
+      <div class="field field--compact">
+        <label>Buscar</label>
+        <input id="busqueda" type="search" placeholder="Nombre, DNI o email…" />
+      </div>
+      <div class="field field--compact">
+        <label>Especialidad</label>
+        <select id="filtroEspecialidad">
+          <option value="">Todas</option>
+          <option value="ninera">Niñera</option>
+          <option value="adulto_mayor">Adulto mayor</option>
+          <option value="domestica">Empl. doméstica</option>
+          <option value="cocinera">Cocinera</option>
+        </select>
+      </div>
+      <div class="field field--compact">
+        <label>Zona</label>
+        <input id="filtroZona" type="search" placeholder="Ej: Palermo, CABA" />
+      </div>
+      <div class="field field--compact">
+        <label>Calificación mínima</label>
+        <select id="filtroCalificacion">
+          <option value="">Cualquiera</option>
+          <option value="5">★ 5</option>
+          <option value="4">★ 4 o más</option>
+          <option value="3">★ 3 o más</option>
+          <option value="2">★ 2 o más</option>
+          <option value="1">★ 1 o más</option>
+        </select>
+      </div>
+      <div class="field field--compact field--actions">
+        <button class="btn btn--ghost" id="btnRefresh">↻ Actualizar</button>
+        <button class="btn btn--ghost" id="btnLimpiar" type="button">Limpiar</button>
+      </div>
+    </div>
+
+    <div class="admin-table" id="tabla"></div>
+  </main>
+
+  <script src="admin.js"></script>
+  <script>
+    (async () => {
+      if (!await ensureSession()) return; // redirige a login si no hay sesión
+      document.getElementById('adminUser').textContent = session.user;
+      document.getElementById('btnLogout').addEventListener('click', logout);
+
+      const tabla = document.getElementById('tabla');
+      const tabs = document.getElementById('estadoTabs');
+      const busq = document.getElementById('busqueda');
+      const selEsp = document.getElementById('filtroEspecialidad');
+      const inpZona = document.getElementById('filtroZona');
+      const selCal = document.getElementById('filtroCalificacion');
+      let filtroEstado = null;
+      let debounce;
+
+      async function cargar() {
+        tabla.innerHTML = '<p class="admin-empty">Cargando…</p>';
+        const qs = new URLSearchParams();
+        if (filtroEstado) qs.set('estado', filtroEstado);
+        if (busq.value.trim()) qs.set('q', busq.value.trim());
+        if (selEsp.value) qs.set('especialidad', selEsp.value);
+        if (inpZona.value.trim()) qs.set('zona', inpZona.value.trim());
+        if (selCal.value) qs.set('min_valoracion', selCal.value);
+        const r = await adminFetch('/admin/candidaturas?' + qs.toString());
+        if (!r.ok) { tabla.innerHTML = `<p class="admin-empty">${r.error}</p>`; return; }
+
+        // Render de contadores
+        const ESTADOS = ['enviado','identidad_aprobada','perfil_completo','en_revision','correcciones_pedidas','entrevista_agendada','aprobado','rechazado','suspendido'];
+        tabs.innerHTML = `
+          <button class="estado-tab ${!filtroEstado ? 'is-active' : ''}" data-estado="">
+            Todas <span>${Object.values(r.counts||{}).reduce((a,b)=>a+b,0)}</span>
+          </button>
+          ${ESTADOS.map(e => `
+            <button class="estado-tab ${filtroEstado === e ? 'is-active' : ''}" data-estado="${e}">
+              ${labelEstado(e)} <span>${r.counts?.[e] || 0}</span>
+            </button>
+          `).join('')}
+        `;
+        tabs.querySelectorAll('.estado-tab').forEach(btn => {
+          btn.addEventListener('click', () => {
+            filtroEstado = btn.dataset.estado || null;
+            cargar();
+          });
+        });
+
+        // Render de tabla
+        if (!r.data?.length) {
+          tabla.innerHTML = '<p class="admin-empty">No hay candidaturas para estos filtros.</p>';
+          return;
+        }
+        tabla.innerHTML = `
+          <div class="admin-table__head admin-table__head--v2">
+            <span>Candidata</span><span>Especialidad</span><span>Zona</span>
+            <span>Valoración</span><span>Estado</span><span>Antec.</span><span>Recibida</span>
+          </div>
+          ${r.data.map(c => `
+            <a class="admin-table__row admin-table__row--v2" href="candidatura.html?id=${c.id}">
+              <span>
+                <strong>${escapeHtml(c.nombre)} ${escapeHtml(c.apellido)}</strong>
+                <small>${escapeHtml(c.email)} · DNI ${escapeHtml(c.dni)}</small>
+              </span>
+              <span>${(c.especialidades||[]).map(e => `<span class="tag">${labelEsp(e)}</span>`).join(' ')}</span>
+              <span>${escapeHtml(c.localidad || '')}${c.provincia ? ', '+c.provincia.toUpperCase():''}</span>
+              <span>${fmtValoracion(c.valoracion, c.resenas)}</span>
+              <span class="badge-estado badge-estado--${c.estado}">${labelEstado(c.estado)}</span>
+              <span>${fmtVence(c.antecedentes_vence)}</span>
+              <span>${fmtFecha(c.created_at)}</span>
+            </a>
+          `).join('')}
+        `;
+      }
+
+      busq.addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(cargar, 300); });
+      inpZona.addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(cargar, 300); });
+      selEsp.addEventListener('change', cargar);
+      selCal.addEventListener('change', cargar);
+      document.getElementById('btnRefresh').addEventListener('click', cargar);
+      document.getElementById('btnLimpiar').addEventListener('click', () => {
+        busq.value = ''; inpZona.value = ''; selEsp.value = ''; selCal.value = '';
+        filtroEstado = null;
+        cargar();
+      });
+      cargar();
+    })();
+  </script>
+</body>
+</html>

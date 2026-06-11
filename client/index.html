@@ -3,63 +3,139 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Quiero que me Cuides · Cuidadores de confianza</title>
-  <meta name="description" content="Niñeras, cuidadores de adultos mayores y empleadas domésticas verificadas, con todas las garantías de seguridad y profesionalidad." />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <title>Cuidy · Cuidadores de confianza</title>
+  <meta name="description" content="Somos el punto de encuentro entre vos y quien te cuida. Niñeras, cuidadores de adultos mayores y empleadas domésticas verificadas." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <meta name="theme-color" content="#006D77" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Cuidy" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="auth.css" />
+  <script src="js/analytics.js"></script>
 </head>
 <body>
   <header class="topbar">
     <div class="container topbar__row">
-      <a class="brand" href="/" aria-label="Quiero que me Cuides">
-        <img class="brand__logo" src="assets/logo.png" alt="Quiero que me Cuides" />
+      <a class="brand" href="/" aria-label="Cuidy">
+        <img class="brand__logo" src="assets/logo.svg" alt="Cuidy" />
       </a>
       <nav class="topbar__nav">
         <a href="#como-funciona">Cómo funciona</a>
-        <a href="#para-cuidadores">Soy cuidador/a</a>
-        <a href="#" class="btn btn--ghost">Ingresar</a>
-        <a href="#" class="btn btn--primary">Registrarme</a>
+        <a href="registro-cuidador.html">Soy cuidador/a</a>
+        <a href="login.html" class="btn btn--ghost">Ingresar</a>
+        <a href="registro-familia.html" class="btn btn--primary">Registrarme</a>
       </nav>
     </div>
   </header>
 
-  <section class="hero">
-    <div class="container">
-      <p class="hero__kicker">Las personas, lo primero</p>
-      <h1 class="hero__title">Cuidadores de confianza,<br/>cerca tuyo.</h1>
-      <p class="hero__subtitle">
-        Niñeras, cuidado de adultos mayores y empleadas domésticas con todas
-        las garantías de <strong>seguridad y profesionalidad</strong>.
-      </p>
+  <section class="hero-unified">
+    <div class="hero-unified__bg"></div>
+    <div class="container hero-unified__inner">
+      <h1 class="hero-unified__title">Encuentra personas de confianza cerca tuyo</h1>
+      <p class="hero-unified__sub">Te acompañamos paso a paso hasta dar con la persona indicada para tu hogar.</p>
 
-      <form id="searchForm" class="search">
-        <div class="search__field">
-          <label for="tipo">Tipo de cuidado</label>
-          <select id="tipo" name="tipo">
-            <option value="todos">Todos</option>
-            <option value="ninera">Niñera</option>
-            <option value="adulto_mayor">Adulto mayor</option>
-            <option value="domestica">Empleada doméstica</option>
-          </select>
+      <div class="caro-intro">
+        <img class="caro-avatar caro-avatar--lg" src="assets/caro-avatar.png" alt="Caro" />
+        <div class="caro-intro__text">
+          <strong>Caro</strong> · Asistente Cuidy
         </div>
-        <div class="search__field search__field--grow">
-          <label for="zona">Zona</label>
-          <input id="zona" name="zona" type="text" placeholder="Ej: Palermo, Belgrano, San Isidro…" />
+      </div>
+
+      <div class="chat" id="chat">
+        <div class="chat__messages" id="chatMessages"></div>
+        <div class="chat__input-area">
+          <div class="chat__options" id="chatOptions"></div>
+          <form class="chat__form" id="chatForm">
+            <input class="chat__input" id="chatInput" type="text" placeholder="Escribí tu respuesta…" autocomplete="off" />
+            <button class="chat__send btn btn--primary" type="submit" aria-label="Enviar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </form>
         </div>
-        <button type="submit" class="btn btn--primary btn--lg">Buscar</button>
-      </form>
+      </div>
     </div>
   </section>
 
-  <main class="container results">
-    <aside class="results__list" id="resultsList">
-      <p class="results__hint">Buscá para ver cuidadores en el mapa.</p>
-    </aside>
-    <div id="map" class="results__map"></div>
+  <main class="container assistant-layout">
+    <div class="assistant-results hidden" id="assistantResults">
+      <div class="results__list" id="resultsList"></div>
+      <div id="map" class="results__map"></div>
+    </div>
   </main>
+
+  <!-- Cómo funciona -->
+  <section class="landing-section" id="como-funciona">
+    <div class="container">
+      <h2 class="landing-section__title">¿Cómo funciona Cuidy?</h2>
+      <p class="landing-section__sub">Encontrar a la persona indicada es simple, seguro y 100% online.</p>
+      <div class="steps-grid">
+        <div class="step-card">
+          <span class="step-card__number">1</span>
+          <h3 class="step-card__title">Contanos qué necesitás</h3>
+          <p class="step-card__desc">Hablá con Caro, nuestra asistente virtual. Ella te guía para entender exactamente qué tipo de cuidado buscás.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-card__number">2</span>
+          <h3 class="step-card__title">Te mostramos perfiles verificados</h3>
+          <p class="step-card__desc">Recibís opciones de cuidadores que se ajustan a lo que necesitás, todos con documentación validada y entrevista personal.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-card__number">3</span>
+          <h3 class="step-card__title">Elegí y conectá</h3>
+          <p class="step-card__desc">Revisá perfiles, leé valoraciones y contactá directamente a quien más te genere confianza. Nosotros te acompañamos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diferencial -->
+  <section class="landing-section landing-section--alt" id="diferencial">
+    <div class="container">
+      <h2 class="landing-section__title">¿Por qué elegir Cuidy?</h2>
+      <p class="landing-section__sub">No somos un simple directorio. Cada persona que encontrás en Cuidy pasó por un proceso de verificación real.</p>
+      <div class="diff-grid">
+        <div class="diff-card">
+          <div class="diff-card__icon">🛡️</div>
+          <h3 class="diff-card__title">Verificación personal</h3>
+          <p class="diff-card__desc">Aunque somos 100% online, cada cuidador tiene una entrevista personal con nuestro equipo antes de aparecer en la plataforma.</p>
+        </div>
+        <div class="diff-card">
+          <div class="diff-card__icon">📋</div>
+          <h3 class="diff-card__title">Documentación respaldatoria</h3>
+          <p class="diff-card__desc">Solicitamos DNI, antecedentes penales, certificados de formación y referencias laborales. Todo se valida antes de aprobar un perfil.</p>
+        </div>
+        <div class="diff-card">
+          <div class="diff-card__icon">👨‍👩‍👧</div>
+          <h3 class="diff-card__title">Seguridad para tu familia</h3>
+          <p class="diff-card__desc">Sabemos que dejás lo más importante en manos de alguien. Por eso nos tomamos el proceso de selección tan en serio como vos.</p>
+        </div>
+        <div class="diff-card">
+          <div class="diff-card__icon">⭐</div>
+          <h3 class="diff-card__title">Valoraciones reales</h3>
+          <p class="diff-card__desc">Las familias califican a los cuidadores después de cada experiencia. Así podés tomar decisiones informadas con opiniones genuinas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Cuidadores -->
+  <section class="landing-section landing-section--cuidador">
+    <div class="container cuidador-cta">
+      <div class="cuidador-cta__text">
+        <h2 class="landing-section__title">¿Sos cuidador/a?</h2>
+        <p class="cuidador-cta__desc">Sumate a la red de profesionales verificados de Cuidy. Creá tu perfil, mostrá tu experiencia y conectá con familias que buscan a alguien como vos.</p>
+        <a href="registro-cuidador.html" class="btn btn--primary btn--lg">Registrarme como cuidador/a</a>
+      </div>
+    </div>
+  </section>
 
   <!-- Modal ficha del cuidador -->
   <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
@@ -70,14 +146,79 @@
     </div>
   </div>
 
+  <!-- Modal de Planes / Paywall -->
+  <div id="modalPlanes" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal__backdrop" data-close-planes></div>
+    <div class="modal__content modal__content--planes">
+      <button class="modal__close" aria-label="Cerrar" data-close-planes>&times;</button>
+      <div id="planesBody">
+        <h2 class="planes__title">Elegí tu plan</h2>
+        <p class="planes__sub">Accedé a los datos de contacto de los cuidadores verificados</p>
+        <div id="planesGrid" class="planes-grid"></div>
+        <div id="planesRegistro" class="planes-registro hidden">
+          <h3>Completá tus datos para continuar</h3>
+          <input type="text" id="regNombre" placeholder="Nombre" class="planes-input" />
+          <input type="text" id="regApellido" placeholder="Apellido" class="planes-input" />
+          <input type="email" id="regEmail" placeholder="Email" class="planes-input" />
+          <input type="tel" id="regTelefono" placeholder="Teléfono (opcional)" class="planes-input" />
+          <button id="btnConfirmarPlan" class="btn btn--primary btn--full">Ir a pagar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banner de instalación PWA -->
+  <div id="installBanner" class="install-banner hidden">
+    <div class="install-banner__content">
+      <img src="assets/icon-192.png" alt="" class="install-banner__icon" />
+      <div class="install-banner__text">
+        <strong>Instalá Cuidy</strong>
+        <span>Accedé más rápido desde tu celular</span>
+      </div>
+      <button class="btn btn--primary install-banner__btn" onclick="installApp()">Instalar</button>
+      <button class="install-banner__close" onclick="this.parentElement.parentElement.classList.add('hidden')" aria-label="Cerrar">&times;</button>
+    </div>
+  </div>
+
   <footer class="footer">
     <div class="container footer__row">
-      <span>© <span id="year"></span> Quiero que me Cuides</span>
-      <em class="footer__tagline">"Las pequeñas cosas hacen la diferencia"</em>
+      <span>© <span id="year"></span> Cuidy</span>
+      <em class="footer__tagline">"Somos el punto de encuentro entre vos y quien te cuida"</em>
     </div>
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="auth.js"></script>
   <script src="app.js"></script>
+  <script src="chat.js"></script>
+  <script>
+    // Registro del Service Worker + banner de instalación PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(function(reg) {
+        console.log('[PWA] Service Worker registrado:', reg.scope);
+      }).catch(function(err) {
+        console.warn('[PWA] Error registrando SW:', err);
+      });
+    }
+
+    // Capturar evento de instalación para mostrar botón personalizado
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      var banner = document.getElementById('installBanner');
+      if (banner) banner.classList.remove('hidden');
+    });
+    function installApp() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(result) {
+        if (result.outcome === 'accepted') console.log('[PWA] Instalada');
+        deferredPrompt = null;
+        var banner = document.getElementById('installBanner');
+        if (banner) banner.classList.add('hidden');
+      });
+    }
+  </script>
 </body>
 </html>

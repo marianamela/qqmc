@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <title>Horarios · Admin Cuidy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="page-admin">
+  <header class="admin-topbar">
+    <div class="container admin-topbar__row">
+      <a href="index.html" class="admin-brand">
+        <img src="../assets/logo.svg" alt="Cuidy" />
+        <span class="admin-brand__label">Panel interno</span>
+      </a>
+      <div class="admin-topbar__user">
+        <span id="adminUser">—</span>
+        <button id="btnLogout" class="btn btn--ghost">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container admin-main">
+    <header class="admin-main__head">
+      <h1>Mis horarios de entrevista</h1>
+      <p class="admin-main__sub">Configurá qué días aceptás entrevistas virtuales y en qué franja. Podés poner horarios distintos por cada día.</p>
+      <nav class="admin-subnav">
+        <a href="index.html">Candidaturas</a>
+        <a href="agenda.html">📅 Agenda</a>
+        <a href="horarios.html" class="is-active">⚙️ Mis horarios</a>
+      </nav>
+    </header>
+
+    <form id="formHorarios" class="cand-main" style="max-width: 780px">
+      <div class="horarios-head">
+        <h2 class="step__subtitle" style="margin-top:0">Franjas por día</h2>
+        <button type="button" class="btn btn--ghost btn--sm" id="btnCopiar">
+          Copiar el primer día a los demás
+        </button>
+      </div>
+
+      <table class="horarios-tabla">
+        <thead>
+          <tr>
+            <th>Habilitado</th>
+            <th>Día</th>
+            <th>Desde</th>
+            <th>Hasta</th>
+          </tr>
+        </thead>
+        <tbody id="horariosRows"></tbody>
+      </table>
+
+      <h2 class="step__subtitle">Entrevistas</h2>
+      <div class="cand-grid">
+        <div class="field">
+          <label>Duración (min)</label>
+          <select id="duracion">
+            <option value="15">15 min</option>
+            <option value="30">30 min</option>
+            <option value="45">45 min</option>
+            <option value="60">60 min</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Anticipación mínima (h)</label>
+          <input type="number" id="anticipacion" min="0" />
+          <p class="field__hint">No se podrán agendar entrevistas con menos anticipación que esto.</p>
+        </div>
+        <div class="field">
+          <label>Horizonte (días hacia adelante)</label>
+          <input type="number" id="horizonte" min="7" />
+          <p class="field__hint">Hasta cuántos días hacia adelante se pueden reservar slots.</p>
+        </div>
+      </div>
+
+      <div class="wizard__actions" style="margin-top:20px">
+        <a href="index.html" class="btn btn--ghost">Cancelar</a>
+        <button class="btn btn--primary" type="submit">Guardar horarios</button>
+      </div>
+      <p id="msgOk" class="field__hint" style="margin-top:14px; display:none; color: var(--teal-dark); font-weight:600">✓ Horarios guardados.</p>
+    </form>
+  </main>
+
+  <script src="admin.js"></script>
+  <script>
+    (async () => {
+      if (!await ensureSession()) return;
+      document.getElementById('adminUser').textContent = session.user;
+      document.getElementById('btnLogout').addEventListener('click', logout);
+
+      // Orden lunes a domingo para la UI, pero guardamos con JS getDay() (0=Dom...6=Sab)
+      const DIAS = [
+        { n: 1, label: 'Lunes' },
+        { n: 2, label: 'Martes' },
+        { n: 3, label: 'Miércoles' },
+        { n: 4, label: 'Jueves' },
+        { n: 5, label: 'Viernes' },
+        { n: 6, label: 'Sábado' },
+        { n: 0, label: 'Domingo' }
+      ];
+
+      // estado local: { 1: {activo:true, desde:'09:00', hasta:'18:00'}, ... }
+      const state = {};
+      DIAS.forEach(d => {
+        state[d.n] = { activo: false, desde: '09:00', hasta: '18:00' };
+      });
+
+      const tbody = document.getElementById('horariosRows');
+
+      function render() {
+        tbody.innerHTML = DIAS.map(d => {
+          const s = state[d.n];
+          const disabled = s.activo ? '' : 'disabled';
+          return `
+            <tr class="hor-row ${s.activo ? 'hor-row--on' : 'hor-row--off'}">
+              <td>
+                <label class="switch">
+                  <input type="checkbox" data-dia="${d.n}" data-campo="activo" ${s.activo ? 'checked' : ''}/>
+                  <span></span>
+                </label>
+              </td>
+              <td class="hor-row__label">${d.label}</td>
+              <td>
+                <input type="time" step="1800" value="${s.desde}" data-dia="${d.n}" data-campo="desde" ${disabled}/>
+              </td>
+              <td>
+                <input type="time" step="1800" value="${s.hasta}" data-dia="${d.n}" data-campo="hasta" ${disabled}/>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        tbody.querySelectorAll('input').forEach(inp => {
+          inp.addEventListener('change', (e) => {
+            const n = Number(e.target.dataset.dia);
+            const campo = e.target.dataset.campo;
+            if (campo === 'activo') {
+              state[n].activo = e.target.checked;
+              render();
+            } else {
+              state[n][campo] = e.target.value;
+            }
+          });
+        });
+      }
+
+      // Cargar config actual
+      const r = await adminFetch('/admin/schedule');
+      if (r.ok && r.data) {
+        const horarios = r.data.horarios || {};
+        Object.keys(horarios).forEach(k => {
+          const n = Number(k);
+          if (state[n]) {
+            state[n].activo = true;
+            state[n].desde = (horarios[k].desde || '09:00').slice(0, 5);
+            state[n].hasta = (horarios[k].hasta || '18:00').slice(0, 5);
+          }
+        });
+        document.getElementById('duracion').value = r.data.duracion_min || 30;
+        document.getElementById('anticipacion').value = r.data.anticipacion_min_horas ?? 24;
+        document.getElementById('horizonte').value = r.data.horizonte_dias || 30;
+      } else {
+        // Default: L-V 9-18
+        [1,2,3,4,5].forEach(n => { state[n].activo = true; });
+        document.getElementById('duracion').value = 30;
+        document.getElementById('anticipacion').value = 24;
+        document.getElementById('horizonte').value = 30;
+      }
+      render();
+
+      // Botón copiar primer día activo a los demás activos
+      document.getElementById('btnCopiar').addEventListener('click', () => {
+        const primero = DIAS.find(d => state[d.n].activo);
+        if (!primero) { alert('Activá al menos un día primero.'); return; }
+        const base = state[primero.n];
+        DIAS.forEach(d => {
+          if (state[d.n].activo) {
+            state[d.n].desde = base.desde;
+            state[d.n].hasta = base.hasta;
+          }
+        });
+        render();
+      });
+
+      document.getElementById('formHorarios').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        // Validación: al menos un día activo; desde < hasta en los activos
+        const horarios = {};
+        let activos = 0;
+        for (const d of DIAS) {
+          const s = state[d.n];
+          if (!s.activo) continue;
+          if (!s.desde || !s.hasta) { alert(`Completá horarios para ${d.label}.`); return; }
+          if (s.desde >= s.hasta) { alert(`En ${d.label} la hora de inicio debe ser menor a la de fin.`); return; }
+          horarios[d.n] = { desde: s.desde, hasta: s.hasta };
+          activos++;
+        }
+        if (!activos) { alert('Activá al menos un día.'); return; }
+
+        const payload = {
+          horarios,
+          duracion_min: Number(document.getElementById('duracion').value),
+          anticipacion_min_horas: Number(document.getElementById('anticipacion').value),
+          horizonte_dias: Number(document.getElementById('horizonte').value)
+        };
+        const r = await adminFetch('/admin/schedule', { method: 'PUT', body: JSON.stringify(payload) });
+        if (r.ok) {
+          const msg = document.getElementById('msgOk');
+          msg.style.display = 'block';
+          setTimeout(() => { msg.style.display = 'none'; }, 2500);
+        } else {
+          alert('Error: ' + r.error);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

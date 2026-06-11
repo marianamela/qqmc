@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <title>Conectando… · Cuidy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="auth.css" />
+</head>
+<body>
+  <div class="auth-callback">
+    <div class="auth-callback__box">
+      <div class="auth-callback__spinner"></div>
+      <p class="auth-callback__text">Conectando tu cuenta…</p>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script>
+    // Google OAuth redirige con hash: #access_token=...&token_type=bearer&...
+    (async () => {
+      try {
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const accessToken = params.get('access_token');
+
+        if (!accessToken) {
+          throw new Error('No se recibió token de autenticación');
+        }
+
+        // Obtener datos del usuario desde Supabase
+        const user = await supabaseAuth.getUser(accessToken);
+        if (user.error) throw new Error(user.error.message || 'Error al obtener usuario');
+
+        const meta = user.user_metadata || {};
+        const nombre = meta.full_name?.split(' ')[0] || meta.name?.split(' ')[0] || '';
+        const apellido = meta.full_name?.split(' ').slice(1).join(' ') || '';
+        const email = user.email;
+
+        // Buscar o crear familia en nuestra tabla
+        const API = '/.netlify/functions/api';
+        const res = await fetch(`${API}/familias/me?email=${encodeURIComponent(email)}`);
+        const json = await res.json();
+
+        let familiaData;
+        if (json.ok && json.data) {
+          familiaData = json.data;
+        } else {
+          // Crear familia con datos de Google
+          const createRes = await fetch(`${API}/familias`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              cuenta: { nombre, apellido, email, telefono: '' },
+              busqueda: {},
+              detalle: {},
+              zona: {},
+              preferencias: {}
+            })
+          });
+          const createJson = await createRes.json();
+          familiaData = createJson.data || { id: user.id, nombre, apellido, email };
+        }
+
+        // Guardar sesión
+        saveSession(
+          { access_token: accessToken, user: { id: user.id, email, user_metadata: meta } },
+          { id: familiaData.id, nombre, apellido, email, telefono: familiaData.telefono || '' }
+        );
+
+        // Redirigir al inicio
+        window.location.href = '/';
+      } catch (err) {
+        document.querySelector('.auth-callback__spinner').style.display = 'none';
+        document.querySelector('.auth-callback__text').textContent =
+          'Error al conectar: ' + err.message;
+        setTimeout(() => { window.location.href = '/login.html'; }, 3000);
+      }
+    })();
+  </script>
+</body>
+</html>

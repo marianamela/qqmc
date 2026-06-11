@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <title>Pago exitoso · Cuidy</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .pago-result {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 24px; background: linear-gradient(180deg, #e0f0f1 0%, #F8F7F3 40%);
+    }
+    .pago-card {
+      background: #fff; border-radius: 20px; padding: 40px 32px; text-align: center;
+      max-width: 420px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,.08);
+    }
+    .pago-card__icon { font-size: 56px; margin-bottom: 16px; }
+    .pago-card__title { font-size: 22px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+    .pago-card__text { font-size: 14px; color: #6b7280; line-height: 1.5; margin-bottom: 24px; }
+    .pago-card__btn {
+      display: inline-block; padding: 12px 32px; background: var(--teal);
+      color: #fff; border-radius: 10px; text-decoration: none; font-weight: 700;
+      font-size: 15px; transition: transform .15s;
+    }
+    .pago-card__btn:hover { transform: scale(1.03); }
+  </style>
+</head>
+<body>
+  <div class="pago-result">
+    <div class="pago-card">
+      <div class="pago-card__icon">✅</div>
+      <h1 class="pago-card__title">¡Pago confirmado!</h1>
+      <p class="pago-card__text">
+        Tu plan ya está activo. Ahora podés ver los datos de contacto de los
+        cuidadores y acceder al Diario de Cuidado.
+      </p>
+      <a href="/" class="pago-card__btn">Volver a buscar cuidadores</a>
+    </div>
+  </div>
+  <script>
+    // Activar la suscripción en el estado local
+    const params = new URLSearchParams(window.location.search);
+    const subId = params.get('sub');
+    if (subId) {
+      const estado = JSON.parse(localStorage.getItem('qqmc_familia') || '{}');
+      estado.suscripcion_activa = true;
+      estado.suscripcion_id = subId;
+      localStorage.setItem('qqmc_familia', JSON.stringify(estado));
+    }
+  </script>
+</body>
+</html>

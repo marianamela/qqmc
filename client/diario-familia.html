@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <title>Diario de Cuidado · Cuidy</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <meta name="theme-color" content="#006D77" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="diario.css" />
+  <link rel="stylesheet" href="diario-familia.css" />
+  <script src="js/analytics.js"></script>
+</head>
+<body class="diario-app diario-familia">
+
+  <!-- Header -->
+  <header class="diario-header">
+    <div class="diario-header__top">
+      <img src="assets/logo.svg" alt="Cuidy" class="diario-header__logo" />
+      <div class="diario-header__info">
+        <span class="diario-header__greeting" id="greeting">Diario de Cuidado</span>
+        <span class="diario-header__person" id="personaCuidada"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Status bar (cuidador presente / ausente) -->
+  <div class="familia-status" id="statusBar">
+    <div class="familia-status__indicator" id="statusIndicator">
+      <span class="familia-status__dot"></span>
+      <span class="familia-status__text" id="statusText">Esperando check-in</span>
+    </div>
+  </div>
+
+  <!-- Selector de fecha -->
+  <div class="familia-date">
+    <button class="familia-date__btn" id="btnPrevDay">‹</button>
+    <span class="familia-date__label" id="dateLabel">Hoy</span>
+    <button class="familia-date__btn" id="btnNextDay">›</button>
+  </div>
+
+  <!-- Enviar mensaje al cuidador -->
+  <div class="familia-mensaje">
+    <div class="familia-mensaje__bar" id="mensajeBar">
+      <input class="familia-mensaje__input" id="mensajeInput" type="text" placeholder="Enviar aviso al cuidador…" autocomplete="off" />
+      <button class="familia-mensaje__priority" id="btnPriority" title="Marcar como importante" aria-label="Importante">!</button>
+      <button class="familia-mensaje__send" id="btnMensaje" aria-label="Enviar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+    <div class="familia-mensaje__sent hidden" id="mensajeSent"></div>
+  </div>
+
+  <!-- Resumen del día -->
+  <div class="familia-resumen hidden" id="resumen">
+    <div class="familia-resumen__card" id="resumenCard"></div>
+  </div>
+
+  <!-- Historial de mensajes enviados -->
+  <div class="mensajes-historial hidden" id="mensajesHistorial">
+    <h3 class="diario-section__title">Mis avisos</h3>
+    <div class="mensajes-historial__list"></div>
+  </div>
+
+  <!-- Banner de invitación -->
+  <div class="invita-banner" id="invitaBanner">
+    <div class="invita-banner__content">
+      <span class="invita-banner__icon">💌</span>
+      <div class="invita-banner__text">
+        <strong>¿Conocés a alguien que cuida?</strong>
+        <p>Invitá a tu cuidador/a a registrarse en Cuidy</p>
+      </div>
+    </div>
+    <div class="invita-banner__actions">
+      <button class="invita-banner__btn invita-banner__btn--wa" id="btnInvitaWA">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.612.616l4.575-1.462A11.956 11.956 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.234 0-4.308-.726-5.992-1.958l-.418-.31-2.713.867.882-2.636-.34-.443A9.957 9.957 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/></svg>
+        Enviar por WhatsApp
+      </button>
+      <button class="invita-banner__btn invita-banner__btn--link" id="btnInvitaLink">
+        Copiar link
+      </button>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="diario-timeline" id="timeline">
+    <div class="diario-timeline__list" id="timelineList">
+      <p class="diario-timeline__empty" id="emptyMsg">Todavía no hay registros para este día.</p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="diario-toast hidden" id="toast"></div>
+
+  <script src="js/invita.js"></script>
+  <script src="diario-familia.js"></script>
+</body>
+</html>

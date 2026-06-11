@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <title>Candidatura · Admin Cuidy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="page-admin">
+  <header class="admin-topbar">
+    <div class="container admin-topbar__row">
+      <a href="index.html" class="admin-brand">
+        <img src="../assets/logo.svg" alt="Cuidy" />
+        <span class="admin-brand__label">Panel interno</span>
+      </a>
+      <div class="admin-topbar__user">
+        <span id="adminUser">—</span>
+        <button id="btnLogout" class="btn btn--ghost">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container admin-main">
+    <a href="index.html" class="admin-back">← Volver a candidaturas</a>
+    <nav class="admin-subnav" style="margin-bottom: 16px">
+      <a href="index.html">Candidaturas</a>
+      <a href="agenda.html">📅 Agenda</a>
+      <a href="horarios.html">⚙️ Mis horarios</a>
+    </nav>
+    <div id="detalle">
+      <p class="admin-empty">Cargando…</p>
+    </div>
+  </main>
+
+  <!-- Modales de acciones -->
+  <div id="modalAccion" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__content">
+      <button class="modal__close" data-close aria-label="Cerrar">&times;</button>
+      <h3 id="modalAccionTitulo" class="step__title">—</h3>
+      <p id="modalAccionHint" class="step__hint"></p>
+      <div id="modalAccionBody"></div>
+      <div class="wizard__actions" style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line)">
+        <button class="btn btn--ghost" data-close>Cancelar</button>
+        <button class="btn btn--primary" id="btnAccionConfirmar">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+  <script>
+    // Global: preview modal for documents
+    function previewDoc(dataUrl, tipo, fileName) {
+      // dataUrl puede tener comillas escapadas del template, restaurar
+      const existente = document.querySelector('.doc-preview-modal');
+      if (existente) existente.remove();
+
+      const modal = document.createElement('div');
+      modal.className = 'doc-preview-modal';
+      let content;
+      if (tipo === 'image') {
+        content = `<img src="${dataUrl}" alt="${fileName}" />`;
+      } else if (tipo === 'pdf') {
+        content = `<iframe src="${dataUrl}" title="${fileName}"></iframe>`;
+      }
+      modal.innerHTML = `
+        <div class="doc-preview-modal__inner">
+          <button class="doc-preview-modal__close" onclick="this.closest('.doc-preview-modal').remove()">&times;</button>
+          ${content}
+        </div>
+      `;
+      modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+      document.body.appendChild(modal);
+    }
+  </script>
+  <script>
+    (async () => {
+      if (!await ensureSession()) return;
+      document.getElementById('adminUser').textContent = session.user;
+      document.getElementById('btnLogout').addEventListener('click', logout);
+
+      const id = new URLSearchParams(location.search).get('id');
+      if (!id) { location.href = 'index.html'; return; }
+      const cont = document.getElementById('detalle');
+
+      async function cargar() {
+        cont.innerHTML = '<p class="admin-empty">Cargando…</p>';
+        const r = await adminFetch('/admin/candidaturas/' + id);
+        if (!r.ok) { cont.innerHTML = `<p class="admin-empty">${r.error}</p>`; return; }
+        render(r.data);
+      }
+
+      function render(d) {
+        const c = d.candidatura;
+        const edad = c.fecha_nacimiento ? Math.floor((Date.now() - new Date(c.fecha_nacimiento)) / (365.25*864e5)) : null;
+        const foto = c.foto_url || `https://i.pravatar.cc/200?u=${c.id}`;
+
+        cont.innerHTML = `
+          <div class="cand-layout">
+            <div class="cand-main">
+              <div class="cand-head">
+                <img src="${foto}" class="cand-avatar" alt="" />
+                <div class="cand-head__body">
+                  <h1 class="cand-name">${escapeHtml(c.nombre)} ${escapeHtml(c.apellido)}${edad ? ', '+edad : ''}</h1>
+                  <p class="cand-sub">
+                    <span class="badge-estado badge-estado--${c.estado}">${labelEstado(c.estado)}</span>
+                    · DNI ${escapeHtml(c.dni)}
+                    · ${(c.especialidades||[]).map(e => labelEsp(e)).join(', ')}
+                    · ${escapeHtml(c.localidad || '—')}, ${(c.provincia||'').toUpperCase()}
+                  </p>
+                </div>
+              </div>
+
+              ${c.motivo_rechazo ? `<div class="consent-card consent-card--warning"><h3 class="consent-card__title">Motivo de rechazo</h3><p>${escapeHtml(c.motivo_rechazo)}</p></div>` : ''}
+              ${c.feedback_correcciones ? `<div class="consent-card"><h3 class="consent-card__title">Correcciones solicitadas</h3><p>${escapeHtml(c.feedback_correcciones)}</p></div>` : ''}
+
+              <section class="cand-section">
+                <h2>Datos personales</h2>
+                <div class="cand-grid">
+                  ${kv('Email', c.email)}
+                  ${kv('Teléfono', c.telefono)}
+                  ${kv('Fecha nac.', fmtFecha(c.fecha_nacimiento))}
+                  ${kv('Nacionalidad', c.nacionalidad)}
+                  ${kv('Género', c.genero)}
+                  ${kv('Dirección', c.direccion)}
+                </div>
+              </section>
+
+              <section class="cand-section">
+                <h2>Experiencia y bio</h2>
+                <p class="cand-bio">${escapeHtml(c.bio || '—')}</p>
+                <div class="cand-grid">
+                  ${kv('Años de experiencia', c.experiencia_anios)}
+                  ${kv('Tarifa por hora', c.tarifa_hora ? '$' + c.tarifa_hora : null)}
+                  ${kv('Educación', c.educacion)}
+                  ${kv('Idiomas', c.idiomas)}
+                </div>
+                ${(c.empleos||[]).length ? `
+                  <h3 class="step__subtitle">Empleos anteriores</h3>
+                  ${(c.empleos).map(e => `
+                    <div class="nino-card" style="margin-bottom:10px">
+                      <strong>${escapeHtml(e.familia || '—')}</strong> · ${escapeHtml(e.duracion || '')}
+                      <p style="margin:4px 0 0; color:var(--muted); font-size:13px">${escapeHtml(e.tareas || '')}</p>
+                    </div>
+                  `).join('')}
+                ` : ''}
+                ${(c.certificaciones||[]).length ? `
+                  <h3 class="step__subtitle">Certificaciones</h3>
+                  <div>${c.certificaciones.map(x => `<span class="tag tag--magenta">${escapeHtml(x.replace(/_/g,' '))}</span>`).join(' ')}</div>
+                ` : ''}
+              </section>
+
+              <section class="cand-section">
+                <h2>Disponibilidad y zona</h2>
+                <div class="cand-grid">
+                  ${kv('Zonas de trabajo', c.zonas_trabajo)}
+                  ${kv('Radio', c.radio_km ? c.radio_km + ' km' : null)}
+                  ${kv('Modalidades', (c.modalidades||[]).join(', '))}
+                </div>
+                <h3 class="step__subtitle">Horarios</h3>
+                ${renderDispGrid(c.disponibilidad)}
+              </section>
+
+              <section class="cand-section">
+                <h2>Documentación</h2>
+                <div class="docs-list">
+                  ${d.documentos.map(doc => renderDocCard(doc)).join('') || '<p class="admin-empty">Sin documentos cargados</p>'}
+                </div>
+                <div style="margin-top: 14px">
+                  ${kv('Fecha de emisión antecedentes', fmtFecha(c.antecedentes_fecha))}
+                  ${kv('Vencen', fmtFecha(c.antecedentes_vence))}
+                </div>
+              </section>
+
+              <section class="cand-section">
+                <h2>Referencias</h2>
+                ${d.referencias.length ? d.referencias.map((r,i) => `
+                  <div class="nino-card" style="margin-bottom:10px">
+                    <strong>${escapeHtml(r.nombre)}</strong>${r.relacion ? ' · ' + escapeHtml(r.relacion) : ''}
+                    <p style="margin:4px 0 0"><a href="tel:${escapeHtml(r.telefono)}" class="link">${escapeHtml(r.telefono)}</a></p>
+                  </div>
+                `).join('') : '<p class="admin-empty">Sin referencias cargadas</p>'}
+              </section>
+            </div>
+
+            <aside class="cand-aside">
+              <div class="cand-actions">
+                <h3>Acciones</h3>
+                ${botonesAcciones(c.estado).map(a => `
+                  <button class="btn ${a.variant}" data-accion="${a.accion}">${a.label}</button>
+                `).join('')}
+              </div>
+
+              <div class="cand-aside__block">
+                <h3>Timeline</h3>
+                <ol class="timeline timeline--compact">
+                  ${d.eventos.map(e => `
+                    <li class="done">
+                      <p class="timeline__title">${labelEvento(e.tipo)}</p>
+                      <p class="timeline__desc">
+                        ${escapeHtml(e.detalle || '')}${e.metadata?.fecha ? ` · ${fmtFecha(e.metadata.fecha)}` : ''}
+                        ${e.metadata?.link ? ` · <a href="${e.metadata.link}" target="_blank" class="link">link</a>` : ''}
+                        <br/><small>${fmtFecha(e.created_at)} · ${escapeHtml(e.actor || '')}</small>
+                      </p>
+                    </li>
+                  `).join('') || '<li><p class="timeline__desc">Sin eventos</p></li>'}
+                </ol>
+              </div>
+
+              <div class="cand-aside__block">
+                <h3>Notas internas</h3>
+                <form id="notaForm" class="nota-form">
+                  <textarea id="notaContenido" rows="3" placeholder="Agregá una nota interna…" required></textarea>
+                  <button class="btn btn--ghost" type="submit">Agregar nota</button>
+                </form>
+                <div id="notasList" class="notas-list">
+                  ${d.notas.map(n => `
+                    <div class="nota">
+                      <p>${escapeHtml(n.contenido)}</p>
+                      <small>${escapeHtml(n.autor)} · ${fmtFecha(n.created_at)}</small>
+                    </div>
+                  `).join('') || '<p class="admin-empty">Sin notas aún</p>'}
+                </div>
+              </div>
+            </aside>
+          </div>
+        `;
+
+        // Listeners acciones
+        cont.querySelectorAll('[data-accion]').forEach(btn => {
+          btn.addEventListener('click', () => abrirModalAccion(btn.dataset.accion, c));
+        });
+        // Listeners preview documentos
+        cont.querySelectorAll('[data-preview]').forEach(el => {
+          el.addEventListener('click', () => {
+            const dataUrl = _docDataMap[el.dataset.preview];
+            if (dataUrl) previewDoc(dataUrl, el.dataset.previewType, '');
+          });
+        });
+        // Listener nota
+        document.getElementById('notaForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const contenido = document.getElementById('notaContenido').value.trim();
+          if (!contenido) return;
+          const r = await adminFetch(`/admin/candidaturas/${id}/notas`, {
+            method: 'POST', body: JSON.stringify({ contenido })
+          });
+          if (r.ok) cargar();
+        });
+      }
+
+      function botonesAcciones(estado) {
+        const A = [];
+        if (estado === 'enviado') {
+          A.push({ accion: 'aprobar_identidad', label: '✅ Aprobar identidad', variant: 'btn--primary' });
+          A.push({ accion: 'pedir_correcciones', label: '✏️ Pedir correcciones', variant: 'btn--ghost' });
+          A.push({ accion: 'rechazar', label: '✗ Rechazar', variant: 'btn--ghost' });
+        }
+        if (estado === 'identidad_aprobada') {
+          // Esperando que el cuidador complete su perfil
+          A.push({ accion: 'pedir_correcciones', label: '✏️ Pedir correcciones', variant: 'btn--ghost' });
+        }
+        if (estado === 'perfil_completo') {
+          A.push({ accion: 'tomar_revision', label: 'Tomar para revisar', variant: 'btn--primary' });
+        }
+        if (['perfil_completo','en_revision','entrevista_agendada'].includes(estado)) {
+          A.push({ accion: 'agendar_entrevista', label: '📅 Agendar entrevista', variant: 'btn--ghost' });
+          A.push({ accion: 'pedir_correcciones', label: '✏️ Pedir correcciones', variant: 'btn--ghost' });
+          A.push({ accion: 'aprobar', label: '✓ Aprobar perfil', variant: 'btn--primary' });
+          A.push({ accion: 'rechazar', label: '✗ Rechazar', variant: 'btn--ghost' });
+        }
+        if (estado === 'correcciones_pedidas') {
+          A.push({ accion: 'tomar_revision', label: 'Marcar como en revisión', variant: 'btn--primary' });
+        }
+        if (estado === 'aprobado') {
+          A.push({ accion: 'suspender', label: 'Suspender perfil', variant: 'btn--ghost' });
+        }
+        return A;
+      }
+
+      function abrirModalAccion(accion, c) {
+        const modal = document.getElementById('modalAccion');
+        const titulo = document.getElementById('modalAccionTitulo');
+        const hint = document.getElementById('modalAccionHint');
+        const body = document.getElementById('modalAccionBody');
+        const btnConfirmar = document.getElementById('btnAccionConfirmar');
+
+        const titulos = {
+          tomar_revision: 'Tomar para revisar',
+          aprobar_identidad: 'Aprobar identidad',
+          pedir_correcciones: 'Pedir correcciones',
+          agendar_entrevista: 'Agendar entrevista',
+          aprobar: 'Aprobar perfil',
+          rechazar: 'Rechazar candidatura',
+          suspender: 'Suspender perfil'
+        };
+        titulo.textContent = titulos[accion] || accion;
+        hint.textContent = `${c.nombre} ${c.apellido}`;
+
+        if (accion === 'pedir_correcciones') {
+          body.innerHTML = `
+            <div class="field">
+              <label>¿Qué necesita corregir?</label>
+              <textarea id="inpDetalle" rows="4" placeholder="Ej: la foto del DNI está borrosa, subí una nueva..."></textarea>
+              <p class="field__hint">Este mensaje le llegará por email al cuidador.</p>
+            </div>`;
+        } else if (accion === 'rechazar') {
+          body.innerHTML = `
+            <div class="field">
+              <label>Motivo del rechazo</label>
+              <textarea id="inpDetalle" rows="4" placeholder="Se comunicará al cuidador"></textarea>
+            </div>`;
+        } else if (accion === 'agendar_entrevista') {
+          const pad = n => String(n).padStart(2,'0');
+          const hoy = new Date(); hoy.setHours(0,0,0,0);
+          const iniISO = `${hoy.getFullYear()}-${pad(hoy.getMonth()+1)}-${pad(hoy.getDate())}`;
+          body.innerHTML = `
+            <div class="cal-picker">
+              <div class="cal-picker__head">
+                <button type="button" class="cal-picker__nav" data-nav="-1">‹</button>
+                <strong id="calMesTitulo">—</strong>
+                <button type="button" class="cal-picker__nav" data-nav="1">›</button>
+              </div>
+              <div class="cal-picker__weekdays">
+                <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
+              </div>
+              <div id="calDias" class="cal-picker__days"></div>
+              <div id="calSlots" class="cal-picker__slots">
+                <p class="admin-empty" style="padding:16px; margin:0">Seleccioná un día para ver horarios disponibles.</p>
+              </div>
+              <input type="hidden" id="inpFecha" />
+            </div>
+            <div class="field" style="margin-top:16px">
+              <label>Link de videollamada (opcional)</label>
+              <input id="inpLink" type="url" placeholder="https://meet.jit.si/qqmc-..." />
+            </div>`;
+          inicializarCalendario(iniISO);
+        } else if (accion === 'aprobar_identidad') {
+          body.innerHTML = `
+            <p>La identidad del cuidador/a está verificada (DNI + selfie coinciden con los datos ingresados).</p>
+            <p style="margin-top:12px">Al aprobar, se le envía un email pidiéndole que <strong>complete su perfil profesional</strong> (bio, experiencia, disponibilidad, referencias).</p>
+            <p style="margin-top:12px; color:var(--teal); font-weight:600">¿Confirmás que la identidad es correcta?</p>`;
+        } else if (accion === 'aprobar') {
+          body.innerHTML = `<p>El perfil pasará a <strong>aprobado</strong> y se publicará en la plataforma. ¿Confirmás?</p>`;
+        } else if (accion === 'tomar_revision') {
+          body.innerHTML = `<p>La candidatura pasa a estado <strong>en revisión</strong>. ¿Confirmás?</p>`;
+        } else if (accion === 'suspender') {
+          body.innerHTML = `<p>El perfil dejará de aparecer en la búsqueda pública. ¿Confirmás?</p>`;
+        }
+
+        modal.classList.remove('hidden');
+
+        // Cerrar
+        const cerrar = () => modal.classList.add('hidden');
+        modal.querySelectorAll('[data-close]').forEach(b => b.onclick = cerrar);
+
+        btnConfirmar.onclick = async () => {
+          const body = { accion };
+          if (['pedir_correcciones','rechazar'].includes(accion)) {
+            const t = document.getElementById('inpDetalle').value.trim();
+            if (!t) { alert('Completá el detalle'); return; }
+            body.detalle = t;
+          }
+          if (accion === 'agendar_entrevista') {
+            const fecha = document.getElementById('inpFecha').value;
+            if (!fecha) { alert('Elegí una fecha y hora del calendario'); return; }
+            body.fecha_entrevista = fecha;
+            body.link_entrevista = document.getElementById('inpLink').value || null;
+          }
+          btnConfirmar.disabled = true;
+          const r = await adminFetch(`/admin/candidaturas/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
+          btnConfirmar.disabled = false;
+          if (!r.ok) { alert('Error: ' + r.error); return; }
+          cerrar();
+          cargar();
+        };
+      }
+
+      // -------- Calendario de entrevistas --------
+      let calCursor = new Date(); // mes visible
+      let calConfig = null;
+      let calFechaSel = null;
+
+      async function inicializarCalendario(isoHoy) {
+        // Cargar config del admin
+        const cfg = await adminFetch('/admin/schedule');
+        if (cfg.ok) calConfig = cfg.data;
+        else calConfig = { dias_habiles: [1,2,3,4,5], horizonte_dias: 30 };
+
+        calCursor = new Date();
+        calCursor.setDate(1);
+        renderCalendario();
+
+        document.querySelectorAll('[data-nav]').forEach(b => {
+          b.addEventListener('click', () => {
+            calCursor.setMonth(calCursor.getMonth() + Number(b.dataset.nav));
+            renderCalendario();
+          });
+        });
+      }
+
+      function renderCalendario() {
+        const titulo = document.getElementById('calMesTitulo');
+        const dias = document.getElementById('calDias');
+        const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        titulo.textContent = `${MESES[calCursor.getMonth()]} ${calCursor.getFullYear()}`;
+
+        const primerDia = new Date(calCursor.getFullYear(), calCursor.getMonth(), 1);
+        const ultimoDia = new Date(calCursor.getFullYear(), calCursor.getMonth() + 1, 0);
+        // ajustamos para que la semana empiece en lunes (JS: 0=dom...6=sab)
+        const offsetInicio = (primerDia.getDay() + 6) % 7;
+
+        const hoy = new Date(); hoy.setHours(0,0,0,0);
+        const limite = new Date(); limite.setDate(limite.getDate() + (calConfig.horizonte_dias || 30)); limite.setHours(23,59,59,999);
+
+        const celdas = [];
+        for (let i = 0; i < offsetInicio; i++) celdas.push({ vacio: true });
+        for (let d = 1; d <= ultimoDia.getDate(); d++) {
+          const fecha = new Date(calCursor.getFullYear(), calCursor.getMonth(), d);
+          const weekday = fecha.getDay();
+          const habil = (calConfig.dias_habiles || [1,2,3,4,5]).includes(weekday);
+          const enRango = fecha >= hoy && fecha <= limite;
+          celdas.push({
+            d,
+            disponible: habil && enRango,
+            iso: `${fecha.getFullYear()}-${String(fecha.getMonth()+1).padStart(2,'0')}-${String(fecha.getDate()).padStart(2,'0')}`,
+            hoy: fecha.getTime() === hoy.getTime()
+          });
+        }
+
+        dias.innerHTML = celdas.map(c => {
+          if (c.vacio) return '<span class="cal-day cal-day--empty"></span>';
+          const cls = ['cal-day'];
+          if (!c.disponible) cls.push('cal-day--off');
+          if (c.hoy) cls.push('cal-day--today');
+          if (calFechaSel === c.iso) cls.push('cal-day--sel');
+          return `<button type="button" class="${cls.join(' ')}" data-iso="${c.iso}" ${!c.disponible ? 'disabled' : ''}>${c.d}</button>`;
+        }).join('');
+
+        dias.querySelectorAll('[data-iso]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            calFechaSel = btn.dataset.iso;
+            renderCalendario();
+            cargarSlots(btn.dataset.iso);
+          });
+        });
+      }
+
+      async function cargarSlots(fechaIso) {
+        const cont = document.getElementById('calSlots');
+        cont.innerHTML = '<p class="admin-empty" style="padding:12px; margin:0">Cargando horarios…</p>';
+        const r = await adminFetch('/admin/entrevistas/slots?fecha=' + fechaIso);
+        if (!r.ok) { cont.innerHTML = `<p class="admin-empty" style="padding:12px; margin:0">${r.error}</p>`; return; }
+        if (!r.data.length) {
+          cont.innerHTML = '<p class="admin-empty" style="padding:12px; margin:0">Este día no está habilitado. Elegí otro.</p>';
+          return;
+        }
+        const [yyyy, mm, dd] = fechaIso.split('-');
+        cont.innerHTML = `
+          <div class="cal-slots__titulo">Horarios para el ${dd}/${mm}/${yyyy}</div>
+          <div class="cal-slots__grid">
+            ${r.data.map(s => `
+              <button type="button" class="cal-slot ${s.ocupado ? 'cal-slot--ocupado' : ''}"
+                data-hora="${s.hora}" ${s.ocupado ? 'disabled title="Ocupado: '+escapeHtml(s.quien||'')+'"' : ''}>
+                ${s.hora}
+                ${s.ocupado ? '<small>Ocupado</small>' : ''}
+              </button>
+            `).join('')}
+          </div>
+        `;
+        cont.querySelectorAll('[data-hora]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            cont.querySelectorAll('.cal-slot').forEach(s => s.classList.remove('is-active'));
+            btn.classList.add('is-active');
+            document.getElementById('inpFecha').value = `${fechaIso}T${btn.dataset.hora}`;
+          });
+        });
+      }
+
+      function renderDisp(disp) {
+        if (!disp || !Object.keys(disp).length) return '—';
+        const DAYS = { lun:'Lun', mar:'Mar', mie:'Mié', jue:'Jue', vie:'Vie', sab:'Sáb', dom:'Dom' };
+        return Object.entries(disp).map(([d, rango]) => {
+          if (rango.desde) return `<strong>${DAYS[d]||d}:</strong> ${rango.desde}–${rango.hasta}`;
+          return `<strong>${DAYS[d]||d}:</strong> ${Array.isArray(rango) ? rango.join(', ') : JSON.stringify(rango)}`;
+        }).join(' · ');
+      }
+
+      function renderDispGrid(disp) {
+        if (!disp || !Object.keys(disp).length) return '<p style="font-size:14px; color:var(--muted)">Sin disponibilidad cargada</p>';
+        const ALL_DAYS = ['lun','mar','mie','jue','vie','sab','dom'];
+        const DAY_LABELS = { lun:'Lunes', mar:'Martes', mie:'Miércoles', jue:'Jueves', vie:'Viernes', sab:'Sábado', dom:'Domingo' };
+        const FRANJA_LABELS = { manana:'Mañana', tarde:'Tarde', noche:'Noche' };
+
+        let html = '<div class="disp-grid-horario">';
+        ALL_DAYS.forEach(d => {
+          const franjas = disp[d];
+          if (!franjas || !Object.keys(franjas).length) {
+            html += `
+              <div class="disp-row disp-row--off">
+                <span class="disp-row__day">${DAY_LABELS[d]}</span>
+                <span class="disp-row__time">No disponible</span>
+              </div>`;
+          } else {
+            const detalle = Object.entries(franjas).map(([f, r]) => {
+              if (r && r.desde) return `${FRANJA_LABELS[f] || f}: ${r.desde}–${r.hasta}`;
+              return null;
+            }).filter(Boolean).join(' · ');
+            html += `
+              <div class="disp-row disp-row--on">
+                <span class="disp-row__day">${DAY_LABELS[d]}</span>
+                <span class="disp-row__time">${detalle || 'No disponible'}</span>
+              </div>`;
+          }
+        });
+        html += '</div>';
+        return html;
+      }
+
+      // Store doc data_urls in a map for onclick access
+      const _docDataMap = {};
+      function renderDocCard(doc) {
+        const isImage = doc.file_type && doc.file_type.startsWith('image/');
+        const isPdf = doc.file_type && doc.file_type.includes('pdf');
+        const isWord = doc.file_type && (doc.file_type.includes('msword') || doc.file_type.includes('wordprocessingml'));
+        const hasPreview = !!doc.data_url;
+        const docId = doc.id || doc.tipo;
+
+        if (hasPreview) _docDataMap[docId] = doc.data_url;
+
+        let thumbHtml;
+        if (hasPreview && isImage) {
+          thumbHtml = `<div class="docs-list__thumb" data-preview="${docId}" data-preview-type="image"><img src="${doc.data_url}" alt="${escapeHtml(doc.file_name)}" loading="lazy" /></div>`;
+        } else if (hasPreview && isPdf) {
+          thumbHtml = `<div class="docs-list__thumb docs-list__thumb--pdf" data-preview="${docId}" data-preview-type="pdf">PDF</div>`;
+        } else {
+          const icon = isPdf ? 'PDF' : (isWord ? 'DOC' : (isImage ? '🖼' : '📄'));
+          thumbHtml = `<div class="docs-list__thumb docs-list__thumb--none">${icon}<br><small>Sin preview</small></div>`;
+        }
+        return `
+          <div class="docs-list__item">
+            ${thumbHtml}
+            <div class="docs-list__info">
+              <span class="docs-list__tipo">${labelDoc(doc.tipo)}</span>
+              <span class="docs-list__file">${escapeHtml(doc.file_name)} · ${fmtSize(doc.file_size)}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      function kv(k, v) {
+        if (v === null || v === undefined || v === '') return '';
+        return `<div class="kv"><span class="kv__k">${k}</span><span class="kv__v">${escapeHtml(v)}</span></div>`;
+      }
+
+      cargar();
+    })();
+  </script>
+</body>
+</html>

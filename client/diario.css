@@ -1,0 +1,736 @@
+/* =============================================================
+   Cuidy · Diario de Cuidado — Estilos
+   Mobile-first, optimizado para uso con una mano
+   ============================================================= */
+
+:root {
+  --teal: #006D77;
+  --teal-soft: #e0f0f1;
+  --magenta: #FF6B6B;
+  --magenta-soft: #ffe5e5;
+  --ink: #1F2933;
+  --noche: #1F2933;
+  --muted: #B4BAC2;
+  --sand: #F8F7F3;
+  --border: rgba(0,109,119,.2);
+  --radius: 12px;
+  --shadow: 0 2px 8px rgba(0,109,119,.08);
+  --green: #10b981;
+  --green-soft: #ecfdf5;
+  --amber: #f59e0b;
+  --amber-soft: #fffbeb;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body.diario-app {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--sand);
+  color: var(--ink);
+  min-height: 100vh;
+  padding-bottom: 100px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Header ---- */
+.diario-header {
+  background: var(--teal);
+  color: #fff;
+  padding: 16px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.diario-header__top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.diario-header__logo {
+  height: 32px;
+  width: auto;
+}
+.diario-header__info {
+  display: flex;
+  flex-direction: column;
+}
+.diario-header__greeting {
+  font-size: 14px;
+  opacity: .85;
+}
+.diario-header__person {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* ---- Check-in / Check-out ---- */
+.diario-checkin {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.diario-checkin__btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform .15s, box-shadow .15s;
+  width: 100%;
+  justify-content: center;
+}
+.diario-checkin__btn:active {
+  transform: scale(.97);
+}
+.diario-checkin__btn--in {
+  background: var(--green);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(16,185,129,.3);
+}
+.diario-checkin__btn--out {
+  background: var(--magenta);
+  color: #fff;
+  padding: 10px 20px;
+  font-size: 14px;
+  width: auto;
+}
+.diario-checkin__status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: var(--green-soft);
+  border: 1px solid #d1fae5;
+  border-radius: var(--radius);
+  padding: 12px 16px;
+}
+.diario-checkin__time {
+  flex: 1;
+  font-size: 14px;
+  color: var(--green);
+  font-weight: 700;
+}
+.diario-checkin__icon {
+  font-size: 20px;
+}
+
+/* ---- Recordatorios ---- */
+.diario-recordatorios {
+  padding: 0 20px 8px;
+}
+.diario-section__title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.recordatorio-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--amber-soft);
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+.recordatorio-item__hora {
+  font-weight: 700;
+  color: var(--amber);
+  min-width: 50px;
+}
+.recordatorio-item__text {
+  flex: 1;
+  color: #78350f;
+}
+
+/* ---- Categorías (botones rápidos) ---- */
+.diario-categorias {
+  padding: 12px 20px;
+}
+.diario-categorias__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.diario-cat-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 8px;
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+  box-shadow: var(--shadow);
+  min-height: 80px;
+}
+.diario-cat-btn:active {
+  transform: scale(.95);
+  border-color: var(--teal);
+  background: var(--teal-soft);
+}
+.diario-cat-btn__icon {
+  font-size: 28px;
+  line-height: 1;
+}
+.diario-cat-btn__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* ---- Panel de carga (overlay desde abajo) ---- */
+.diario-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -8px 30px rgba(0,0,0,.15);
+  z-index: 200;
+  max-height: 75vh;
+  overflow-y: auto;
+  animation: panelUp .3s ease;
+}
+.diario-panel.hidden {
+  display: none;
+}
+@keyframes panelUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.diario-panel__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+}
+.diario-panel__back {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 8px;
+  color: var(--teal);
+}
+.diario-panel__title {
+  font-size: 16px;
+  font-weight: 700;
+}
+.diario-panel__body {
+  padding: 16px 20px;
+}
+.diario-panel__options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.diario-panel__opt {
+  padding: 14px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: all .15s;
+}
+.diario-panel__opt:active,
+.diario-panel__opt.is-selected {
+  border-color: var(--teal);
+  background: var(--teal-soft);
+  color: var(--teal);
+  font-weight: 600;
+}
+.diario-panel__actions {
+  padding: 12px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+}
+.diario-panel__photo {
+  background: none;
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 15px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--muted);
+  text-align: center;
+  transition: border-color .15s;
+}
+.diario-panel__photo:active {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+.diario-panel__photo.has-photo {
+  border-color: var(--green);
+  color: var(--green);
+  border-style: solid;
+}
+.diario-panel__note {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: none;
+  color: var(--ink);
+}
+.diario-panel__note:focus {
+  outline: none;
+  border-color: var(--teal);
+}
+.diario-panel__send {
+  padding: 14px;
+  font-size: 16px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--teal);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+.diario-panel__send:active {
+  transform: scale(.98);
+}
+
+/* ---- FAB (nota libre) ---- */
+.diario-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  z-index: 150;
+}
+.diario-fab__btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,109,119,.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .15s;
+}
+.diario-fab__btn:active {
+  transform: scale(.9);
+}
+
+/* ---- Timeline ---- */
+.diario-timeline {
+  padding: 16px 20px;
+}
+.diario-timeline__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.diario-timeline__empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+  padding: 24px;
+  background: #fff;
+  border-radius: var(--radius);
+  border: 1px dashed var(--border);
+}
+
+.timeline-entry {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  position: relative;
+}
+.timeline-entry::before {
+  content: '';
+  position: absolute;
+  left: 17px;
+  top: 36px;
+  bottom: -12px;
+  width: 2px;
+  background: var(--border);
+}
+.timeline-entry:last-child::before {
+  display: none;
+}
+.timeline-entry__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--teal-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.timeline-entry--checkin .timeline-entry__icon {
+  background: var(--green-soft);
+}
+.timeline-entry--checkout .timeline-entry__icon {
+  background: var(--magenta-soft);
+}
+.timeline-entry--foto .timeline-entry__icon {
+  background: #ede9fe;
+}
+.timeline-entry__body {
+  flex: 1;
+  min-width: 0;
+}
+.timeline-entry__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+.timeline-entry__cat {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.timeline-entry__time {
+  font-size: 12px;
+  color: var(--muted);
+  margin-left: auto;
+}
+.timeline-entry__content {
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.4;
+}
+.timeline-entry__photo {
+  margin-top: 8px;
+  border-radius: 10px;
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+}
+.timeline-entry__reactions {
+  margin-top: 6px;
+  display: flex;
+  gap: 8px;
+}
+.timeline-reaction {
+  font-size: 12px;
+  color: var(--magenta);
+  background: var(--magenta-soft);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* ---- Toast ---- */
+.diario-toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 300;
+  animation: toastIn .3s ease;
+  white-space: nowrap;
+}
+.diario-toast.hidden { display: none; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ---- Utils ---- */
+.hidden { display: none !important; }
+.btn--primary {
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 10px 20px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ---- Mensajes de la familia (vista cuidador) ---- */
+.diario-mensajes {
+  padding: 0 20px 8px;
+}
+.mensaje-item {
+  background: #fff;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  position: relative;
+  transition: opacity .4s, transform .4s;
+}
+.mensaje-item--importante {
+  border-color: var(--magenta);
+  background: var(--magenta-soft);
+}
+.mensaje-item--importante .mensaje-item__from::after {
+  content: ' · Importante';
+  color: var(--magenta);
+  font-weight: 700;
+  font-size: 11px;
+}
+.mensaje-item--leido {
+  opacity: 0;
+  transform: translateX(40px);
+}
+.mensaje-item__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.mensaje-item__from {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--teal);
+}
+.mensaje-item__time {
+  font-size: 11px;
+  color: var(--muted);
+}
+.mensaje-item__body {
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.mensaje-item__read {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 4px 14px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.mensaje-item__read:active {
+  background: var(--teal-soft);
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+/* ---- Solicitudes de contacto ---- */
+.solicitud-card {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.solicitud-card--pendiente { border-left: 3px solid #f59e0b; }
+.solicitud-card--aceptada { border-left: 3px solid var(--green); opacity: .7; }
+.solicitud-card--rechazada { border-left: 3px solid var(--muted); opacity: .5; }
+.solicitud__header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 6px;
+}
+.solicitud__nombre { font-size: 14px; font-weight: 700; color: var(--ink); }
+.solicitud__fecha { font-size: 11px; color: var(--muted); }
+.solicitud__mensaje {
+  font-size: 13px; color: #374151; line-height: 1.5;
+  background: #f9fafb; border-radius: 8px; padding: 10px 12px;
+  margin-bottom: 10px;
+}
+.solicitud__actions { display: flex; gap: 8px; }
+.solicitud__btn {
+  flex: 1; padding: 8px; border-radius: 8px; border: 1.5px solid var(--border);
+  font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: all .15s;
+}
+.solicitud__btn--aceptar {
+  background: var(--teal); color: #fff; border-color: var(--teal);
+}
+.solicitud__btn--aceptar:active { transform: scale(.96); }
+.solicitud__btn--rechazar {
+  background: #fff; color: var(--muted);
+}
+.solicitud__estado {
+  font-size: 12px; font-weight: 600; padding: 4px 0;
+}
+.solicitud__estado--aceptada { color: var(--green); }
+.solicitud__estado--rechazada { color: var(--muted); }
+.solicitud__contacto {
+  background: var(--teal-soft); border-radius: 8px; padding: 10px 12px;
+  font-size: 13px; color: var(--ink); margin-top: 6px;
+}
+
+/* ---- Chips de personas (¿para quién es?) ---- */
+.diario-personas-chips {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.persona-chip {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--muted);
+  transition: all .15s;
+}
+.persona-chip.is-selected {
+  border-color: var(--teal);
+  background: var(--teal-soft);
+  color: var(--teal);
+}
+.persona-chip:active {
+  transform: scale(.95);
+}
+
+/* Tag de personas en el timeline */
+.timeline-entry__personas {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--teal);
+  background: var(--teal-soft);
+  padding: 1px 8px;
+  border-radius: 10px;
+  margin-left: 4px;
+}
+
+/* ---- Detail input for medication, etc. ---- */
+.diario-panel__detail-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+  margin-top: 10px;
+  color: var(--ink);
+}
+.diario-panel__detail-input:focus {
+  outline: none;
+  border-color: var(--teal);
+}
+
+/* ---- Banner de invitación / referidos ---- */
+.invita-banner {
+  margin: 12px 20px;
+  background: linear-gradient(135deg, #e0f0f1 0%, #fff 100%);
+  border: 1.5px solid rgba(0,109,119,.15);
+  border-radius: 14px;
+  padding: 16px;
+  animation: fadeInBanner .4s ease;
+}
+.invita-banner--cuidador {
+  background: linear-gradient(135deg, #ffe5e5 0%, #fff 100%);
+  border-color: rgba(255,107,107,.15);
+}
+@keyframes fadeInBanner {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.invita-banner__content {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.invita-banner__icon {
+  font-size: 28px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.invita-banner__text strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.invita-banner__text p {
+  font-size: 13px;
+  color: var(--ink);
+  opacity: .7;
+  line-height: 1.4;
+  margin: 0;
+}
+.invita-banner__actions {
+  display: flex;
+  gap: 8px;
+}
+.invita-banner__btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform .15s;
+}
+.invita-banner__btn:active { transform: scale(.96); }
+.invita-banner__btn--wa {
+  background: #25D366;
+  color: #fff;
+}
+.invita-banner__btn--link {
+  background: #fff;
+  color: var(--teal);
+  border: 1.5px solid var(--teal);
+}
+.invita-banner--cuidador .invita-banner__btn--link {
+  color: var(--magenta);
+  border-color: var(--magenta);
+}
+.invita-banner__toast {
+  text-align: center;
+  font-size: 12px;
+  color: var(--green);
+  font-weight: 600;
+  margin-top: 8px;
+  display: none;
+}

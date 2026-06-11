@@ -14,7 +14,9 @@
         "npm:@supabase/supabase-js@^2.103.0",
         "npm:cors@^2.8.6",
         "npm:dotenv@^17.4.2",
-        "npm:express@^5.2.1"
+        "npm:express@^5.2.1",
+        "npm:mercadopago@^2.0.15",
+        "npm:web-push@^3.6.7"
       ]
     }
   }

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <title>Completá tu perfil · Cuidy</title>
+  <meta name="description" content="Completá tu perfil profesional para que las familias puedan encontrarte." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="js/analytics.js"></script>
+</head>
+<body class="page-wizard">
+  <header class="topbar">
+    <div class="container topbar__row">
+      <a class="brand" href="/" aria-label="Cuidy">
+        <img class="brand__logo" src="assets/logo.svg" alt="Cuidy" />
+      </a>
+      <nav class="topbar__nav">
+        <a href="/">Volver al inicio</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Pantalla de error: si el cuidador no está en estado correcto -->
+  <div id="errorScreen" class="container" style="display:none; text-align:center; padding:80px 20px">
+    <div style="font-size:48px; margin-bottom:16px">🔒</div>
+    <h1 class="wizard__title" id="errorTitle">No se puede acceder</h1>
+    <p id="errorMsg" style="max-width:480px; margin:0 auto; color: var(--noche); opacity:.7">Este enlace no es válido o tu perfil ya fue completado.</p>
+    <a href="/" class="btn btn--primary" style="margin-top:24px">Ir al inicio</a>
+  </div>
+
+  <main class="wizard" id="wizardMain">
+    <div class="container wizard__container wizard__container--wide">
+      <header class="wizard__head">
+        <p class="wizard__kicker">¡Tu identidad fue verificada!</p>
+        <h1 class="wizard__title">Completá tu perfil profesional</h1>
+        <p class="wizard__lede">
+          Hola <strong id="cuidNombre">—</strong>, las familias van a ver esta información para decidir contactarte.
+          Cuanto más completo esté tu perfil, más oportunidades vas a tener.
+        </p>
+      </header>
+
+      <!-- Barra de progreso -->
+      <ol class="steps steps--compact" aria-label="Progreso">
+        <li class="steps__item is-active" data-step="0"><span class="steps__dot">1</span><span class="steps__label">Sobre vos</span></li>
+        <li class="steps__item" data-step="1"><span class="steps__dot">2</span><span class="steps__label">Formación</span></li>
+        <li class="steps__item" data-step="2"><span class="steps__dot">3</span><span class="steps__label">Disponibilidad</span></li>
+        <li class="steps__item" data-step="3"><span class="steps__dot">4</span><span class="steps__label">Documentos</span></li>
+        <li class="steps__item" data-step="4"><span class="steps__dot">5</span><span class="steps__label">Referencias</span></li>
+        <li class="steps__item" data-step="5"><span class="steps__dot">✓</span><span class="steps__label">Enviar</span></li>
+      </ol>
+
+      <form id="wizardForm" class="wizard__form" novalidate>
+
+        <!-- ============ PASO 0 · BIO + EXPERIENCIA + FOTO ============ -->
+        <section class="step is-active" data-step="0">
+          <h2 class="step__title">Contanos sobre vos</h2>
+          <p class="step__hint">Esta es tu carta de presentación. Las familias leen esto antes de contactarte.</p>
+
+          <div class="avatar-upload">
+            <div class="avatar-upload__preview" id="avatarPreview">
+              <span class="avatar-upload__ph">Subí tu foto</span>
+            </div>
+            <div class="avatar-upload__actions">
+              <label class="btn btn--ghost">
+                <input type="file" id="fotoPerfil" accept="image/*" hidden />
+                Subir foto de perfil
+              </label>
+              <p class="field__hint">JPG o PNG. Recomendado: 600x600px, fondo claro.</p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="bio">Sobre vos *</label>
+            <textarea id="bio" name="bio" rows="4" required
+              placeholder="Contanos sobre vos, tu estilo de cuidado y qué te diferencia (mínimo 80 caracteres)."></textarea>
+            <p class="field__hint"><span id="bioCount">0</span> / 400 caracteres</p>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="experiencia_anios">Años de experiencia *</label>
+              <input id="experiencia_anios" name="experiencia_anios" type="number" min="0" max="60" required />
+            </div>
+            <div class="field">
+              <label for="tarifa_hora">Tarifa por hora (opcional)</label>
+              <input id="tarifa_hora" name="tarifa_hora" type="number" min="0" placeholder="ARS" />
+            </div>
+          </div>
+
+          <h3 class="step__subtitle">Empleos anteriores</h3>
+          <p class="step__hint">Agregá al menos una experiencia relevante.</p>
+          <div id="empleosContainer" class="ninos"></div>
+          <button type="button" class="btn btn--ghost" id="btnAddEmpleo">+ Agregar empleo</button>
+        </section>
+
+        <!-- ============ PASO 1 · FORMACIÓN ============ -->
+        <section class="step" data-step="1">
+          <h2 class="step__title">Formación y certificaciones</h2>
+          <p class="step__hint">Acreditaciones profesionales que suman valor a tu perfil.</p>
+
+          <h3 class="step__subtitle">Nivel educativo</h3>
+          <div class="choice-grid choice-grid--compact" data-name="educacion">
+            <label class="choice choice--pill"><input type="radio" name="educacion" value="secundario_inc" /><span>Secundario incompleto</span></label>
+            <label class="choice choice--pill"><input type="radio" name="educacion" value="secundario" /><span>Secundario</span></label>
+            <label class="choice choice--pill"><input type="radio" name="educacion" value="terciario" /><span>Terciario</span></label>
+            <label class="choice choice--pill"><input type="radio" name="educacion" value="universitario" /><span>Universitario</span></label>
+            <label class="choice choice--pill"><input type="radio" name="educacion" value="posgrado" /><span>Posgrado</span></label>
+          </div>
+
+          <h3 class="step__subtitle">Certificaciones</h3>
+          <div class="choice-grid choice-grid--compact">
+            <label class="choice choice--pill"><input type="checkbox" name="certificaciones" value="rcp" /><span>RCP</span></label>
+            <label class="choice choice--pill"><input type="checkbox" name="certificaciones" value="primeros_auxilios" /><span>Primeros auxilios</span></label>
+            <label class="choice choice--pill"><input type="checkbox" name="certificaciones" value="gerontologia" /><span>Gerontología</span></label>
+            <label class="choice choice--pill"><input type="checkbox" name="certificaciones" value="enfermeria" /><span>Enfermería</span></label>
+            <label class="choice choice--pill"><input type="checkbox" name="certificaciones" value="maestra_jardinera" /><span>Maestra jardinera</span></label>
+            <label class="choice choice--pill"><input type="checkbox" name="certificaciones" value="manipulacion_alimentos" /><span>Manipulación de alimentos</span></label>
+            <label class="choice choice--pill"><input type="checkbox" name="certificaciones" value="psicopedagogia" /><span>Psicopedagogía</span></label>
+          </div>
+
+          <div class="field">
+            <label for="certificaciones_otras">Otras certificaciones o cursos</label>
+            <textarea id="certificaciones_otras" name="certificaciones_otras" rows="2"
+              placeholder="Listá otros cursos que hayas hecho"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="idiomas">Idiomas que hablás</label>
+            <input id="idiomas" name="idiomas" type="text" placeholder="Ej: Español, Inglés básico, Portugués" />
+          </div>
+        </section>
+
+        <!-- ============ PASO 2 · DISPONIBILIDAD ============ -->
+        <section class="step" data-step="2">
+          <h2 class="step__title">Disponibilidad y zona de trabajo</h2>
+          <p class="step__hint">Marcá los días y franjas horarias en los que podés trabajar.</p>
+
+          <div class="availability availability--franjas">
+            <div class="availability__head">
+              <span></span>
+              <span class="availability__franja-title">Mañana</span>
+              <span class="availability__franja-title">Tarde</span>
+              <span class="availability__franja-title">Noche</span>
+            </div>
+            <div id="availabilityGrid" class="availability__grid"></div>
+          </div>
+
+          <h3 class="step__subtitle">Modalidades</h3>
+          <div class="choice-grid choice-grid--compact">
+            <label class="choice choice--pill"><input type="checkbox" name="modalidades" value="full_time" /><span>Full time</span></label>
+            <label class="choice choice--pill"><input type="checkbox" name="modalidades" value="part_time" /><span>Part time</span></label>
+            <label class="choice choice--pill"><input type="checkbox" name="modalidades" value="por_hora" /><span>Por hora</span></label>
+            <label class="choice choice--pill"><input type="checkbox" name="modalidades" value="eventual" /><span>Eventual</span></label>
+            <label class="choice choice--pill"><input type="checkbox" name="modalidades" value="con_cama" /><span>Con cama</span></label>
+          </div>
+
+          <h3 class="step__subtitle">Zonas donde podés trabajar</h3>
+          <div class="field">
+            <label for="zonas_trabajo">Barrios o localidades *</label>
+            <input id="zonas_trabajo" name="zonas_trabajo" type="text" required
+              placeholder="Ej: Palermo, Belgrano, Núñez, Vicente López" />
+            <p class="field__hint">Separá con comas.</p>
+          </div>
+          <div class="field">
+            <label for="radio_km">¿Cuántos km podés desplazarte?</label>
+            <select id="radio_km" name="radio_km">
+              <option value="3">Hasta 3 km</option>
+              <option value="5" selected>Hasta 5 km</option>
+              <option value="10">Hasta 10 km</option>
+              <option value="20">Hasta 20 km</option>
+              <option value="50">Más de 20 km</option>
+            </select>
+          </div>
+        </section>
+
+        <!-- ============ PASO 3 · DOCUMENTACIÓN ============ -->
+        <section class="step" data-step="3">
+          <h2 class="step__title">Documentación</h2>
+          <p class="step__hint">Subí documentos legibles. Son privados y solo los ve el equipo de Cuidy.</p>
+
+          <div class="doc-grid">
+            <div class="doc-card" data-doc="antecedentes">
+              <div class="doc-card__head">
+                <h4>Certificado de antecedentes</h4>
+                <span class="doc-card__badge doc-card__badge--soft">Opcional</span>
+              </div>
+              <div class="doc-card__drop">
+                <span class="doc-card__ph">PDF emitido por el Registro Nacional</span>
+                <input type="file" accept="application/pdf,image/*" />
+              </div>
+              <p class="field__hint">Vigencia 6 meses.</p>
+              <div class="field" style="margin-top:10px">
+                <label for="antecedentes_fecha">Fecha de emisión</label>
+                <input id="antecedentes_fecha" name="antecedentes_fecha" type="date" />
+              </div>
+            </div>
+
+            <div class="doc-card" data-doc="cert_rcp">
+              <div class="doc-card__head">
+                <h4>Certificado RCP / primeros auxilios</h4>
+                <span class="doc-card__badge doc-card__badge--soft">Opcional</span>
+              </div>
+              <div class="doc-card__drop">
+                <span class="doc-card__ph">PDF o imagen</span>
+                <input type="file" accept="image/*,application/pdf" />
+              </div>
+            </div>
+
+            <div class="doc-card" data-doc="cert_otros">
+              <div class="doc-card__head">
+                <h4>Otros certificados</h4>
+                <span class="doc-card__badge doc-card__badge--soft">Opcional</span>
+              </div>
+              <div class="doc-card__drop">
+                <span class="doc-card__ph">PDF o imagen</span>
+                <input type="file" accept="image/*,application/pdf" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ PASO 4 · REFERENCIAS ============ -->
+        <section class="step" data-step="4">
+          <h2 class="step__title">Referencias personales</h2>
+          <p class="step__hint">Sumá <strong>al menos una</strong> referencia. Puede ser una empleadora anterior o una persona que hable de tu trabajo.</p>
+
+          <div id="referenciasContainer" class="ninos"></div>
+          <button type="button" class="btn btn--ghost" id="btnAddReferencia">+ Agregar referencia</button>
+
+          <div class="consent-card consent-card--soft" style="margin-top: 20px">
+            <h3 class="consent-card__title">📞 Qué hacemos con esto</h3>
+            <p>Nuestro equipo podrá contactar a tus referencias para verificar tu experiencia. No compartimos sus datos con las familias.</p>
+          </div>
+        </section>
+
+        <!-- ============ PASO 5 · ENVIAR ============ -->
+        <section class="step" data-step="5">
+          <h2 class="step__title">¡Listo para enviar!</h2>
+          <p class="step__hint">Revisá el resumen de tu perfil. Una vez enviado, nuestro equipo continúa con la revisión.</p>
+
+          <div id="perfilPreview" class="perfil-preview"></div>
+
+          <div class="consent-card consent-card--soft" style="margin-top: 20px">
+            <h3 class="consent-card__title">📋 Próximos pasos</h3>
+            <ol class="consent-list consent-list--ordered">
+              <li>Nuestro equipo revisa tu perfil completo</li>
+              <li>Te contactamos para coordinar una entrevista virtual</li>
+              <li>Si la entrevista es satisfactoria, aprobamos tu perfil</li>
+              <li>¡Tu perfil se publica y empezás a recibir contactos!</li>
+            </ol>
+          </div>
+        </section>
+
+        <!-- Acciones de navegación -->
+        <div class="wizard__actions">
+          <button type="button" class="btn btn--ghost" id="btnPrev">← Atrás</button>
+          <div class="wizard__actions-right">
+            <span id="saveStatus" class="save-status"></span>
+            <button type="button" class="btn btn--primary" id="btnNext">Siguiente →</button>
+            <button type="submit" class="btn btn--primary" id="btnSubmit" hidden>Enviar perfil completo</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__row">
+      <span>© <span id="year"></span> Cuidy</span>
+      <em class="footer__tagline">"Somos el punto de encuentro entre vos y quien te cuida"</em>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="completar-perfil.js"></script>
+</body>
+</html>
