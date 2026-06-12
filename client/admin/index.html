@@ -84,6 +84,7 @@
       if (!await ensureSession()) return; // redirige a login si no hay sesión
       document.getElementById('adminUser').textContent = session.user;
       document.getElementById('btnLogout').addEventListener('click', logout);
+      addUsuariosNav();
 
       const tabla = document.getElementById('tabla');
       const tabs = document.getElementById('estadoTabs');

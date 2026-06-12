@@ -104,6 +104,19 @@ function fmtValoracion(valor, resenas) {
   if (!v || v <= 0) return `<span style="color:var(--muted)">Sin reseñas</span>`;
   return `<span class="rating">★ ${v.toFixed(1)}</span><small style="color:var(--muted); margin-left:4px">(${resenas || 0})</small>`;
 }
+// --- Subnav: agregar link Usuarios si es superadmin ---
+function addUsuariosNav() {
+  if (!session || session.role !== 'superadmin') return;
+  document.querySelectorAll('.admin-subnav').forEach(nav => {
+    if (nav.querySelector('a[href="usuarios.html"]')) return;
+    const a = document.createElement('a');
+    a.href = 'usuarios.html';
+    a.textContent = '👥 Usuarios';
+    if (location.pathname.endsWith('/usuarios.html')) a.classList.add('is-active');
+    nav.appendChild(a);
+  });
+}
+
 function fmtHora(iso) {
   if (!iso) return '—';
   try {
