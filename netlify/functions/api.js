@@ -302,6 +302,23 @@ exports.handler = async (event) => {
   const path = (event.path || '').replace(/^.*\/api\/?/, '')
   const params = event.queryStringParameters || {}
 
+  // Health check para diagnóstico
+  if (path === 'health') {
+    return json(200, {
+      ok: true,
+      supabase: !!supabase,
+      supabaseAdmin: !!supabaseAdmin,
+      env: {
+        hasUrl: !!process.env.SUPABASE_URL,
+        hasAnon: !!process.env.SUPABASE_ANON_KEY,
+        hasService: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+        hasAdmin: !!process.env.ADMIN_USER,
+        hasSession: !!process.env.SESSION_SECRET,
+        nodeEnv: process.env.NODE_ENV || 'not set'
+      }
+    })
+  }
+
   try {
     // ========== ADMIN ==========
     if (path === 'admin/login' && event.httpMethod === 'POST') {
