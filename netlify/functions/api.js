@@ -78,6 +78,7 @@ const mpClient = process.env.MP_ACCESS_TOKEN
   : null
 
 // ---- Config / constantes -------------------------------------
+const SITE_URL = process.env.SITE_URL || process.env.URL || 'https://cuidy-ar.netlify.app'
 const TIPOS_VALIDOS_CUIDADOR = ['ninera', 'adulto_mayor', 'domestica', 'cocinera']
 const DOCS_OBLIGATORIOS = ['dni_frente', 'dni_dorso', 'selfie_dni']
 const ESTADOS_VALIDOS = [
@@ -2289,7 +2290,7 @@ async function enviarEmailConfirmacion({ to, nombre, apellido, id }) {
     return
   }
 
-  const siteUrl = process.env.URL || 'https://quieroquemecuides.com'
+  const siteUrl = SITE_URL
   const logoUrl = siteUrl + '/assets/logo.png'
 
   const html = `
@@ -2359,7 +2360,7 @@ async function enviarEmailCompletarPerfil({ to, nombre, apellido, id }) {
     return
   }
 
-  const siteUrl = process.env.URL || 'https://cuidy.netlify.app'
+  const siteUrl = SITE_URL
   const logoUrl = siteUrl + '/assets/logo.png'
   const completarUrl = `${siteUrl}/completar-perfil.html?id=${id}&email=${encodeURIComponent(to)}`
 
@@ -2430,11 +2431,11 @@ async function enviarEmailActivacionAdmin({ to, nombre, usuario, token }) {
   const RESEND_KEY = process.env.RESEND_API_KEY
   if (!RESEND_KEY) {
     console.log('[mail] RESEND_API_KEY no configurada — email activación admin no enviado a', to)
-    console.log('[mail] Link de activación:', `${process.env.URL || 'http://localhost:8888'}/admin/setup-password.html?token=${token}`)
+    console.log('[mail] Link de activación:', `${SITE_URL}/admin/setup-password.html?token=${token}`)
     return
   }
 
-  const siteUrl = process.env.URL || 'https://cuidy-ar.netlify.app'
+  const siteUrl = SITE_URL
   const logoUrl = siteUrl + '/assets/logo.png'
   const setupUrl = `${siteUrl}/admin/setup-password.html?token=${token}`
 
@@ -2503,7 +2504,7 @@ async function enviarEmailEntrevista({ to, nombre, apellido, fecha, link }) {
     return
   }
 
-  const siteUrl = process.env.URL || 'https://quieroquemecuides.com'
+  const siteUrl = SITE_URL
   const logoUrl = siteUrl + '/assets/logo.png'
 
   const f = new Date(fecha)
