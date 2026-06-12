@@ -2291,7 +2291,7 @@ async function enviarEmailConfirmacion({ to, nombre, apellido, id }) {
   }
 
   const siteUrl = SITE_URL
-  const logoUrl = siteUrl + '/assets/logo.png'
+  const logoUrl = 'https://cuidy-ar.netlify.app/assets/logo-white.png'
 
   const html = `
     <div style="font-family: 'Lato', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
@@ -2361,13 +2361,13 @@ async function enviarEmailCompletarPerfil({ to, nombre, apellido, id }) {
   }
 
   const siteUrl = SITE_URL
-  const logoUrl = siteUrl + '/assets/logo.png'
+  const logoUrl = 'https://cuidy-ar.netlify.app/assets/logo-white.png'
   const completarUrl = `${siteUrl}/completar-perfil.html?id=${id}&email=${encodeURIComponent(to)}`
 
   const html = `
     <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1F2933;">
       <div style="background: #006D77; padding: 24px 32px; border-radius: 12px 12px 0 0; text-align: center;">
-        <img src="${logoUrl}" alt="Cuidy" style="max-height: 50px; margin-bottom: 8px;" />
+        <img src="${logoUrl}" alt="Cuidy" style="height: 100px; width: auto;" />
       </div>
       <div style="background: #fff; padding: 32px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
         <h2 style="color: #006D77; margin-top: 0;">¡Hola ${nombre}!</h2>
@@ -2436,13 +2436,13 @@ async function enviarEmailActivacionAdmin({ to, nombre, usuario, token }) {
   }
 
   const siteUrl = SITE_URL
-  const logoUrl = siteUrl + '/assets/logo.png'
+  const logoUrl = 'https://cuidy-ar.netlify.app/assets/logo-white.png'
   const setupUrl = `${siteUrl}/admin/setup-password.html?token=${token}`
 
   const html = `
     <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1F2933;">
       <div style="background: #006D77; padding: 24px 32px; border-radius: 12px 12px 0 0; text-align: center;">
-        <img src="${logoUrl}" alt="Cuidy" style="max-height: 50px; margin-bottom: 8px;" />
+        <img src="${logoUrl}" alt="Cuidy" style="height: 100px; width: auto;" />
       </div>
       <div style="background: #fff; padding: 32px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
         <h2 style="color: #006D77; margin-top: 0;">¡Hola ${nombre}!</h2>
@@ -2505,7 +2505,7 @@ async function enviarEmailEntrevista({ to, nombre, apellido, fecha, link }) {
   }
 
   const siteUrl = SITE_URL
-  const logoUrl = siteUrl + '/assets/logo.png'
+  const logoUrl = 'https://cuidy-ar.netlify.app/assets/logo-white.png'
 
   const f = new Date(fecha)
   const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
