@@ -37,11 +37,15 @@ const supabaseAdmin = (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_
 
 // ---- Web Push ------------------------------------------------
 if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
-  webpush.setVapidDetails(
-    'mailto:' + (process.env.VAPID_EMAIL || 'contacto@qqmc.com.ar'),
-    process.env.VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
-  )
+  try {
+    webpush.setVapidDetails(
+      'mailto:' + (process.env.VAPID_EMAIL || 'contacto@qqmc.com.ar'),
+      process.env.VAPID_PUBLIC_KEY,
+      process.env.VAPID_PRIVATE_KEY
+    )
+  } catch (err) {
+    console.warn('[vapid] No se pudo configurar web-push:', err.message)
+  }
 }
 
 async function enviarPush(usuarioTipo, usuarioId, payload) {
