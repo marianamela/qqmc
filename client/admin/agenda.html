@@ -52,6 +52,7 @@
       if (!await ensureSession()) return;
       document.getElementById('adminUser').textContent = session.user;
       document.getElementById('btnLogout').addEventListener('click', logout);
+      addUsuariosNav();
 
       const grid = document.getElementById('gridSemana');
       const rangoSpan = document.getElementById('rangoSemana');

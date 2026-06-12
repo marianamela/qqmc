@@ -93,6 +93,7 @@
       if (!await ensureSession()) return;
       document.getElementById('adminUser').textContent = session.user;
       document.getElementById('btnLogout').addEventListener('click', logout);
+      addUsuariosNav();
 
       // Orden lunes a domingo para la UI, pero guardamos con JS getDay() (0=Dom...6=Sab)
       const DIAS = [

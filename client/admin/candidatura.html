@@ -83,6 +83,7 @@
       if (!await ensureSession()) return;
       document.getElementById('adminUser').textContent = session.user;
       document.getElementById('btnLogout').addEventListener('click', logout);
+      addUsuariosNav();
 
       const id = new URLSearchParams(location.search).get('id');
       if (!id) { location.href = 'index.html'; return; }

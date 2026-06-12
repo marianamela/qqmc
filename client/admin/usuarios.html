@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+  <title>Admin · Usuarios · Cuidy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="page-admin">
+  <header class="admin-topbar">
+    <div class="container admin-topbar__row">
+      <a href="index.html" class="admin-brand">
+        <img src="../assets/logo.svg" alt="Cuidy" />
+        <span class="admin-brand__label">Panel interno</span>
+      </a>
+      <div class="admin-topbar__user">
+        <span id="adminUser">—</span>
+        <button id="btnLogout" class="btn btn--ghost">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container admin-main">
+    <header class="admin-main__head">
+      <h1>Gestión de usuarios</h1>
+      <p class="admin-main__sub">Administrá quién tiene acceso al panel interno de Cuidy.</p>
+      <nav class="admin-subnav">
+        <a href="index.html">Candidaturas</a>
+        <a href="agenda.html">📅 Agenda</a>
+        <a href="horarios.html">⚙️ Mis horarios</a>
+        <a href="usuarios.html" class="is-active">👥 Usuarios</a>
+      </nav>
+    </header>
+
+    <div class="usuarios-actions">
+      <button class="btn btn--primary" id="btnNuevo">+ Nuevo usuario</button>
+    </div>
+
+    <div id="listaUsuarios" class="admin-table">
+      <p class="admin-empty">Cargando…</p>
+    </div>
+  </main>
+
+  <!-- Modal crear/editar usuario -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-card">
+      <div class="modal-card__head">
+        <h2 id="modalTitle">Nuevo usuario</h2>
+        <button class="modal-close" id="modalClose">&times;</button>
+      </div>
+      <form id="formUsuario" class="modal-card__body">
+        <input type="hidden" id="editId" />
+        <div class="field">
+          <label for="inpUsuario">Usuario</label>
+          <input id="inpUsuario" type="text" required minlength="3" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="inpNombre">Nombre</label>
+          <input id="inpNombre" type="text" required />
+        </div>
+        <div class="field">
+          <label for="inpEmail">Email</label>
+          <input id="inpEmail" type="email" required />
+        </div>
+        <div class="field">
+          <label for="selRol">Rol</label>
+          <select id="selRol">
+            <option value="admin">Admin</option>
+            <option value="superadmin">Superadmin</option>
+          </select>
+        </div>
+        <div class="field" id="fieldPassword" hidden>
+          <label for="inpPassword">Nueva contraseña</label>
+          <input id="inpPassword" type="password" minlength="6" />
+          <small class="field__hint">Dejar vacío para no cambiar. Mínimo 6 caracteres.</small>
+        </div>
+        <p class="field__hint" id="hintInvite" style="text-align:center; margin-top: 8px;">Se enviará un email de invitación para que configure su contraseña.</p>
+        <p class="field__error" id="formError" hidden></p>
+        <div class="modal-card__actions">
+          <button type="button" class="btn btn--ghost" id="btnCancelar">Cancelar</button>
+          <button type="submit" class="btn btn--primary" id="btnGuardar">Crear y enviar invitación</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal confirmar acción -->
+  <div class="modal-overlay" id="confirmOverlay">
+    <div class="modal-card modal-card--sm">
+      <div class="modal-card__head">
+        <h2 id="confirmTitle">Confirmar</h2>
+        <button class="modal-close" id="confirmClose">&times;</button>
+      </div>
+      <div class="modal-card__body">
+        <p id="confirmMsg"></p>
+        <div class="modal-card__actions">
+          <button class="btn btn--ghost" id="confirmNo">Cancelar</button>
+          <button class="btn btn--danger" id="confirmYes">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+  <script>
+    (async () => {
+      if (!await ensureSession()) return;
+      document.getElementById('adminUser').textContent = session.user;
+      document.getElementById('btnLogout').addEventListener('click', logout);
+
+      // Solo superadmin puede estar en esta página
+      if (session.role !== 'superadmin') {
+        document.querySelector('.admin-main').innerHTML =
+          '<p class="admin-empty">No tenés permisos para acceder a esta sección.</p>';
+        return;
+      }
+
+      const lista = document.getElementById('listaUsuarios');
+      const modal = document.getElementById('modalOverlay');
+      const form = document.getElementById('formUsuario');
+      const formError = document.getElementById('formError');
+      const confirmModal = document.getElementById('confirmOverlay');
+      let confirmCallback = null;
+
+      // --- Modal helpers ---
+      function openModal(editMode = false, user = null) {
+        document.getElementById('modalTitle').textContent = editMode ? 'Editar usuario' : 'Nuevo usuario';
+        document.getElementById('btnGuardar').textContent = editMode ? 'Guardar cambios' : 'Crear y enviar invitación';
+        document.getElementById('editId').value = user?.id || '';
+        document.getElementById('inpUsuario').value = user?.usuario || '';
+        document.getElementById('inpUsuario').disabled = editMode;
+        document.getElementById('inpNombre').value = user?.nombre || '';
+        document.getElementById('inpEmail').value = user?.email || '';
+        document.getElementById('inpEmail').disabled = false;
+        document.getElementById('selRol').value = user?.rol || 'admin';
+        // Password solo se muestra en modo edición
+        document.getElementById('fieldPassword').hidden = !editMode;
+        document.getElementById('inpPassword').value = '';
+        document.getElementById('hintInvite').hidden = editMode;
+        formError.hidden = true;
+        modal.classList.add('is-visible');
+      }
+      function closeModal() { modal.classList.remove('is-visible'); }
+      function openConfirm(title, msg, callback) {
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmMsg').textContent = msg;
+        confirmCallback = callback;
+        confirmModal.classList.add('is-visible');
+      }
+      function closeConfirm() { confirmModal.classList.remove('is-visible'); confirmCallback = null; }
+
+      document.getElementById('btnNuevo').addEventListener('click', () => openModal(false));
+      document.getElementById('modalClose').addEventListener('click', closeModal);
+      document.getElementById('btnCancelar').addEventListener('click', closeModal);
+      document.getElementById('confirmClose').addEventListener('click', closeConfirm);
+      document.getElementById('confirmNo').addEventListener('click', closeConfirm);
+      document.getElementById('confirmYes').addEventListener('click', async () => {
+        if (confirmCallback) await confirmCallback();
+        closeConfirm();
+      });
+
+      // Cerrar modales con click fuera
+      modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+      confirmModal.addEventListener('click', (e) => { if (e.target === confirmModal) closeConfirm(); });
+
+      // --- Cargar usuarios ---
+      async function cargar() {
+        lista.innerHTML = '<p class="admin-empty">Cargando…</p>';
+        const r = await adminFetch('/admin/usuarios');
+        if (!r.ok) { lista.innerHTML = `<p class="admin-empty">${escapeHtml(r.error)}</p>`; return; }
+        if (!r.data?.length) { lista.innerHTML = '<p class="admin-empty">No hay usuarios registrados.</p>'; return; }
+
+        lista.innerHTML = `
+          <div class="admin-table__head admin-table__head--usuarios">
+            <span>Usuario</span><span>Nombre</span><span>Email</span>
+            <span>Rol</span><span>Estado</span><span>Creado</span><span>Acciones</span>
+          </div>
+          ${r.data.map(u => `
+            <div class="admin-table__row admin-table__row--usuarios" data-id="${u.id}">
+              <span><strong>${escapeHtml(u.usuario)}</strong></span>
+              <span>${escapeHtml(u.nombre)}</span>
+              <span>${escapeHtml(u.email || '—')}</span>
+              <span><span class="badge-rol badge-rol--${u.rol}">${u.rol}</span></span>
+              <span>${
+                !u.password_configurado
+                  ? '<span class="badge-estado-user badge-estado-user--pendiente">Pendiente</span>'
+                  : u.activo
+                    ? '<span class="badge-estado-user badge-estado-user--activo">Activo</span>'
+                    : '<span class="badge-estado-user badge-estado-user--inactivo">Suspendido</span>'
+              }</span>
+              <span>${fmtFecha(u.created_at)}</span>
+              <span class="usuario-actions">
+                ${!u.password_configurado
+                  ? `<button class="btn btn--ghost btn--sm btn-reenviar" title="Reenviar invitación">📩</button>`
+                  : `<button class="btn btn--ghost btn--sm btn-editar" title="Editar">✏️</button>`
+                }
+                ${u.activo && u.password_configurado
+                  ? `<button class="btn btn--ghost btn--sm btn-suspender" title="Suspender">⏸</button>`
+                  : u.password_configurado && !u.activo
+                    ? `<button class="btn btn--ghost btn--sm btn-activar" title="Activar">▶️</button>`
+                    : ''
+                }
+                ${u.usuario !== session.user ? `<button class="btn btn--ghost btn--sm btn-eliminar" title="Eliminar">🗑</button>` : ''}
+              </span>
+            </div>
+          `).join('')}
+        `;
+
+        // Event listeners para acciones
+        lista.querySelectorAll('.btn-editar').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const row = e.target.closest('[data-id]');
+            const u = r.data.find(x => x.id === row.dataset.id);
+            if (u) openModal(true, u);
+          });
+        });
+
+        lista.querySelectorAll('.btn-suspender').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const row = e.target.closest('[data-id]');
+            const u = r.data.find(x => x.id === row.dataset.id);
+            openConfirm('Suspender usuario', `¿Suspender el acceso de "${u.nombre}" (${u.usuario})?`, async () => {
+              const res = await adminFetch('/admin/usuarios/' + u.id, {
+                method: 'PATCH', body: JSON.stringify({ activo: false })
+              });
+              if (res.ok) cargar(); else alert(res.error);
+            });
+          });
+        });
+
+        lista.querySelectorAll('.btn-activar').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const row = e.target.closest('[data-id]');
+            const u = r.data.find(x => x.id === row.dataset.id);
+            openConfirm('Reactivar usuario', `¿Reactivar el acceso de "${u.nombre}" (${u.usuario})?`, async () => {
+              const res = await adminFetch('/admin/usuarios/' + u.id, {
+                method: 'PATCH', body: JSON.stringify({ activo: true })
+              });
+              if (res.ok) cargar(); else alert(res.error);
+            });
+          });
+        });
+
+        lista.querySelectorAll('.btn-reenviar').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const row = e.target.closest('[data-id]');
+            const u = r.data.find(x => x.id === row.dataset.id);
+            openConfirm('Reenviar invitación', `¿Reenviar el email de activación a ${u.email}?`, async () => {
+              const res = await adminFetch('/admin/resend-invite/' + u.id, { method: 'POST' });
+              if (res.ok) alert('Invitación reenviada a ' + u.email);
+              else alert(res.error);
+            });
+          });
+        });
+
+        lista.querySelectorAll('.btn-eliminar').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const row = e.target.closest('[data-id]');
+            const u = r.data.find(x => x.id === row.dataset.id);
+            openConfirm('Eliminar usuario', `¿Eliminar definitivamente a "${u.nombre}" (${u.usuario})? Esta acción no se puede deshacer.`, async () => {
+              const res = await adminFetch('/admin/usuarios/' + u.id, { method: 'DELETE' });
+              if (res.ok) cargar(); else alert(res.error);
+            });
+          });
+        });
+      }
+
+      // --- Guardar (crear o editar) ---
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        formError.hidden = true;
+        const editId = document.getElementById('editId').value;
+        const body = {
+          nombre: document.getElementById('inpNombre').value.trim(),
+          email: document.getElementById('inpEmail').value.trim(),
+          rol: document.getElementById('selRol').value
+        };
+        if (!editId) body.usuario = document.getElementById('inpUsuario').value.trim();
+        const pwd = document.getElementById('inpPassword').value;
+        if (pwd) body.password = pwd;
+
+        const url = editId ? '/admin/usuarios/' + editId : '/admin/usuarios';
+        const method = editId ? 'PATCH' : 'POST';
+        const res = await adminFetch(url, { method, body: JSON.stringify(body) });
+        if (res.ok) {
+          closeModal();
+          cargar();
+        } else {
+          formError.textContent = res.error;
+          formError.hidden = false;
+        }
+      });
+
+      cargar();
+    })();
+  </script>
+</body>
+</html>

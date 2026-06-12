@@ -343,7 +343,10 @@ exports.handler = async (event) => {
         return json(401, { ok: false, error: 'Credenciales inválidas' })
       }
       if (!adminUser.activo) {
-        return json(401, { ok: false, error: 'Usuario desactivado' })
+        return json(401, { ok: false, error: 'Usuario desactivado. Revisá tu email para activar tu cuenta.' })
+      }
+      if (!adminUser.password_hash) {
+        return json(401, { ok: false, error: 'Todavía no configuraste tu contraseña. Revisá tu email.' })
       }
 
       // Verificar password con scrypt
@@ -374,6 +377,69 @@ exports.handler = async (event) => {
     if (path === 'admin/me' && event.httpMethod === 'GET') {
       const s = getAdminSession(event)
       return json(200, { ok: true, data: s ? { user: s.user, role: s.role, nombre: s.nombre } : null })
+    }
+
+    // POST /admin/setup-password → configurar contraseña con token (público, no requiere sesión)
+    if (path === 'admin/setup-password' && event.httpMethod === 'POST') {
+      const { token, password } = safeParse(event.body)
+      if (!token || !password) return json(400, { ok: false, error: 'token y password requeridos' })
+      if (password.length < 6) return json(400, { ok: false, error: 'La contraseña debe tener al menos 6 caracteres' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'Base de datos no configurada' })
+
+      // Buscar usuario con ese token
+      const { data: adminUser, error: dbErr } = await supabaseAdmin
+        .from('admin_usuarios')
+        .select('id, usuario, nombre, setup_token_expires')
+        .eq('setup_token', token)
+        .single()
+
+      if (dbErr || !adminUser) {
+        return json(400, { ok: false, error: 'Token inválido o ya utilizado' })
+      }
+      if (new Date(adminUser.setup_token_expires) < new Date()) {
+        return json(400, { ok: false, error: 'El link expiró. Pedile al administrador que te reenvíe la invitación.' })
+      }
+
+      // Hashear password y activar usuario
+      const salt = crypto.randomBytes(16).toString('hex')
+      const hash = crypto.scryptSync(password, salt, 64).toString('hex')
+      const password_hash = `${salt}:${hash}`
+
+      const { error: upErr } = await supabaseAdmin
+        .from('admin_usuarios')
+        .update({ password_hash, activo: true, setup_token: null, setup_token_expires: null })
+        .eq('id', adminUser.id)
+
+      if (upErr) return json(500, { ok: false, error: upErr.message })
+      return json(200, { ok: true, data: { usuario: adminUser.usuario, nombre: adminUser.nombre } })
+    }
+
+    // POST /admin/resend-invite/:id → reenviar email de activación (requiere superadmin)
+    const mResend = path.match(/^admin\/resend-invite\/([0-9a-f-]{36})$/)
+    if (mResend && event.httpMethod === 'POST') {
+      // Este endpoint necesita sesión de superadmin
+      const sess = getAdminSession(event)
+      if (!sess || sess.role !== 'superadmin') return json(403, { ok: false, error: 'Solo superadmin' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'Base de datos no configurada' })
+
+      const userId = mResend[1]
+      const { data: adminUser } = await supabaseAdmin
+        .from('admin_usuarios')
+        .select('id, usuario, nombre, email, password_hash')
+        .eq('id', userId)
+        .single()
+      if (!adminUser) return json(404, { ok: false, error: 'Usuario no encontrado' })
+      if (adminUser.password_hash) return json(400, { ok: false, error: 'Este usuario ya configuró su contraseña' })
+
+      // Generar nuevo token
+      const setup_token = crypto.randomBytes(32).toString('hex')
+      const setup_token_expires = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString()
+      await supabaseAdmin.from('admin_usuarios')
+        .update({ setup_token, setup_token_expires })
+        .eq('id', userId)
+
+      await enviarEmailActivacionAdmin({ to: adminUser.email, nombre: adminUser.nombre, usuario: adminUser.usuario, token: setup_token })
+      return json(200, { ok: true })
     }
 
     // Todas las rutas /admin/* que siguen requieren sesión
@@ -753,38 +819,44 @@ exports.handler = async (event) => {
         if (!requireSuperadmin()) return json(403, { ok: false, error: 'Solo superadmin puede gestionar usuarios' })
         const { data, error } = await supabaseAdmin
           .from('admin_usuarios')
-          .select('id, usuario, nombre, email, rol, activo, created_at, updated_at')
+          .select('id, usuario, nombre, email, rol, activo, password_hash, created_at, updated_at')
           .order('created_at', { ascending: true })
         if (error) return json(500, { ok: false, error: error.message })
-        return json(200, { ok: true, data: data || [] })
+        // No enviar el hash real, solo si tiene password configurado
+        const cleaned = (data || []).map(u => ({
+          ...u,
+          password_configurado: !!u.password_hash,
+          password_hash: undefined
+        }))
+        return json(200, { ok: true, data: cleaned })
       }
 
-      // POST /admin/usuarios → crear usuario admin
+      // POST /admin/usuarios → crear usuario admin (sin password, envía email de activación)
       if (path === 'admin/usuarios' && event.httpMethod === 'POST') {
         if (!requireSuperadmin()) return json(403, { ok: false, error: 'Solo superadmin puede crear usuarios' })
-        const { usuario, password, nombre, email, rol } = safeParse(event.body)
-        if (!usuario || !password || !nombre) {
-          return json(400, { ok: false, error: 'usuario, password y nombre son requeridos' })
-        }
-        if (password.length < 6) {
-          return json(400, { ok: false, error: 'El password debe tener al menos 6 caracteres' })
+        const { usuario, nombre, email, rol } = safeParse(event.body)
+        if (!usuario || !nombre || !email) {
+          return json(400, { ok: false, error: 'usuario, nombre y email son requeridos' })
         }
         const rolFinal = (rol === 'superadmin' || rol === 'admin') ? rol : 'admin'
 
-        // Hash del password
-        const salt = crypto.randomBytes(16).toString('hex')
-        const hash = crypto.scryptSync(password, salt, 64).toString('hex')
-        const password_hash = `${salt}:${hash}`
+        // Generar token de activación (válido 48hs)
+        const setup_token = crypto.randomBytes(32).toString('hex')
+        const setup_token_expires = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString()
 
         const { data, error } = await supabaseAdmin
           .from('admin_usuarios')
-          .insert({ usuario, password_hash, nombre, email: email || null, rol: rolFinal })
+          .insert({ usuario, nombre, email, rol: rolFinal, password_hash: null, activo: false, setup_token, setup_token_expires })
           .select('id, usuario, nombre, email, rol, activo, created_at')
           .single()
         if (error) {
           if (error.code === '23505') return json(409, { ok: false, error: 'Ya existe un usuario con ese nombre' })
           return json(500, { ok: false, error: error.message })
         }
+
+        // Enviar email de activación
+        await enviarEmailActivacionAdmin({ to: email, nombre, usuario, token: setup_token })
+
         return json(201, { ok: true, data })
       }
 
@@ -825,12 +897,12 @@ exports.handler = async (event) => {
         return json(200, { ok: true, data })
       }
 
-      // DELETE /admin/usuarios/:id → desactivar usuario (no elimina, solo desactiva)
+      // DELETE /admin/usuarios/:id → eliminar usuario definitivamente
       if (mAdminUser && event.httpMethod === 'DELETE') {
-        if (!requireSuperadmin()) return json(403, { ok: false, error: 'Solo superadmin puede desactivar usuarios' })
+        if (!requireSuperadmin()) return json(403, { ok: false, error: 'Solo superadmin puede eliminar usuarios' })
         const userId = mAdminUser[1]
 
-        // No permitir desactivarse a sí mismo
+        // No permitir eliminarse a sí mismo
         const currentUser = getAdminSession(event)?.user
         const { data: target } = await supabaseAdmin
           .from('admin_usuarios')
@@ -838,12 +910,12 @@ exports.handler = async (event) => {
           .eq('id', userId)
           .single()
         if (target && target.usuario === currentUser) {
-          return json(400, { ok: false, error: 'No podés desactivar tu propio usuario' })
+          return json(400, { ok: false, error: 'No podés eliminar tu propio usuario' })
         }
 
         const { error } = await supabaseAdmin
           .from('admin_usuarios')
-          .update({ activo: false })
+          .delete()
           .eq('id', userId)
         if (error) return json(500, { ok: false, error: error.message })
         return json(200, { ok: true })
@@ -2349,6 +2421,77 @@ async function enviarEmailCompletarPerfil({ to, nombre, apellido, id }) {
     else console.log('[mail] email completar-perfil enviado a', to, data.id)
   } catch (err) {
     console.error('[mail] error al enviar completar-perfil:', err.message)
+  }
+}
+
+// ---- Email de entrevista al candidato -------------------------
+// ---- Email de activación para nuevo admin --------------------
+async function enviarEmailActivacionAdmin({ to, nombre, usuario, token }) {
+  const RESEND_KEY = process.env.RESEND_API_KEY
+  if (!RESEND_KEY) {
+    console.log('[mail] RESEND_API_KEY no configurada — email activación admin no enviado a', to)
+    console.log('[mail] Link de activación:', `${process.env.URL || 'http://localhost:8888'}/admin/setup-password.html?token=${token}`)
+    return
+  }
+
+  const siteUrl = process.env.URL || 'https://cuidy-ar.netlify.app'
+  const logoUrl = siteUrl + '/assets/logo.png'
+  const setupUrl = `${siteUrl}/admin/setup-password.html?token=${token}`
+
+  const html = `
+    <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1F2933;">
+      <div style="background: #006D77; padding: 24px 32px; border-radius: 12px 12px 0 0; text-align: center;">
+        <img src="${logoUrl}" alt="Cuidy" style="max-height: 50px; margin-bottom: 8px;" />
+      </div>
+      <div style="background: #fff; padding: 32px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+        <h2 style="color: #006D77; margin-top: 0;">¡Hola ${nombre}!</h2>
+        <p style="font-size: 16px; line-height: 1.6;">Te dieron acceso al <strong>panel interno de Cuidy</strong>. Para empezar, necesitás configurar tu contraseña.</p>
+
+        <div style="background: #f0fdf9; border: 1px solid #d1fae5; border-radius: 12px; padding: 20px; margin: 24px 0;">
+          <p style="margin: 0; font-size: 14px;">
+            <strong>Tu usuario:</strong> ${usuario}<br>
+            <strong>Válido por:</strong> 48 horas
+          </p>
+        </div>
+
+        <div style="text-align: center; margin: 28px 0;">
+          <a href="${setupUrl}" style="display: inline-block; background: #FF6B6B; color: #fff; text-decoration: none; padding: 16px 40px; border-radius: 30px; font-size: 16px; font-weight: 700; font-family: 'Montserrat', Arial, sans-serif;">
+            Configurar mi contraseña
+          </a>
+        </div>
+
+        <p style="font-size: 14px; color: #6b7280;">Si no esperabas este email, podés ignorarlo. El link expira en 48 horas.</p>
+
+        <div style="background: #F8F7F3; border-radius: 8px; padding: 16px; margin-top: 24px; font-size: 14px;">
+          <strong>¿Tenés alguna duda?</strong><br>
+          Escribinos a <a href="mailto:contacto@cuidy.com.ar" style="color: #006D77;">contacto@cuidy.com.ar</a>
+        </div>
+      </div>
+      <p style="text-align: center; font-size: 12px; color: #9ca3af; margin-top: 16px;">
+        © ${new Date().getFullYear()} Cuidy · Panel interno
+      </p>
+    </div>
+  `
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: process.env.RESEND_FROM || 'Cuidy <noreply@cuidy.com.ar>',
+        to: [to],
+        subject: `${nombre}, te invitaron al panel de Cuidy — configurá tu contraseña`,
+        html
+      })
+    })
+    const data = await res.json()
+    if (!res.ok) console.error('[mail] error Resend activación admin:', data)
+    else console.log('[mail] email activación admin enviado a', to, data.id)
+  } catch (err) {
+    console.error('[mail] error al enviar activación admin:', err.message)
   }
 }
 
