@@ -8,7 +8,9 @@
               POST /admin/candidaturas/:id/notas,
               GET /admin/schedule, PUT /admin/schedule,
               GET /admin/entrevistas?from&to,
-              GET /admin/entrevistas/slots?fecha=YYYY-MM-DD
+              GET /admin/entrevistas/slots?fecha=YYYY-MM-DD,
+              GET /admin/usuarios, POST /admin/usuarios,
+              PATCH /admin/usuarios/:id, DELETE /admin/usuarios/:id
    ============================================================= */
 
 const { createClient } = require('@supabase/supabase-js')
@@ -137,7 +139,7 @@ function getAdminSession(event) {
 
 function requireAdmin(event) {
   const s = getAdminSession(event)
-  if (!s || s.role !== 'admin') return null
+  if (!s || (s.role !== 'admin' && s.role !== 'superadmin')) return null
   return s
 }
 
@@ -316,7 +318,7 @@ exports.handler = async (event) => {
         hasUrl: !!process.env.SUPABASE_URL,
         hasAnon: !!process.env.SUPABASE_ANON_KEY,
         hasService: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-        hasAdmin: !!process.env.ADMIN_USER,
+        hasSupabaseAdmin: !!supabaseAdmin,
         hasSession: !!process.env.SESSION_SECRET,
         nodeEnv: process.env.NODE_ENV || 'not set'
       }
@@ -328,11 +330,31 @@ exports.handler = async (event) => {
     if (path === 'admin/login' && event.httpMethod === 'POST') {
       const { user, password } = safeParse(event.body)
       if (!user || !password) return json(400, { ok: false, error: 'user y password requeridos' })
-      if (user !== process.env.ADMIN_USER || password !== process.env.ADMIN_PASSWORD) {
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'Base de datos no configurada' })
+
+      // Buscar usuario en la base de datos
+      const { data: adminUser, error: dbErr } = await supabaseAdmin
+        .from('admin_usuarios')
+        .select('id, usuario, password_hash, nombre, rol, activo')
+        .eq('usuario', user)
+        .single()
+
+      if (dbErr || !adminUser) {
         return json(401, { ok: false, error: 'Credenciales inválidas' })
       }
+      if (!adminUser.activo) {
+        return json(401, { ok: false, error: 'Usuario desactivado' })
+      }
+
+      // Verificar password con scrypt
+      const [salt, storedHash] = adminUser.password_hash.split(':')
+      const hash = crypto.scryptSync(password, salt, 64).toString('hex')
+      if (hash !== storedHash) {
+        return json(401, { ok: false, error: 'Credenciales inválidas' })
+      }
+
       const exp = Math.floor(Date.now() / 1000) + SESSION_MAX_AGE
-      const token = signSession({ user, role: 'admin', exp })
+      const token = signSession({ user: adminUser.usuario, role: adminUser.rol, nombre: adminUser.nombre, exp })
       const cookie = [
         `${SESSION_COOKIE}=${token}`,
         'Path=/',
@@ -341,7 +363,7 @@ exports.handler = async (event) => {
         'SameSite=Strict',
         process.env.NODE_ENV === 'production' ? 'Secure' : ''
       ].filter(Boolean).join('; ')
-      return json(200, { ok: true, data: { user } }, { 'Set-Cookie': cookie })
+      return json(200, { ok: true, data: { user: adminUser.usuario, nombre: adminUser.nombre, rol: adminUser.rol } }, { 'Set-Cookie': cookie })
     }
 
     if (path === 'admin/logout' && event.httpMethod === 'POST') {
@@ -351,7 +373,7 @@ exports.handler = async (event) => {
 
     if (path === 'admin/me' && event.httpMethod === 'GET') {
       const s = getAdminSession(event)
-      return json(200, { ok: true, data: s ? { user: s.user, role: s.role } : null })
+      return json(200, { ok: true, data: s ? { user: s.user, role: s.role, nombre: s.nombre } : null })
     }
 
     // Todas las rutas /admin/* que siguen requieren sesión
@@ -714,6 +736,115 @@ exports.handler = async (event) => {
           .from('admin_notificaciones')
           .update({ leida: true })
           .eq('leida', false)
+        if (error) return json(500, { ok: false, error: error.message })
+        return json(200, { ok: true })
+      }
+
+      // ========== GESTIÓN DE USUARIOS ADMIN (solo superadmin) ==========
+
+      // Helper: verificar que el usuario actual es superadmin
+      const requireSuperadmin = () => {
+        const s = getAdminSession(event)
+        return s && s.role === 'superadmin'
+      }
+
+      // GET /admin/usuarios → listar usuarios admin
+      if (path === 'admin/usuarios' && event.httpMethod === 'GET') {
+        if (!requireSuperadmin()) return json(403, { ok: false, error: 'Solo superadmin puede gestionar usuarios' })
+        const { data, error } = await supabaseAdmin
+          .from('admin_usuarios')
+          .select('id, usuario, nombre, email, rol, activo, created_at, updated_at')
+          .order('created_at', { ascending: true })
+        if (error) return json(500, { ok: false, error: error.message })
+        return json(200, { ok: true, data: data || [] })
+      }
+
+      // POST /admin/usuarios → crear usuario admin
+      if (path === 'admin/usuarios' && event.httpMethod === 'POST') {
+        if (!requireSuperadmin()) return json(403, { ok: false, error: 'Solo superadmin puede crear usuarios' })
+        const { usuario, password, nombre, email, rol } = safeParse(event.body)
+        if (!usuario || !password || !nombre) {
+          return json(400, { ok: false, error: 'usuario, password y nombre son requeridos' })
+        }
+        if (password.length < 6) {
+          return json(400, { ok: false, error: 'El password debe tener al menos 6 caracteres' })
+        }
+        const rolFinal = (rol === 'superadmin' || rol === 'admin') ? rol : 'admin'
+
+        // Hash del password
+        const salt = crypto.randomBytes(16).toString('hex')
+        const hash = crypto.scryptSync(password, salt, 64).toString('hex')
+        const password_hash = `${salt}:${hash}`
+
+        const { data, error } = await supabaseAdmin
+          .from('admin_usuarios')
+          .insert({ usuario, password_hash, nombre, email: email || null, rol: rolFinal })
+          .select('id, usuario, nombre, email, rol, activo, created_at')
+          .single()
+        if (error) {
+          if (error.code === '23505') return json(409, { ok: false, error: 'Ya existe un usuario con ese nombre' })
+          return json(500, { ok: false, error: error.message })
+        }
+        return json(201, { ok: true, data })
+      }
+
+      // PATCH /admin/usuarios/:id → editar usuario admin
+      const mAdminUser = path.match(/^admin\/usuarios\/([0-9a-f-]{36})$/)
+      if (mAdminUser && event.httpMethod === 'PATCH') {
+        if (!requireSuperadmin()) return json(403, { ok: false, error: 'Solo superadmin puede editar usuarios' })
+        const userId = mAdminUser[1]
+        const body = safeParse(event.body)
+        const updates = {}
+
+        if (body.nombre) updates.nombre = body.nombre
+        if (body.email !== undefined) updates.email = body.email || null
+        if (body.rol === 'superadmin' || body.rol === 'admin') updates.rol = body.rol
+        if (typeof body.activo === 'boolean') updates.activo = body.activo
+
+        // Si se envía nuevo password, hashearlo
+        if (body.password) {
+          if (body.password.length < 6) {
+            return json(400, { ok: false, error: 'El password debe tener al menos 6 caracteres' })
+          }
+          const salt = crypto.randomBytes(16).toString('hex')
+          const hash = crypto.scryptSync(body.password, salt, 64).toString('hex')
+          updates.password_hash = `${salt}:${hash}`
+        }
+
+        if (Object.keys(updates).length === 0) {
+          return json(400, { ok: false, error: 'Nada que actualizar' })
+        }
+
+        const { data, error } = await supabaseAdmin
+          .from('admin_usuarios')
+          .update(updates)
+          .eq('id', userId)
+          .select('id, usuario, nombre, email, rol, activo, updated_at')
+          .single()
+        if (error) return json(500, { ok: false, error: error.message })
+        return json(200, { ok: true, data })
+      }
+
+      // DELETE /admin/usuarios/:id → desactivar usuario (no elimina, solo desactiva)
+      if (mAdminUser && event.httpMethod === 'DELETE') {
+        if (!requireSuperadmin()) return json(403, { ok: false, error: 'Solo superadmin puede desactivar usuarios' })
+        const userId = mAdminUser[1]
+
+        // No permitir desactivarse a sí mismo
+        const currentUser = getAdminSession(event)?.user
+        const { data: target } = await supabaseAdmin
+          .from('admin_usuarios')
+          .select('usuario')
+          .eq('id', userId)
+          .single()
+        if (target && target.usuario === currentUser) {
+          return json(400, { ok: false, error: 'No podés desactivar tu propio usuario' })
+        }
+
+        const { error } = await supabaseAdmin
+          .from('admin_usuarios')
+          .update({ activo: false })
+          .eq('id', userId)
         if (error) return json(500, { ok: false, error: error.message })
         return json(200, { ok: true })
       }

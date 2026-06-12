@@ -46,8 +46,8 @@ Plataforma que conecta familias con cuidadores de confianza verificados: niñera
 - `SUPABASE_URL` → URL del proyecto Supabase
 - `SUPABASE_ANON_KEY` → clave pública (usada por el cliente y para GETs públicos)
 - `SUPABASE_SERVICE_ROLE_KEY` → clave privada (usada por el backend; bypassea RLS)
-- `ADMIN_USER` / `ADMIN_PASSWORD` → credenciales del panel interno
 - `SESSION_SECRET` → random hex para firmar cookies (generar con `openssl rand -hex 32`)
+- **Ya no se usan** `ADMIN_USER` / `ADMIN_PASSWORD` → migrado a tabla `admin_usuarios` en Supabase
 - `PORT` → 3000 (local)
 
 ## URLs
@@ -85,6 +85,7 @@ Plataforma que conecta familias con cuidadores de confianza verificados: niñera
 - **Suscripciones**: MercadoPago Checkout Pro, paywall para contacto
 - **PWA**: manifest.json, service worker, notificaciones push
 - **Panel admin**: gestión de cuidadores, estados, eventos, aprobaciones
+- **Usuarios admin en DB**: tabla `admin_usuarios` con roles `superadmin` y `admin`, passwords hasheados con scrypt. Superadmin puede crear/editar/desactivar usuarios admin via endpoints `/admin/usuarios`
 - **GA4**: tracking de eventos de conversión personalizados
 - **UTM tracking**: captura de origen y campaña en sessionStorage
 
