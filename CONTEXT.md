@@ -14,14 +14,31 @@ Plataforma que conecta familias con cuidadores de confianza verificados: niñera
 - Frontend: HTML/CSS/JS vanilla → carpeta `client/`
 - Backend: Node.js con Netlify Functions → carpeta `netlify/functions/`
 - Base de datos: Supabase
-- Deploy: Netlify (automático desde rama `main`)
+- Deploy: Netlify (automático desde GitHub)
 - Repo: https://github.com/marianamela/qqmc
 
-## Reglas de desarrollo
-- Todo el desarrollo va en la rama `dev`
-- Las pruebas se corren en localhost con `netlify dev` (puerto 8888)
-- Solo se pushea a `main` cuando se indica explícitamente
-- Para publicar a producción: merge de `dev` a `main` y push
+## Git y deploy
+
+### Ramas
+- `dev` → rama de desarrollo. Todos los cambios se commitean acá primero.
+- `main` → rama de producción. Solo recibe merges desde `dev` cuando los cambios están probados.
+
+### URLs de Netlify
+- **Producción** (main): `cuidy-ar.netlify.app` → será `cuidy.com.ar` cuando se registre el dominio
+- **Preview** (dev): `dev--cuidy-ar.netlify.app` → para probar cambios antes de promover a producción
+
+### Flujo de trabajo
+1. Desarrollar en la rama `dev`
+2. Probar localmente con `netlify dev` (puerto 8888)
+3. Commitear y pushear a `dev`: `git add -A && git commit -m "..." && git push`
+4. Verificar en `dev--cuidy-ar.netlify.app`
+5. Cuando esté OK, promover a producción: `git checkout main && git merge dev && git push`
+6. Verificar en `cuidy-ar.netlify.app`
+7. Volver a dev para seguir trabajando: `git checkout dev`
+
+### Service Worker (cache)
+- El archivo `client/sw.js` tiene un `CACHE_VERSION` que debe incrementarse cada vez que se hacen cambios significativos en archivos estáticos (HTML, CSS, JS). Si no se incrementa, los usuarios pueden ver versiones cacheadas viejas.
+- Versión actual: 3
 
 ## Estructura
 - `client/` → frontend estático
