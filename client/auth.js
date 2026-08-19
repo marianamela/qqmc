@@ -62,6 +62,7 @@ function saveSession(session, familiaData) {
     apellido: familiaData?.apellido || session.user?.user_metadata?.apellido || '',
     email: session.user?.email || familiaData?.email || '',
     telefono: familiaData?.telefono || '',
+    estado: familiaData?.estado || 'pendiente',
     auth_token: session.access_token,
     suscripcion_activa: false
   };
@@ -171,14 +172,21 @@ async function authGoogle() {
 }
 
 // ---- Actualizar UI del menú según estado de login ----
+// La lógica principal del user-menu (dropdown, mis contactos, mis datos)
+// está en app.js → initFamiliaNav(). Aquí solo ocultamos/mostramos
+// los elementos correctos para páginas que no cargan app.js.
 function updateNavAuth() {
   const session = getSession();
   const nav = document.querySelector('.topbar__nav');
   if (!nav) return;
 
+  // Si tiene el nuevo user-menu (index.html), dejar que app.js lo maneje
+  const userMenu = document.getElementById('userMenu');
+  if (userMenu) return;
+
+  // Para otras páginas (registro, login, etc): fallback simple
   if (session?.id && session?.nombre) {
-    // Logueado: mostrar nombre + logout
-    const loginBtn = nav.querySelector('a[href="login.html"], a[href="#"].btn--ghost');
+    const loginBtn = nav.querySelector('a[href="login.html"]');
     const regBtn = nav.querySelector('a[href="registro-familia.html"]');
     if (loginBtn) {
       loginBtn.textContent = session.nombre;

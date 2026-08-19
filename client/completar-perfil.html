@@ -27,7 +27,7 @@
 
   <!-- Pantalla de error: si el cuidador no está en estado correcto -->
   <div id="errorScreen" class="container" style="display:none; text-align:center; padding:80px 20px">
-    <div style="font-size:48px; margin-bottom:16px">🔒</div>
+    <div style="font-size:48px; margin-bottom:16px"><span class="ci ci--xl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></div>
     <h1 class="wizard__title" id="errorTitle">No se puede acceder</h1>
     <p id="errorMsg" style="max-width:480px; margin:0 auto; color: var(--noche); opacity:.7">Este enlace no es válido o tu perfil ya fue completado.</p>
     <a href="/" class="btn btn--primary" style="margin-top:24px">Ir al inicio</a>
@@ -51,7 +51,7 @@
         <li class="steps__item" data-step="2"><span class="steps__dot">3</span><span class="steps__label">Disponibilidad</span></li>
         <li class="steps__item" data-step="3"><span class="steps__dot">4</span><span class="steps__label">Documentos</span></li>
         <li class="steps__item" data-step="4"><span class="steps__dot">5</span><span class="steps__label">Referencias</span></li>
-        <li class="steps__item" data-step="5"><span class="steps__dot">✓</span><span class="steps__label">Enviar</span></li>
+        <li class="steps__item" data-step="5"><span class="steps__dot"><span class="ci ci--success"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span></span><span class="steps__label">Enviar</span></li>
       </ol>
 
       <form id="wizardForm" class="wizard__form" novalidate>
@@ -81,14 +81,21 @@
             <p class="field__hint"><span id="bioCount">0</span> / 400 caracteres</p>
           </div>
 
+          <div class="field">
+            <label for="experiencia_anios">Años de experiencia *</label>
+            <input id="experiencia_anios" name="experiencia_anios" type="number" min="0" max="60" required />
+          </div>
+
+          <h3 class="step__subtitle">Valor hora *</h3>
+          <p class="step__hint">Indicá el rango de tu tarifa por hora en pesos argentinos. Este dato se mostrará a las familias en los resultados de búsqueda.</p>
           <div class="field-row">
             <div class="field">
-              <label for="experiencia_anios">Años de experiencia *</label>
-              <input id="experiencia_anios" name="experiencia_anios" type="number" min="0" max="60" required />
+              <label for="valor_hora_min">Desde (ARS) *</label>
+              <input id="valor_hora_min" name="valor_hora_min" type="number" min="0" step="100" required placeholder="Ej: 3000" />
             </div>
             <div class="field">
-              <label for="tarifa_hora">Tarifa por hora (opcional)</label>
-              <input id="tarifa_hora" name="tarifa_hora" type="number" min="0" placeholder="ARS" />
+              <label for="valor_hora_max">Hasta (ARS) *</label>
+              <input id="valor_hora_max" name="valor_hora_max" type="number" min="0" step="100" required placeholder="Ej: 5000" />
             </div>
           </div>
 
@@ -233,7 +240,7 @@
           <button type="button" class="btn btn--ghost" id="btnAddReferencia">+ Agregar referencia</button>
 
           <div class="consent-card consent-card--soft" style="margin-top: 20px">
-            <h3 class="consent-card__title">📞 Qué hacemos con esto</h3>
+            <h3 class="consent-card__title"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92Z"/></svg></span> Qué hacemos con esto</h3>
             <p>Nuestro equipo podrá contactar a tus referencias para verificar tu experiencia. No compartimos sus datos con las familias.</p>
           </div>
         </section>
@@ -246,7 +253,7 @@
           <div id="perfilPreview" class="perfil-preview"></div>
 
           <div class="consent-card consent-card--soft" style="margin-top: 20px">
-            <h3 class="consent-card__title">📋 Próximos pasos</h3>
+            <h3 class="consent-card__title"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span> Próximos pasos</h3>
             <ol class="consent-list consent-list--ordered">
               <li>Nuestro equipo revisa tu perfil completo</li>
               <li>Te contactamos para coordinar una entrevista virtual</li>
@@ -273,10 +280,12 @@
     <div class="container footer__row">
       <span>© <span id="year"></span> Cuidy</span>
       <em class="footer__tagline">"Somos el punto de encuentro entre vos y quien te cuida"</em>
+      <br><a href="terminos.html" style="color:inherit;opacity:.7;text-decoration:underline;">Términos y Condiciones</a> · <a href="privacidad.html" style="color:inherit;opacity:.7;text-decoration:underline;">Política de Privacidad</a>
     </div>
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="icons.js"></script>
   <script src="completar-perfil.js"></script>
 </body>
 </html>

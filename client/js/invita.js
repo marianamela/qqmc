@@ -17,7 +17,7 @@
   const tipo = esFamilia ? 'familia' : 'cuidador';
 
   // Landing de destino: familia invita cuidador, cuidador invita familia
-  const landingTarget = esFamilia ? 'invita-cuidador' : 'invita-familia';
+  const landingTarget = esFamilia ? 'invita-cuidador' : 'recomendar-cuidador';
   const utmCampaign = esFamilia ? 'familia_invita_cuidador' : 'cuidador_invita_familia';
 
   const btnWA = document.getElementById('btnInvitaWA');

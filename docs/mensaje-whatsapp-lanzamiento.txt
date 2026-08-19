@@ -1,0 +1,48 @@
+============================================
+MENSAJES DE WHATSAPP PARA CAMPAÑA DE LANZAMIENTO
+============================================
+
+--- MENSAJE 1: Para grupos de familias ---
+(Copiar y pegar en grupos de WhatsApp de mamás, papás, vecinos, etc.)
+
+Hola! Les comparto *Cuidy*, una plataforma nueva para encontrar cuidadores de confianza cerca tuyo: niñeras, acompañantes lúdicos de adultos mayores, cocineros y empleadas domésticas.
+
+Todos los cuidadores están verificados con DNI y entrevistados antes de publicar su perfil.
+
+Podés registrarte gratis y buscar cuidadores en tu zona, o si ya tenés una persona de confianza, compartile el link para que se sume:
+
+👉 https://cuidy-ar.netlify.app/recomendar-cuidador.html?utm_source=whatsapp&utm_medium=grupo&utm_campaign=lanzamiento
+
+#CuidarBien
+
+
+--- MENSAJE 2: Para enviar directo a una familia ---
+
+Hola! Te paso *Cuidy*, es una plataforma para encontrar cuidadores verificados (niñeras, acompañantes, cocineros, domésticas) cerca tuyo. Es gratis registrarse:
+
+👉 https://cuidy-ar.netlify.app/recomendar-cuidador.html?utm_source=whatsapp&utm_medium=directo&utm_campaign=lanzamiento
+
+
+--- MENSAJE 3: Para enviar directo a un cuidador ---
+
+Hola! Te paso *Cuidy*, es una plataforma donde podés registrarte como cuidador/a verificado/a y recibir contactos de familias de tu zona. Es gratis:
+
+👉 https://cuidy-ar.netlify.app/invita-cuidador.html?utm_source=whatsapp&utm_medium=directo&utm_campaign=lanzamiento
+
+
+============================================
+NOTAS
+============================================
+
+- Todos los links incluyen parámetros UTM para trackear la fuente en GA4
+- utm_source=whatsapp → identifica que viene de WhatsApp
+- utm_medium=grupo/directo → distingue si fue por grupo o mensaje directo
+- utm_campaign=lanzamiento → identifica la campaña
+
+- Para trackeo personalizado (saber quién trajo a quién):
+  La familia se registra primero → desde su panel genera un link con código
+  de referido → ese link sí vincula al cuidador con la familia que lo invitó.
+
+- El link de recomendar-cuidador.html ahora tiene dos opciones:
+  Camino A: La familia se registra (recomendado)
+  Camino B: La familia copia un link para enviarle a su cuidador directamente

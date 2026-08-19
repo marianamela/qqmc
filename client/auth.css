@@ -33,6 +33,43 @@
   margin: 0 0 24px;
 }
 
+/* Auth tabs (familia / cuidador) */
+.auth-tabs {
+  display: flex;
+  gap: 0;
+  margin: 0 0 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.auth-tab {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  background: var(--bg);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.auth-tab.is-active {
+  background: var(--teal);
+  color: #fff;
+}
+.auth-tab:not(.is-active):hover {
+  background: #e5e7eb;
+}
+
+/* Auth panels */
+.auth-panel {
+  display: none;
+}
+.auth-panel.is-active {
+  display: block;
+}
+
 /* Google SSO button */
 .auth-google {
   display: flex;

@@ -61,18 +61,18 @@ function labelDoc(d) {
 }
 function labelEvento(t) {
   return ({
-    registrada: '📥 Candidatura registrada',
-    identidad_aprobada: '✅ Identidad aprobada',
-    perfil_completado: '📋 Perfil profesional completado',
-    correccion_pedida: '✏️ Correcciones pedidas',
-    correccion_recibida: '↩️ Correcciones recibidas',
-    entrevista_agendada: '📅 Entrevista agendada',
-    entrevista_realizada: '🎥 Entrevista realizada',
-    aprobada: '✓ Candidatura aprobada',
-    rechazada: '✗ Candidatura rechazada',
-    suspendida: '⏸ Perfil suspendido',
-    nota_interna: '📝 Nota interna',
-    antecedentes_actualizados: '🔄 Antecedentes actualizados'
+    registrada: icon('inbox') + ' Candidatura registrada',
+    identidad_aprobada: icon('checkCircle', 'success') + ' Identidad aprobada',
+    perfil_completado: icon('clipboardList') + ' Perfil profesional completado',
+    correccion_pedida: icon('penLine') + ' Correcciones pedidas',
+    correccion_recibida: icon('undo') + ' Correcciones recibidas',
+    entrevista_agendada: icon('calendar') + ' Entrevista agendada',
+    entrevista_realizada: icon('video') + ' Entrevista realizada',
+    aprobada: icon('check') + ' Candidatura aprobada',
+    rechazada: icon('xCircle', 'danger') + ' Candidatura rechazada',
+    suspendida: icon('pause') + ' Perfil suspendido',
+    nota_interna: icon('fileText') + ' Nota interna',
+    antecedentes_actualizados: icon('refreshCw') + ' Antecedentes actualizados'
   })[t] || t;
 }
 
@@ -102,7 +102,7 @@ function fmtSize(b) {
 function fmtValoracion(valor, resenas) {
   const v = Number(valor);
   if (!v || v <= 0) return `<span style="color:var(--muted)">Sin reseñas</span>`;
-  return `<span class="rating">★ ${v.toFixed(1)}</span><small style="color:var(--muted); margin-left:4px">(${resenas || 0})</small>`;
+  return `<span class="rating">${icon("starFilled", "gold")} ${v.toFixed(1)}</span><small style="color:var(--muted); margin-left:4px">(${resenas || 0})</small>`;
 }
 // --- Subnav: agregar link Usuarios si es superadmin ---
 function addUsuariosNav() {
@@ -111,8 +111,36 @@ function addUsuariosNav() {
     if (nav.querySelector('a[href="usuarios.html"]')) return;
     const a = document.createElement('a');
     a.href = 'usuarios.html';
-    a.textContent = '👥 Usuarios';
+    a.innerHTML = icon('users') + ' Usuarios';
     if (location.pathname.endsWith('/usuarios.html')) a.classList.add('is-active');
+    nav.appendChild(a);
+  });
+}
+
+function addFamiliasNav() {
+  document.querySelectorAll('.admin-subnav').forEach(nav => {
+    if (nav.querySelector('a[href="familias.html"]')) return;
+    // Insertar después del primer link (Candidaturas)
+    const first = nav.querySelector('a');
+    const a = document.createElement('a');
+    a.href = 'familias.html';
+    a.innerHTML = icon('users') + ' Familias';
+    if (location.pathname.endsWith('/familias.html')) a.classList.add('is-active');
+    if (first && first.nextSibling) {
+      nav.insertBefore(a, first.nextSibling);
+    } else {
+      nav.appendChild(a);
+    }
+  });
+}
+
+function addOperacionesNav() {
+  document.querySelectorAll('.admin-subnav').forEach(nav => {
+    if (nav.querySelector('a[href="operaciones.html"]')) return;
+    const a = document.createElement('a');
+    a.href = 'operaciones.html';
+    a.innerHTML = icon('settings') + ' Operaciones';
+    if (location.pathname.endsWith('/operaciones.html')) a.classList.add('is-active');
     nav.appendChild(a);
   });
 }

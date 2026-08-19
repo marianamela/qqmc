@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+  <title>Admin · Operaciones · Cuidy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="admin.css" />
+  <style>
+    .ops-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px; margin-top: 24px;
+    }
+    .ops-card {
+      background: #fff; border-radius: 12px; padding: 24px;
+      border: 1px solid rgba(0,109,119,.08);
+      box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+    .ops-card__title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px; font-weight: 700; color: #1F2933;
+      margin-bottom: 8px;
+    }
+    .ops-card__desc {
+      font-size: 14px; line-height: 1.6; color: #1F2933; opacity: .65;
+      margin-bottom: 16px;
+    }
+    .ops-card__meta {
+      font-size: 12px; color: #1F2933; opacity: .45;
+      margin-top: 12px; line-height: 1.5;
+    }
+    .ops-card__btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 20px; border: none; border-radius: 8px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: opacity .2s;
+    }
+    .ops-card__btn:hover:not(:disabled) { opacity: .85; }
+    .ops-card__btn:disabled { opacity: .5; cursor: not-allowed; }
+    .ops-card__btn--teal { background: #006D77; color: #fff; }
+    .ops-card__btn--coral { background: #FF6B6B; color: #fff; }
+    .ops-card__result {
+      margin-top: 12px; padding: 10px 14px; border-radius: 8px;
+      font-size: 13px; line-height: 1.5; display: none;
+    }
+    .ops-card__result--ok { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; display: block; }
+    .ops-card__result--error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; display: block; }
+    .ops-card__result--info { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; display: block; }
+
+    .ops-section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: #006D77;
+      margin-top: 32px; margin-bottom: 4px;
+      padding-bottom: 8px; border-bottom: 2px solid rgba(0,109,119,.1);
+    }
+
+    .ops-stats {
+      display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px;
+    }
+    .ops-stat {
+      background: #fff; border-radius: 10px; padding: 16px 20px;
+      border: 1px solid rgba(0,109,119,.08);
+      min-width: 160px; text-align: center;
+    }
+    .ops-stat__num {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 28px; font-weight: 800; color: #006D77;
+    }
+    .ops-stat__label {
+      font-size: 12px; color: #1F2933; opacity: .55; margin-top: 4px;
+    }
+  </style>
+</head>
+<body class="page-admin">
+  <header class="admin-topbar">
+    <div class="container admin-topbar__row">
+      <a href="index.html" class="admin-brand">
+        <img src="../assets/logo.svg" alt="Cuidy" />
+        <span class="admin-brand__label">Panel interno</span>
+      </a>
+      <div class="admin-topbar__user">
+        <span id="adminUser">—</span>
+        <button id="btnLogout" class="btn btn--ghost">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container admin-main">
+    <header class="admin-main__head">
+      <h1>Operaciones</h1>
+      <p class="admin-main__sub">Acciones manuales y tareas de mantenimiento de la plataforma.</p>
+      <nav class="admin-subnav">
+        <a href="index.html">Candidaturas</a>
+        <a href="agenda.html">Agenda</a>
+        <a href="horarios.html">Mis horarios</a>
+        <a href="operaciones.html" class="is-active">Operaciones</a>
+      </nav>
+    </header>
+
+    <!-- Estadísticas rápidas -->
+    <p class="ops-section-title">Resumen</p>
+    <div class="ops-stats" id="statsContainer">
+      <div class="ops-stat"><div class="ops-stat__num" id="statSolicitudes">—</div><div class="ops-stat__label">Solicitudes de rec. pendientes</div></div>
+      <div class="ops-stat"><div class="ops-stat__num" id="statListaEspera">—</div><div class="ops-stat__label">En lista de espera</div></div>
+      <div class="ops-stat"><div class="ops-stat__num" id="statRevision">—</div><div class="ops-stat__label">Recomendaciones en revisión</div></div>
+    </div>
+
+    <!-- Acciones -->
+    <p class="ops-section-title">Recomendaciones y follow-up</p>
+    <div class="ops-grid">
+
+      <!-- Follow-up solicitudes sin respuesta -->
+      <div class="ops-card">
+        <h3 class="ops-card__title">Follow-up: solicitudes sin respuesta</h3>
+        <p class="ops-card__desc">
+          Busca solicitudes de recomendación (Camino A) que llevan más de 5 días sin que la familia haya respondido. Envía un WhatsApp al cuidador ofreciéndole registrarse por lista de espera (Camino B).
+        </p>
+        <button class="ops-card__btn ops-card__btn--teal" id="btnFollowup">
+          Ejecutar follow-up
+        </button>
+        <div class="ops-card__result" id="resultFollowup"></div>
+        <p class="ops-card__meta">Último ejecutado: <span id="lastFollowup">—</span></p>
+      </div>
+
+      <!-- Revisar recomendaciones retenidas -->
+      <div class="ops-card">
+        <h3 class="ops-card__title">Recomendaciones en revisión</h3>
+        <p class="ops-card__desc">
+          Lista las recomendaciones que el sistema anti-fraude retuvo para revisión manual (fraud_score ≥ 30). Desde acá podés aprobarlas o rechazarlas.
+        </p>
+        <button class="ops-card__btn ops-card__btn--coral" id="btnVerRevision">
+          Ver recomendaciones retenidas
+        </button>
+        <div class="ops-card__result" id="resultRevision"></div>
+      </div>
+
+    </div>
+
+    <p class="ops-section-title">Lista de espera de cuidadores</p>
+    <div class="ops-grid">
+
+      <div class="ops-card">
+        <h3 class="ops-card__title">Solicitudes en lista de espera</h3>
+        <p class="ops-card__desc">
+          Cuidadores que se registraron sin recomendación (Camino B) y esperan evaluación manual del equipo.
+        </p>
+        <button class="ops-card__btn ops-card__btn--teal" id="btnVerListaEspera">
+          Ver lista de espera
+        </button>
+        <div class="ops-card__result" id="resultListaEspera"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="../icons.js"></script>
+  <script src="admin.js"></script>
+  <script>
+  (async () => {
+    if (!await ensureSession()) return;
+    document.getElementById('adminUser').textContent = session.user;
+    document.getElementById('btnLogout').addEventListener('click', logout);
+    addUsuariosNav();
+    addFamiliasNav();
+    addOperacionesNav();
+
+    // ===== Cargar estadísticas =====
+    async function loadStats() {
+      try {
+        // Solicitudes de recomendación pendientes/enviadas
+        const rSol = await adminFetch('/admin/stats/solicitudes-recomendacion');
+        if (rSol.ok) document.getElementById('statSolicitudes').textContent = rSol.pendientes || 0;
+
+        // Lista de espera
+        const rLE = await adminFetch('/admin/stats/lista-espera');
+        if (rLE.ok) document.getElementById('statListaEspera').textContent = rLE.pendientes || 0;
+
+        // Recomendaciones en revisión
+        const rRev = await adminFetch('/admin/stats/revision-pendiente');
+        if (rRev.ok) document.getElementById('statRevision').textContent = rRev.pendientes || 0;
+      } catch (e) {
+        console.error('Error cargando stats:', e);
+      }
+    }
+    loadStats();
+
+    // Recuperar último follow-up del localStorage
+    const lastF = localStorage.getItem('cuidy_last_followup');
+    if (lastF) document.getElementById('lastFollowup').textContent = new Date(lastF).toLocaleString('es-AR');
+
+    // ===== Follow-up =====
+    const btnFollowup = document.getElementById('btnFollowup');
+    const resultFollowup = document.getElementById('resultFollowup');
+    btnFollowup.addEventListener('click', async () => {
+      btnFollowup.disabled = true;
+      btnFollowup.textContent = 'Ejecutando…';
+      resultFollowup.className = 'ops-card__result';
+      resultFollowup.style.display = 'none';
+
+      try {
+        const r = await adminFetch('/recomendaciones/followup', { method: 'POST' });
+        if (r.ok) {
+          const now = new Date().toISOString();
+          localStorage.setItem('cuidy_last_followup', now);
+          document.getElementById('lastFollowup').textContent = new Date(now).toLocaleString('es-AR');
+
+          if (r.notificados === 0) {
+            resultFollowup.textContent = 'No hay solicitudes pendientes de follow-up en este momento.';
+            resultFollowup.className = 'ops-card__result ops-card__result--info';
+          } else {
+            resultFollowup.textContent = `Se notificaron ${r.notificados} cuidador${r.notificados > 1 ? 'es' : ''} con solicitudes sin respuesta.`;
+            resultFollowup.className = 'ops-card__result ops-card__result--ok';
+          }
+          loadStats();
+        } else {
+          resultFollowup.textContent = r.error || 'Error al ejecutar follow-up.';
+          resultFollowup.className = 'ops-card__result ops-card__result--error';
+        }
+      } catch (e) {
+        resultFollowup.textContent = 'Error de conexión.';
+        resultFollowup.className = 'ops-card__result ops-card__result--error';
+      }
+      btnFollowup.disabled = false;
+      btnFollowup.textContent = 'Ejecutar follow-up';
+    });
+
+    // ===== Ver recomendaciones en revisión =====
+    const btnRevision = document.getElementById('btnVerRevision');
+    const resultRevision = document.getElementById('resultRevision');
+    btnRevision.addEventListener('click', async () => {
+      btnRevision.disabled = true;
+      resultRevision.className = 'ops-card__result';
+      resultRevision.style.display = 'none';
+
+      try {
+        const r = await adminFetch('/admin/invitaciones?requiere_revision=true');
+        if (!r.ok) {
+          resultRevision.textContent = r.error || 'Error al cargar.';
+          resultRevision.className = 'ops-card__result ops-card__result--error';
+          btnRevision.disabled = false; return;
+        }
+        const items = r.data || [];
+        if (items.length === 0) {
+          resultRevision.textContent = 'No hay recomendaciones pendientes de revisión.';
+          resultRevision.className = 'ops-card__result ops-card__result--info';
+          btnRevision.disabled = false; return;
+        }
+        resultRevision.innerHTML = items.map(inv => `
+          <div style="border-bottom:1px solid rgba(0,0,0,.06); padding:10px 0;">
+            <strong>${escapeHtml(inv.cuidador_nombre)}</strong> (${escapeHtml(inv.cuidador_telefono)})<br>
+            Recomendado por: ${escapeHtml(inv.familia_nombre)} · Score: <strong>${inv.fraud_score}</strong><br>
+            Flags: ${(inv.fraud_flags || []).join(', ') || 'ninguno'}<br>
+            <small style="opacity:.5">${new Date(inv.created_at).toLocaleString('es-AR')}</small>
+            <div style="margin-top:6px">
+              <button class="ops-card__btn ops-card__btn--teal" style="padding:6px 14px; font-size:12px;" onclick="aprobarInvitacion('${inv.id}', this)">Aprobar</button>
+              <button class="ops-card__btn ops-card__btn--coral" style="padding:6px 14px; font-size:12px; margin-left:6px;" onclick="rechazarInvitacion('${inv.id}', this)">Rechazar</button>
+            </div>
+          </div>
+        `).join('');
+        resultRevision.className = 'ops-card__result ops-card__result--info';
+      } catch (e) {
+        resultRevision.textContent = 'Error de conexión.';
+        resultRevision.className = 'ops-card__result ops-card__result--error';
+      }
+      btnRevision.disabled = false;
+    });
+
+    // ===== Ver lista de espera =====
+    const btnLE = document.getElementById('btnVerListaEspera');
+    const resultLE = document.getElementById('resultListaEspera');
+    btnLE.addEventListener('click', async () => {
+      btnLE.disabled = true;
+      resultLE.className = 'ops-card__result';
+      resultLE.style.display = 'none';
+
+      try {
+        const r = await adminFetch('/admin/lista-espera');
+        if (!r.ok) {
+          resultLE.textContent = r.error || 'Error al cargar.';
+          resultLE.className = 'ops-card__result ops-card__result--error';
+          btnLE.disabled = false; return;
+        }
+        const items = r.data || [];
+        if (items.length === 0) {
+          resultLE.textContent = 'No hay cuidadores en lista de espera.';
+          resultLE.className = 'ops-card__result ops-card__result--info';
+          btnLE.disabled = false; return;
+        }
+        resultLE.innerHTML = items.map(c => `
+          <div style="border-bottom:1px solid rgba(0,0,0,.06); padding:10px 0;">
+            <strong>${escapeHtml(c.nombre)}</strong> · ${escapeHtml(c.telefono)}<br>
+            ${escapeHtml(c.tipo_servicio)} · ${escapeHtml(c.experiencia)} experiencia · ${escapeHtml(c.localidad)}, ${escapeHtml(c.provincia)}<br>
+            ${c.referencias ? `<em style="opacity:.6">Ref: ${escapeHtml(c.referencias.substring(0, 120))}${c.referencias.length > 120 ? '…' : ''}</em><br>` : ''}
+            <small style="opacity:.5">${new Date(c.created_at).toLocaleString('es-AR')} · Estado: ${c.estado}</small>
+          </div>
+        `).join('');
+        resultLE.className = 'ops-card__result ops-card__result--info';
+      } catch (e) {
+        resultLE.textContent = 'Error de conexión.';
+        resultLE.className = 'ops-card__result ops-card__result--error';
+      }
+      btnLE.disabled = false;
+    });
+  })();
+
+  // Funciones globales para aprobar/rechazar
+  async function aprobarInvitacion(id, btn) {
+    btn.disabled = true; btn.textContent = 'Aprobando…';
+    try {
+      const r = await adminFetch('/admin/invitaciones/' + id + '/aprobar', { method: 'POST' });
+      if (r.ok) {
+        btn.parentElement.innerHTML = '<span style="color:#059669; font-weight:600;">✓ Aprobada</span>';
+        const stat = document.getElementById('statRevision');
+        stat.textContent = Math.max(0, parseInt(stat.textContent || '0') - 1);
+      } else {
+        btn.textContent = r.error || 'Error'; btn.disabled = false;
+      }
+    } catch { btn.textContent = 'Error'; btn.disabled = false; }
+  }
+  async function rechazarInvitacion(id, btn) {
+    btn.disabled = true; btn.textContent = 'Rechazando…';
+    try {
+      const r = await adminFetch('/admin/invitaciones/' + id + '/rechazar', { method: 'POST' });
+      if (r.ok) {
+        btn.parentElement.innerHTML = '<span style="color:#dc2626; font-weight:600;">✗ Rechazada</span>';
+        const stat = document.getElementById('statRevision');
+        stat.textContent = Math.max(0, parseInt(stat.textContent || '0') - 1);
+      } else {
+        btn.textContent = r.error || 'Error'; btn.disabled = false;
+      }
+    } catch { btn.textContent = 'Error'; btn.disabled = false; }
+  }
+  </script>
+</body>
+</html>

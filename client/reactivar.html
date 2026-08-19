@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <title>Reactivar cuenta · Cuidy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .reactivar { max-width: 520px; margin: 60px auto; padding: 0 20px; text-align: center; }
+    .reactivar__icon { font-size: 56px; margin-bottom: 16px; }
+    .reactivar__title { font-family: 'Montserrat', sans-serif; font-size: 26px; font-weight: 700; color: #1F2933; margin-bottom: 12px; }
+    .reactivar__text { font-family: 'Inter', sans-serif; font-size: 15px; color: #52606D; line-height: 1.7; margin-bottom: 28px; }
+    .reactivar__btn { display: inline-block; background: #006D77; color: #fff; border: none; padding: 14px 36px; border-radius: 28px; font-size: 15px; font-weight: 700; font-family: 'Montserrat', sans-serif; cursor: pointer; text-decoration: none; transition: background .2s; }
+    .reactivar__btn:hover { background: #005a63; }
+    .reactivar__btn:disabled { opacity: .5; cursor: not-allowed; }
+    .reactivar__msg { margin-top: 20px; padding: 16px 20px; border-radius: 12px; font-size: 14px; line-height: 1.6; }
+    .reactivar__msg--ok { background: #e6f9f0; color: #065f46; border: 1px solid #a7f3d0; }
+    .reactivar__msg--error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .reactivar__login { display: inline-block; margin-top: 20px; color: #006D77; font-weight: 600; text-decoration: none; font-size: 14px; }
+  </style>
+</head>
+<body class="page-wizard">
+  <header class="topbar">
+    <div class="container topbar__row">
+      <a class="brand" href="/" aria-label="Cuidy">
+        <img class="brand__logo" src="assets/logo.svg" alt="Cuidy" />
+      </a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="reactivar" id="reactivarSection">
+      <div class="reactivar__icon"><span class="ci ci--xl ci--teal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg></span></div>
+      <h1 class="reactivar__title">Reactivar tu cuenta</h1>
+      <p class="reactivar__text" id="reactivarText">
+        Si cambiaste de opinión, podés reactivar tu cuenta y volver a usar Cuidy como antes.
+      </p>
+      <button class="reactivar__btn" id="btnReactivar">Reactivar mi cuenta</button>
+      <div id="reactivarMsg" style="display:none"></div>
+      <a href="login.html" class="reactivar__login" id="linkLogin" style="display:none">Iniciar sesión →</a>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__row">
+      <span>© <span id="year"></span> Cuidy</span>
+      <em class="footer__tagline">"Somos el punto de encuentro entre vos y quien te cuida"</em>
+      <br><a href="terminos.html" style="color:inherit;opacity:.7;text-decoration:underline;">Términos y Condiciones</a> · <a href="privacidad.html" style="color:inherit;opacity:.7;text-decoration:underline;">Política de Privacidad</a>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get('email');
+    const tipo = params.get('tipo');
+
+    if (!email || !tipo) {
+      document.getElementById('reactivarText').textContent = 'Link inválido. Revisá el email que te enviamos.';
+      document.getElementById('btnReactivar').style.display = 'none';
+    }
+
+    document.getElementById('btnReactivar').addEventListener('click', async () => {
+      const btn = document.getElementById('btnReactivar');
+      const msgDiv = document.getElementById('reactivarMsg');
+      btn.disabled = true;
+      btn.textContent = 'Reactivando...';
+
+      try {
+        const API = window.location.hostname === 'localhost'
+          ? 'http://localhost:8888/.netlify/functions/api'
+          : '/.netlify/functions/api';
+
+        const res = await fetch(`${API}/auth/reactivar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, tipo })
+        });
+        const data = await res.json();
+
+        msgDiv.style.display = 'block';
+        if (data.ok) {
+          msgDiv.className = 'reactivar__msg reactivar__msg--ok';
+          msgDiv.textContent = data.mensaje;
+          btn.style.display = 'none';
+          document.getElementById('linkLogin').style.display = 'inline-block';
+        } else {
+          msgDiv.className = 'reactivar__msg reactivar__msg--error';
+          msgDiv.textContent = data.error || 'Ocurrió un error. Intentá de nuevo.';
+          btn.disabled = false;
+          btn.textContent = 'Reactivar mi cuenta';
+        }
+      } catch (err) {
+        msgDiv.style.display = 'block';
+        msgDiv.className = 'reactivar__msg reactivar__msg--error';
+        msgDiv.textContent = 'Error de conexión. Intentá de nuevo.';
+        btn.disabled = false;
+        btn.textContent = 'Reactivar mi cuenta';
+      }
+    });
+  </script>
+</body>
+</html>

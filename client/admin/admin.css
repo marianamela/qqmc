@@ -178,6 +178,8 @@
 .badge-estado--rechazado { background: #fce7f3; color: #9d174d; }
 .badge-estado--suspendido { background: #f3f4f6; color: #374151; }
 .badge-estado--vencido { background: var(--magenta-soft); color: var(--magenta-dark); }
+.badge-estado--pendiente { background: #f3f4f6; color: #6b7280; }
+.badge-estado--baja { background: #fef2f2; color: #991b1b; }
 
 /* --- Detalle de candidatura --- */
 .cand-layout {
@@ -630,6 +632,111 @@
 }
 .btn--danger:hover { background: #dc2626; }
 
+/* --- Familias grid --- */
+.admin-table__head--fam, .admin-table__row--fam {
+  grid-template-columns: 1.6fr 2fr 1.2fr .9fr 1fr 1.2fr;
+}
+
+/* --- Admin modal (familias detalle) --- */
+.admin-modal {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; animation: fadeIn .15s;
+}
+.admin-modal.hidden { display: none; }
+.admin-modal__overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.5);
+}
+.admin-modal__box {
+  position: relative; z-index: 1;
+  background: #fff; border-radius: 18px;
+  width: 100%; max-width: 600px; max-height: 90vh;
+  overflow-y: auto; padding: 28px;
+  box-shadow: 0 16px 48px rgba(0,0,0,.2);
+}
+.admin-modal__close {
+  position: absolute; top: 12px; right: 14px;
+  background: none; border: 0; font-size: 28px; color: var(--muted);
+  cursor: pointer; line-height: 1; padding: 4px 8px;
+}
+.admin-modal__close:hover { color: var(--ink); }
+
+/* --- Familia modal body --- */
+.fam-modal__name {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 22px; font-weight: 600;
+  color: var(--ink); margin: 0 0 8px;
+}
+.fam-modal__grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin: 16px 0;
+}
+.kv {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 10px 14px;
+  background: var(--bg, #f8f7f3);
+  border-radius: 10px;
+}
+.kv__k {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .5px; color: var(--muted, #6b7280);
+}
+.kv__v {
+  font-size: 14px; color: var(--ink, #1f2933);
+  word-break: break-word;
+}
+.fam-modal__section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line, #e5e7eb);
+}
+.fam-modal__subtitle {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 15px; font-weight: 600;
+  color: var(--ink); margin: 0 0 12px;
+}
+.fam-modal__docs {
+  display: flex; gap: 16px; flex-wrap: wrap;
+}
+.fam-modal__doc {
+  text-align: center; flex: 1; min-width: 160px;
+}
+.fam-modal__doc-label {
+  display: block; font-size: 13px; font-weight: 600;
+  margin-bottom: 8px; color: var(--ink);
+}
+.fam-modal__doc-img {
+  max-width: 100%; max-height: 220px;
+  border-radius: 10px; border: 1px solid var(--line);
+  object-fit: cover;
+}
+.fam-modal__doc--empty {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 6px;
+  padding: 24px; border: 2px dashed var(--line, #e5e7eb);
+  border-radius: 10px; color: var(--muted, #6b7280);
+  font-size: 13px;
+}
+.fam-modal__alert {
+  padding: 12px 16px; border-radius: 10px;
+  font-size: 13px; line-height: 1.5; margin-bottom: 12px;
+}
+.fam-modal__alert--info {
+  background: #f0f9ff; border: 1px solid #bae6fd; color: #0c4a6e;
+}
+.fam-modal__alert--warning {
+  background: #fef3c7; border: 1px solid #fcd34d; color: #78350f;
+}
+.fam-modal__alert--danger {
+  background: #fef2f2; border: 1px solid #fca5a5; color: #7f1d1d;
+}
+.fam-modal__actions {
+  display: flex; gap: 10px; margin-top: 24px;
+  padding-top: 16px; border-top: 1px solid var(--line);
+}
+
+/* --- Responsive mobile --- */
 @media (max-width: 900px) {
   .cand-layout { grid-template-columns: 1fr; }
   .admin-table__head { display: none; }
@@ -644,4 +751,73 @@
   .admin-table__row--usuarios {
     grid-template-columns: 1fr 1fr; gap: 6px;
   }
+}
+
+@media (max-width: 600px) {
+  .admin-main { padding: 16px 12px 48px; }
+  .admin-topbar__row { height: 54px; padding: 0 12px; }
+  .admin-brand img { height: 28px; }
+  .admin-brand__label { font-size: 9px; padding: 3px 7px; }
+  .admin-topbar__user { font-size: 12px; gap: 8px; }
+  .admin-topbar__user .btn { font-size: 11px; padding: 5px 10px; }
+  .admin-main__head h1 { font-size: 22px; }
+  .admin-main__sub { font-size: 13px; }
+
+  .admin-subnav {
+    width: 100%; overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .admin-subnav::-webkit-scrollbar { display: none; }
+  .admin-subnav a { white-space: nowrap; font-size: 12px; padding: 6px 10px; }
+
+  .estado-tabs { gap: 6px; }
+  .estado-tab { font-size: 11px; padding: 6px 10px; }
+  .estado-tab span { font-size: 10px; padding: 1px 6px; }
+
+  .admin-filters--grid { grid-template-columns: 1fr; }
+  .admin-filters .field--actions { justify-content: stretch; }
+  .admin-filters .field--actions .btn { width: 100%; }
+
+  .admin-table__head--fam { display: none; }
+  .admin-table__row--fam {
+    grid-template-columns: 1fr;
+    gap: 6px; padding: 14px 16px;
+    position: relative;
+  }
+  .admin-table__row--fam .fam-email,
+  .admin-table__row--fam .fam-tel,
+  .admin-table__row--fam .fam-fecha {
+    font-size: 12px; color: var(--muted);
+  }
+  .admin-table__row--fam .fam-email::before { content: ''; }
+  .admin-table__row--fam .fam-tel::before { content: ''; }
+  .admin-table__row--fam .fam-fecha::before { content: ''; }
+  .admin-table__row--fam .fam-actions {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px;
+  }
+
+  .admin-modal__box { padding: 20px 16px; margin: 0; border-radius: 14px; }
+
+  .fam-modal__name { font-size: 18px; }
+  .fam-modal__grid { grid-template-columns: 1fr; gap: 8px; }
+  .fam-modal__docs { flex-direction: column; }
+  .fam-modal__doc { min-width: unset; }
+  .fam-modal__actions { flex-direction: column; }
+  .fam-modal__actions .btn { width: 100%; }
+
+  .horarios-grid { grid-template-columns: repeat(4, 1fr); }
+  .horarios-tabla th, .horarios-tabla td { padding: 8px 10px; font-size: 13px; }
+  .horarios-tabla input[type="time"] { width: 90px; font-size: 13px; }
+
+  .agenda-week__grid { grid-template-columns: 1fr; }
+
+  .docs-list { grid-template-columns: 1fr 1fr; }
+
+  .cand-head { flex-direction: column; text-align: center; }
+  .cand-name { font-size: 20px; }
+
+  .modal-card { margin: 12px; }
+  .modal-card__head { padding: 16px 16px 0; }
+  .modal-card__body { padding: 14px 16px 18px; }
 }

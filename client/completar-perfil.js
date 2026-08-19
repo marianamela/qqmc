@@ -308,7 +308,7 @@
         <div class="field"><label>Nombre *</label><input type="text" class="ref-nombre" value="${data.nombre || ''}" /></div>
         <div class="field"><label>Relación</label><input type="text" class="ref-relacion" placeholder="Ej: Ex-empleadora" value="${data.relacion || ''}" /></div>
       </div>
-      <div class="field"><label>Teléfono *</label><input type="tel" class="ref-telefono" value="${data.telefono || ''}" /></div>
+      <div class="field"><label>Teléfono *</label><input type="tel" class="ref-telefono" value="${data.telefono || '+549'}" placeholder="+549 11 12345678" /></div>
     `;
     card.querySelector('.nino-card__remove').addEventListener('click', () => { card.remove(); renumberReferencias(); });
     cont.appendChild(card);
@@ -386,7 +386,7 @@
       const draft = collectFormData({ includeFiles: false });
       try {
         localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-        status.textContent = 'Borrador guardado ✓'; status.classList.remove('is-saving');
+        status.innerHTML = icon('check', 'success') + ' Borrador guardado'; status.classList.remove('is-saving');
       } catch {
         status.textContent = 'Borrador guardado'; status.classList.remove('is-saving');
       }
@@ -411,7 +411,8 @@
     setIf('bio', d.bio);
     if (d.bio) document.getElementById('bioCount').textContent = d.bio.length;
     setIf('experiencia_anios', d.experiencia_anios);
-    setIf('tarifa_hora', d.tarifa_hora);
+    setIf('valor_hora_min', d.valor_hora_min);
+    setIf('valor_hora_max', d.valor_hora_max);
     setIf('educacion', d.educacion);
     (d.certificaciones || []).forEach(v => {
       const c = form.querySelector(`input[name="certificaciones"][value="${v}"]`); if (c) c.checked = true;
@@ -469,7 +470,8 @@
       _cuidadorId: cuidadorId,
       bio: val('bio'),
       experiencia_anios: Number(val('experiencia_anios')) || 0,
-      tarifa_hora: Number(val('tarifa_hora')) || null,
+      valor_hora_min: Number(val('valor_hora_min')) || null,
+      valor_hora_max: Number(val('valor_hora_max')) || null,
       empleos: collectEmpleos(),
       educacion: val('educacion') || form.querySelector('input[name="educacion"]:checked')?.value || null,
       certificaciones: multi('certificaciones'),
@@ -560,7 +562,7 @@
         // Mostrar pantalla de éxito
         document.getElementById('wizardMain').innerHTML = `
           <div class="container" style="text-align:center; padding:80px 20px">
-            <div style="font-size:48px; margin-bottom:16px">🎉</div>
+            <div style="font-size:48px; margin-bottom:16px">${icon('partyPopper')}</div>
             <h1 class="wizard__title">¡Perfil completado!</h1>
             <p style="max-width:480px; margin:16px auto; color: var(--noche); opacity:.8; line-height:1.6">
               Gracias ${cuidadorData?.nombre || ''}. Nuestro equipo va a revisar tu perfil y te contacta para coordinar la entrevista virtual.

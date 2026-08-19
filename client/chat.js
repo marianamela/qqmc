@@ -9,7 +9,7 @@
 
   const ESPECIALIDAD_LABEL = {
     ninera: 'Niñera',
-    adulto_mayor: 'Cuidado de adulto mayor',
+    adulto_mayor: 'Cuidado lúdico de adulto mayor',
     cocinera: 'Cocinera',
     domestica: 'Empleada doméstica'
   };
@@ -43,10 +43,10 @@
         'Estoy acá para ayudarte a encontrar a la persona indicada para tu hogar. Contame, ¿qué tipo de ayuda estás buscando?'
       ],
       options: [
-        { label: 'Necesito una niñera', value: 'ninera', icon: '👶' },
-        { label: 'Cuidado para un adulto mayor', value: 'adulto_mayor', icon: '🤍' },
-        { label: 'Cocinera', value: 'cocinera', icon: '🍳' },
-        { label: 'Empleada doméstica', value: 'domestica', icon: '🏠' }
+        { label: 'Necesito una niñera', value: 'ninera', icon: icon('baby') },
+        { label: 'Cuidado lúdico de adulto mayor', value: 'adulto_mayor', icon: icon('heart') },
+        { label: 'Cocinera', value: 'cocinera', icon: icon('utensils') },
+        { label: 'Empleada doméstica', value: 'domestica', icon: icon('home') }
       ],
       field: 'tipo',
       next: () => 'contexto'
@@ -102,8 +102,8 @@
         ];
       },
       options: [
-        { label: 'Sí, quiero contarte', value: 'si', icon: '💬' },
-        { label: 'Prefiero ir directo a buscar', value: 'no', icon: '🔍' }
+        { label: 'Sí, quiero contarte', value: 'si', icon: icon('messageCircle') },
+        { label: 'Prefiero ir directo a buscar', value: 'no', icon: icon('search') }
       ],
       field: '_quiere_contexto',
       next: (a) => a._quiere_contexto === 'si' ? 'detalle_' + a.tipo : 'zona'
@@ -125,10 +125,10 @@
         'Gracias. ¿Hay algo en particular que sea importante para vos?'
       ],
       options: [
-        { label: 'Que tenga experiencia con bebés', value: 'bebes', icon: '🍼' },
-        { label: 'Que pueda ayudar con tareas escolares', value: 'escolar', icon: '📚' },
-        { label: 'Que sepa primeros auxilios', value: 'auxilios', icon: '🩺' },
-        { label: 'Nada en especial, busco alguien confiable', value: 'general', icon: '🤍' }
+        { label: 'Que tenga experiencia con bebés', value: 'bebes', icon: icon('baby') },
+        { label: 'Que pueda ayudar con tareas escolares', value: 'escolar', icon: icon('bookOpen') },
+        { label: 'Que sepa primeros auxilios', value: 'auxilios', icon: icon('pill') },
+        { label: 'Nada en especial, busco alguien confiable', value: 'general', icon: icon('heart') }
       ],
       field: 'necesidad_especial',
       next: 'transicion_zona'
@@ -150,10 +150,10 @@
         'Entiendo perfectamente. ¿Qué es lo más importante para vos en la persona que lo/la cuide?'
       ],
       options: [
-        { label: 'Experiencia con medicación', value: 'medicacion', icon: '💊' },
-        { label: 'Paciencia y compañía', value: 'compania', icon: '🤍' },
-        { label: 'Formación en enfermería', value: 'enfermeria', icon: '🩺' },
-        { label: 'Que pueda hacer turnos nocturnos', value: 'nocturno', icon: '🌙' }
+        { label: 'Experiencia con medicación', value: 'medicacion', icon: icon('pill') },
+        { label: 'Paciencia y compañía', value: 'compania', icon: icon('heart') },
+        { label: 'Formación en enfermería', value: 'enfermeria', icon: icon('pill') },
+        { label: 'Que pueda hacer turnos nocturnos', value: 'nocturno', icon: icon('moon') }
       ],
       field: 'necesidad_especial',
       next: 'transicion_zona'
@@ -165,10 +165,10 @@
         '¿Qué tareas necesitás que cubra? Así busco a alguien que se ajuste a lo que tu hogar necesita.'
       ],
       options: [
-        { label: 'Limpieza y orden general', value: 'limpieza', icon: '🧹' },
-        { label: 'Limpieza y cocina', value: 'cocina', icon: '🍳' },
-        { label: 'Todo: limpieza, cocina y planchado', value: 'integral', icon: '✨' },
-        { label: 'Cuidado del hogar + niños', value: 'hogar_ninos', icon: '👶🏠' }
+        { label: 'Limpieza y orden general', value: 'limpieza', icon: icon('home') },
+        { label: 'Limpieza y cocina', value: 'cocina', icon: icon('utensils') },
+        { label: 'Todo: limpieza, cocina y planchado', value: 'integral', icon: icon('sparkles') },
+        { label: 'Cuidado del hogar + niños', value: 'hogar_ninos', icon: icon('baby') + icon('home') }
       ],
       field: 'necesidad_especial',
       next: 'transicion_zona'
@@ -180,10 +180,10 @@
         '¿Qué tipo de cocina necesitás que prepare?'
       ],
       options: [
-        { label: 'Cocina casera del día a día', value: 'casera', icon: '🍲' },
-        { label: 'Viandas o meal prep semanal', value: 'viandas', icon: '🥡' },
-        { label: 'Cocina saludable o con dieta especial', value: 'saludable', icon: '🥗' },
-        { label: 'Cocina completa + limpieza de cocina', value: 'integral', icon: '✨' }
+        { label: 'Cocina casera del día a día', value: 'casera', icon: icon('utensils') },
+        { label: 'Viandas o meal prep semanal', value: 'viandas', icon: icon('utensils') },
+        { label: 'Cocina saludable o con dieta especial', value: 'saludable', icon: icon('utensils') },
+        { label: 'Cocina completa + limpieza de cocina', value: 'integral', icon: icon('sparkles') }
       ],
       field: 'necesidad_especial',
       next: 'transicion_zona'
@@ -224,8 +224,8 @@
         '¿Querés que busquemos cerca de tu ubicación actual? Así te muestro primero a quienes están más cerca tuyo.'
       ],
       options: [
-        { label: 'Sí, usar mi ubicación', value: 'geolocate', icon: '📍' },
-        { label: 'No, buscar en toda la zona', value: 'skip', icon: '🌐' }
+        { label: 'Sí, usar mi ubicación', value: 'geolocate', icon: icon('mapPin') },
+        { label: 'No, buscar en toda la zona', value: 'skip', icon: icon('globe') }
       ],
       field: '_ubicacion',
       next: (a) => a._ubicacion === 'geolocate' ? 'geolocating' : 'dias'
@@ -239,10 +239,10 @@
     distancia: {
       bot: () => ['¿Hasta qué distancia máxima te gustaría buscar?'],
       options: [
-        { label: 'Cerca, hasta 3 km', value: '3', icon: '🚶' },
-        { label: 'Hasta 5 km', value: '5', icon: '🚲' },
-        { label: 'Hasta 10 km', value: '10', icon: '🚗' },
-        { label: 'Hasta 20 km, no me importa viajar', value: '20', icon: '🚌' }
+        { label: 'Cerca, hasta 3 km', value: '3', icon: icon('footprints') },
+        { label: 'Hasta 5 km', value: '5', icon: icon('bike') },
+        { label: 'Hasta 10 km', value: '10', icon: icon('car') },
+        { label: 'Hasta 20 km, no me importa viajar', value: '20', icon: icon('bus') }
       ],
       field: 'distancia_km',
       next: 'dias'
@@ -259,10 +259,10 @@
         return [mensajes[a.tipo] || '¿Qué días de la semana necesitás el servicio?'];
       },
       options: [
-        { label: 'Lunes a viernes', value: 'lun,mar,mie,jue,vie', icon: '📅' },
-        { label: 'Solo fines de semana', value: 'sab,dom', icon: '🗓️' },
-        { label: 'Toda la semana', value: 'lun,mar,mie,jue,vie,sab,dom', icon: '📆' },
-        { label: 'Algunos días puntuales', value: '_custom', icon: '✏️' }
+        { label: 'Lunes a viernes', value: 'lun,mar,mie,jue,vie', icon: icon('calendar') },
+        { label: 'Solo fines de semana', value: 'sab,dom', icon: icon('calendar') },
+        { label: 'Toda la semana', value: 'lun,mar,mie,jue,vie,sab,dom', icon: icon('calendarDays') },
+        { label: 'Algunos días puntuales', value: '_custom', icon: icon('penLine') }
       ],
       field: 'dias',
       next: (a) => a.dias === '_custom' ? 'dias_custom' : 'franja'
@@ -286,10 +286,10 @@
     franja: {
       bot: () => ['¿Y en qué horario lo necesitás?'],
       options: [
-        { label: 'Por la mañana (6 a 13hs)', value: 'manana', icon: '🌅' },
-        { label: 'Por la tarde (13 a 21hs)', value: 'tarde', icon: '☀️' },
-        { label: 'Por la noche (21 a 6hs)', value: 'noche', icon: '🌙' },
-        { label: 'Jornada completa', value: '', icon: '⏰' }
+        { label: 'Por la mañana (6 a 13hs)', value: 'manana', icon: icon('sunrise') },
+        { label: 'Por la tarde (13 a 21hs)', value: 'tarde', icon: icon('sun') },
+        { label: 'Por la noche (21 a 6hs)', value: 'noche', icon: icon('moon') },
+        { label: 'Jornada completa', value: '', icon: icon('clock') }
       ],
       field: 'franja',
       next: 'experiencia'
@@ -303,10 +303,10 @@
         return ['¿Te importa la experiencia previa de la persona?'];
       },
       options: [
-        { label: 'No me importa, valoro la actitud', value: '0', icon: '🤍' },
-        { label: 'Al menos 1 año', value: '1', icon: '⭐' },
-        { label: 'Al menos 3 años', value: '3', icon: '⭐⭐' },
-        { label: '5 años o más', value: '5', icon: '⭐⭐⭐' }
+        { label: 'No me importa, valoro la actitud', value: '0', icon: icon('heart') },
+        { label: 'Al menos 1 año', value: '1', icon: icon('starFilled', 'gold') },
+        { label: 'Al menos 3 años', value: '3', icon: icon('starFilled', 'gold') + icon('starFilled', 'gold') },
+        { label: '5 años o más', value: '5', icon: icon('starFilled', 'gold') + icon('starFilled', 'gold') + icon('starFilled', 'gold') }
       ],
       field: 'experiencia_min',
       next: 'verificado'
@@ -317,8 +317,8 @@
         '¿Querés ver solo personas con perfil verificado? Esto significa que revisamos su documentación, hicimos una entrevista y chequeamos sus antecedentes.'
       ],
       options: [
-        { label: 'Sí, solo verificados', value: '1', icon: '✅' },
-        { label: 'Ver todos los perfiles', value: '0', icon: '👀' }
+        { label: 'Sí, solo verificados', value: '1', icon: icon('checkCircle', 'success') },
+        { label: 'Ver todos los perfiles', value: '0', icon: icon('eye') }
       ],
       field: 'verificado',
       next: 'buscar'
@@ -352,10 +352,10 @@
         ];
       },
       options: [
-        { label: 'Ver todos los cuidadores de la zona', value: 'ver_todos_zona', icon: '👥' },
-        { label: 'Ampliar la zona de búsqueda', value: 'ampliar_zona', icon: '🌎' },
-        { label: 'Flexibilizar la experiencia', value: 'ampliar_exp', icon: '🔓' },
-        { label: 'Empezar de nuevo', value: 'reiniciar', icon: '🔄' }
+        { label: 'Ver todos los cuidadores de la zona', value: 'ver_todos_zona', icon: icon('users') },
+        { label: 'Ampliar la zona de búsqueda', value: 'ampliar_zona', icon: icon('globe') },
+        { label: 'Flexibilizar la experiencia', value: 'ampliar_exp', icon: icon('unlock') },
+        { label: 'Empezar de nuevo', value: 'reiniciar', icon: icon('refreshCw') }
       ],
       field: '_ampliar',
       next: (a) => a._ampliar === 'reiniciar' ? 'reset' : 'buscar_ampliado'
@@ -385,8 +385,8 @@
         return msgs;
       },
       options: [
-        { label: 'Ajustar la búsqueda', value: 'refinar', icon: '🔍' },
-        { label: 'Empezar de nuevo', value: 'reiniciar', icon: '🔄' }
+        { label: 'Ajustar la búsqueda', value: 'refinar', icon: icon('search') },
+        { label: 'Empezar de nuevo', value: 'reiniciar', icon: icon('refreshCw') }
       ],
       field: '_post',
       next: (a) => a._post === 'reiniciar' ? 'reset' : 'refinar'
@@ -395,20 +395,172 @@
     refinar: {
       bot: () => ['¿Qué te gustaría cambiar?'],
       options: [
-        { label: 'La zona', value: 'zona', icon: '📍' },
-        { label: 'Los días y horarios', value: 'dias', icon: '📅' },
-        { label: 'La experiencia requerida', value: 'experiencia', icon: '⭐' },
-        { label: 'Empezar todo de nuevo', value: 'reset', icon: '🔄' }
+        { label: 'La zona', value: 'zona', icon: icon('mapPin') },
+        { label: 'Los días y horarios', value: 'dias', icon: icon('calendar') },
+        { label: 'La experiencia requerida', value: 'experiencia', icon: icon('starFilled', 'gold') },
+        { label: 'Empezar todo de nuevo', value: 'reset', icon: icon('refreshCw') }
       ],
       field: '_refinar',
       next: (a) => a._refinar
+    },
+
+    // ============================================================
+    //  FLUJO EXPRESS — familia logueada con búsquedas previas
+    // ============================================================
+
+    express_welcome: {
+      bot: (a) => {
+        const busq = a._busqueda_previa;
+        const tipoLabel = ESPECIALIDAD_LABEL[busq.tipo] || busq.tipo;
+        const zona = busq.zona || '';
+        return [
+          `¡Hola ${a._nombre_familia}! Qué bueno verte de nuevo.`,
+          `La última vez buscaste ${tipoLabel.toLowerCase()} en ${zona}. ¿Querés que busque con los mismos criterios o preferís cambiar algo?`
+        ];
+      },
+      options: [
+        { label: 'Buscar con los mismos criterios', value: 'mismo', icon: icon('search') },
+        { label: 'Quiero cambiar algo', value: 'cambiar', icon: icon('penLine') },
+        { label: 'Buscar algo completamente diferente', value: 'nuevo', icon: icon('refreshCw') }
+      ],
+      field: '_express_opcion',
+      next: (a) => {
+        if (a._express_opcion === 'mismo') {
+          // Cargar las preferencias previas como answers
+          const b = a._busqueda_previa;
+          if (b.tipo) a.tipo = b.tipo;
+          if (b.zona) a.zona = b.zona;
+          if (b.dias) a.dias = b.dias;
+          if (b.franja) a.franja = b.franja;
+          if (b.experiencia_min) a.experiencia_min = b.experiencia_min;
+          if (b.verificado) a.verificado = b.verificado;
+          if (b.user_lat) { a.user_lat = b.user_lat; a.user_lng = b.user_lng; }
+          if (b.distancia_km) a.distancia_km = b.distancia_km;
+          return 'express_buscar';
+        }
+        if (a._express_opcion === 'cambiar') return 'express_que_cambiar';
+        return 'reset';
+      }
+    },
+
+    express_buscar: {
+      bot: (a) => {
+        const frases = {
+          ninera: 'Perfecto, busco las mejores niñeras para vos con tus criterios anteriores…',
+          adulto_mayor: 'Buscando cuidadores para tu familiar con los mismos criterios…',
+          cocinera: 'Buscando cocineras con tus preferencias anteriores…',
+          domestica: 'Buscando empleadas domésticas con tus preferencias…'
+        };
+        return [frases[a.tipo] || 'Buscando con tus criterios anteriores…'];
+      },
+      action: 'search'
+    },
+
+    express_que_cambiar: {
+      bot: () => ['¿Qué te gustaría cambiar?'],
+      options: [
+        { label: 'El tipo de cuidado', value: 'welcome', icon: icon('user') },
+        { label: 'La zona', value: 'transicion_zona', icon: icon('mapPin') },
+        { label: 'Los días y horarios', value: 'dias', icon: icon('calendar') },
+        { label: 'La experiencia requerida', value: 'experiencia', icon: icon('starFilled', 'gold') }
+      ],
+      field: '_express_cambiar',
+      next: (a) => {
+        // Cargar preferencias previas como base antes de cambiar
+        const b = a._busqueda_previa;
+        if (b.tipo) a.tipo = a.tipo || b.tipo;
+        if (b.zona) a.zona = a.zona || b.zona;
+        if (b.dias) a.dias = a.dias || b.dias;
+        if (b.franja) a.franja = a.franja || b.franja;
+        if (b.experiencia_min) a.experiencia_min = a.experiencia_min || b.experiencia_min;
+        if (b.verificado) a.verificado = a.verificado || b.verificado;
+        if (b.user_lat) { a.user_lat = a.user_lat || b.user_lat; a.user_lng = a.user_lng || b.user_lng; }
+        if (b.distancia_km) a.distancia_km = a.distancia_km || b.distancia_km;
+        return a._express_cambiar;
+      }
+    },
+
+    // Familia logueada sin búsquedas previas
+    express_new: {
+      bot: (a) => [
+        `¡Hola ${a._nombre_familia}! Bienvenida a Cuidy.`,
+        'Soy Caro, y estoy acá para ayudarte a encontrar a la persona indicada para tu hogar. Contame, ¿qué tipo de ayuda estás buscando?'
+      ],
+      options: [
+        { label: 'Necesito una niñera', value: 'ninera', icon: icon('baby') },
+        { label: 'Cuidado lúdico de adulto mayor', value: 'adulto_mayor', icon: icon('heart') },
+        { label: 'Cocinera', value: 'cocinera', icon: icon('utensils') },
+        { label: 'Empleada doméstica', value: 'domestica', icon: icon('home') }
+      ],
+      field: 'tipo',
+      next: () => 'contexto'
     }
   };
 
+  // ---- Familia logueada: cargar datos ----
+  let _familiaLogueada = null;
+  function detectarFamiliaLogueada() {
+    try {
+      const fam = JSON.parse(localStorage.getItem('qqmc_familia') || 'null');
+      if (fam && fam.id) {
+        _familiaLogueada = fam;
+        return true;
+      }
+    } catch(e) {}
+    return false;
+  }
+
+  async function cargarBusquedaPrevia() {
+    if (!_familiaLogueada || !_familiaLogueada.email) return null;
+    try {
+      const res = await fetch(`${API_BASE}/familias/me?email=${encodeURIComponent(_familiaLogueada.email)}`);
+      const json = await res.json();
+      if (json.ok && json.data && json.data.busqueda && json.data.busqueda.tipo) {
+        return json.data.busqueda;
+      }
+    } catch(e) {}
+    return null;
+  }
+
+  function guardarBusqueda() {
+    if (!_familiaLogueada || !_familiaLogueada.id) return;
+    const busqueda = {
+      tipo: answers.tipo,
+      zona: answers.zona,
+      dias: answers.dias,
+      franja: answers.franja,
+      experiencia_min: answers.experiencia_min,
+      verificado: answers.verificado,
+      user_lat: answers.user_lat,
+      user_lng: answers.user_lng,
+      distancia_km: answers.distancia_km,
+      ultima_busqueda: new Date().toISOString()
+    };
+    // Guardar en background, no bloquear
+    fetch(`${API_BASE}/familias/${_familiaLogueada.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ busqueda })
+    }).catch(() => {});
+  }
+
   // ---- Init ----
-  document.addEventListener('DOMContentLoaded', () => {
-    runStep('welcome');
+  document.addEventListener('DOMContentLoaded', async () => {
     chatForm.addEventListener('submit', handleSubmit);
+
+    if (detectarFamiliaLogueada()) {
+      // Familia logueada: intentar flujo express
+      const busqueda = await cargarBusquedaPrevia();
+      answers._nombre_familia = _familiaLogueada.nombre || '';
+      if (busqueda && busqueda.tipo) {
+        answers._busqueda_previa = busqueda;
+        runStep('express_welcome');
+      } else {
+        runStep('express_new');
+      }
+    } else {
+      runStep('welcome');
+    }
   });
 
   // ---- Core: ejecutar un paso ----
@@ -420,6 +572,10 @@
       cuidadoresActuales = [];
       resultsPane.classList.add('hidden');
       resultsList.innerHTML = '';
+      if (_familiaLogueada) {
+        answers._nombre_familia = _familiaLogueada.nombre || '';
+        return runStep('express_new');
+      }
       return runStep('welcome');
     }
 
@@ -644,6 +800,7 @@
       } else {
         renderResultsInChat(cuidadoresActuales);
         showMapResults(cuidadoresActuales);
+        guardarBusqueda(); // Guardar preferencias para flujo express
         runStep('resultados_ok');
       }
     } catch (err) {
@@ -663,7 +820,7 @@
       card.addEventListener('click', () => abrirFicha(c.id));
 
       const rating = Number(c.valoracion) > 0
-        ? `<span class="chat-card__stars">★ ${Number(c.valoracion).toFixed(1)}</span> <span class="chat-card__reviews">(${c.resenas || 0})</span>`
+        ? `<span class="chat-card__stars">${icon('starFilled', 'gold')} ${Number(c.valoracion).toFixed(1)}</span> <span class="chat-card__reviews">(${c.resenas || 0})</span>`
         : '<span class="chat-card__reviews">Sin reseñas</span>';
 
       card.innerHTML = `
@@ -671,11 +828,12 @@
         <div class="chat-card__info">
           <div class="chat-card__name">
             ${escapeHtml(c.nombre)}${c.edad ? ', ' + c.edad : ''}
-            ${c.verificado ? '<span class="chat-card__verified">✓</span>' : ''}
+            ${c.verificado ? '<span class="chat-card__verified">' + icon('check', 'success') + '</span>' : ''}
           </div>
           <div class="chat-card__meta">${labelEspecialidad(c)} · ${escapeHtml(c.zona)}</div>
           <div class="chat-card__rating">${rating}</div>
           <div class="chat-card__exp">${c.experiencia_anios || 0} años de experiencia${c._distancia != null && c._distancia !== Infinity ? ' · a ' + c._distancia.toFixed(1) + ' km' : ''}</div>
+          ${c.valor_hora_min ? `<div class="chat-card__tarifa">${icon('dollarSign')} $${c.valor_hora_min.toLocaleString('es-AR')}${c.valor_hora_max && c.valor_hora_max !== c.valor_hora_min ? ' - $' + c.valor_hora_max.toLocaleString('es-AR') : ''}/h</div>` : ''}
         </div>
         <div class="chat-card__arrow">›</div>
       `;
@@ -714,7 +872,11 @@
 
     setTimeout(() => {
       const m = window.qqmc?.map;
-      if (m) m.invalidateSize();
+      if (m) {
+        m.invalidateSize();
+        // Aplicar zoom después de que el mapa tenga dimensiones correctas
+        if (typeof window.fitPendingBounds === 'function') window.fitPendingBounds();
+      }
       resultsPane.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 350);
   }
@@ -725,7 +887,7 @@
     el.className = 'card';
     el.dataset.id = c.id;
     const rating = Number(c.valoracion) > 0
-      ? `★ ${Number(c.valoracion).toFixed(1)} <span>(${c.resenas || 0} reseñas)</span>`
+      ? `${icon('starFilled', 'gold')} ${Number(c.valoracion).toFixed(1)} <span>(${c.resenas || 0} reseñas)</span>`
       : '<span style="color:var(--muted)">Sin reseñas aún</span>';
     el.innerHTML = `
       <img class="card__avatar" src="${c.foto}" alt="${c.nombre}" />
@@ -733,9 +895,11 @@
         <div class="card__name">
           ${escapeHtml(c.nombre)}${c.edad ? ', ' + c.edad : ''}
           ${c.verificado ? '<span class="card__badge">Verificado</span>' : ''}
+          ${c.recomendado ? '<span class="card__badge card__badge--rec">Recomendado</span>' : ''}
         </div>
         <div class="card__meta">${labelEspecialidad(c)} · ${escapeHtml(c.zona)}</div>
         <div class="card__rating">${rating}</div>
+        ${c.valor_hora_min ? `<div class="card__tarifa">$${c.valor_hora_min.toLocaleString('es-AR')}${c.valor_hora_max && c.valor_hora_max !== c.valor_hora_min ? ' - $' + c.valor_hora_max.toLocaleString('es-AR') : ''}/h</div>` : ''}
       </div>
     `;
     el.addEventListener('click', () => {

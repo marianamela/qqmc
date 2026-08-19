@@ -122,8 +122,8 @@
         } else if (s.estado === 'aceptada') {
           const contacto = s.familias?.email || s.familias?.telefono || '';
           accionesHtml = `
-            <div class="solicitud__estado solicitud__estado--aceptada">✓ Aceptada</div>
-            ${contacto ? `<div class="solicitud__contacto">📞 ${esc(s.familias.telefono || '')} · ✉️ ${esc(s.familias.email || '')}</div>` : ''}`;
+            <div class="solicitud__estado solicitud__estado--aceptada">${icon('check', 'success')} Aceptada</div>
+            ${contacto ? `<div class="solicitud__contacto">${icon('phone')} ${esc(s.familias.telefono || '')} · ${icon('mail')} ${esc(s.familias.email || '')}</div>` : ''}`;
         } else {
           accionesHtml = '<div class="solicitud__estado solicitud__estado--rechazada">Rechazada</div>';
         }
@@ -205,7 +205,7 @@
     panelTitle.textContent = `${cat.icono} ${cat.nombre}`;
     panelNote.value = '';
     btnPhoto.classList.remove('has-photo');
-    btnPhoto.textContent = '📷 Foto';
+    btnPhoto.innerHTML = icon('camera') + ' Foto';
     delete btnPhoto.dataset.dataUrl;
 
     // Renderizar panel
@@ -280,10 +280,10 @@
   function openNotaLibre() {
     categoriaActual = null;
     opcionSeleccionada = null;
-    panelTitle.textContent = '✏️ Nota libre';
+    panelTitle.innerHTML = icon('penLine') + ' Nota libre';
     panelNote.value = '';
     btnPhoto.classList.remove('has-photo');
-    btnPhoto.textContent = '📷 Foto';
+    btnPhoto.innerHTML = icon('camera') + ' Foto';
     delete btnPhoto.dataset.dataUrl;
     panelBody.innerHTML = '';
 
@@ -338,7 +338,7 @@
       reader.onload = () => {
         btnPhoto.dataset.dataUrl = reader.result;
         btnPhoto.classList.add('has-photo');
-        btnPhoto.textContent = '✅ Foto lista';
+        btnPhoto.innerHTML = icon('checkCircle', 'success') + ' Foto lista';
       };
       reader.readAsDataURL(file);
     });
@@ -433,7 +433,7 @@
     checkedIn = true;
     btnCheckin.classList.add('hidden');
     checkinStatus.classList.remove('hidden');
-    checkinTime.textContent = '📍 Llegaste a las ' + formatTime(new Date());
+    checkinTime.innerHTML = icon('mapPin') + ' Llegaste a las ' + formatTime(new Date());
     showToast('Check-in registrado');
     await loadTimeline();
   }
@@ -494,12 +494,12 @@
               <span class="mensaje-item__time">${formatTime(hora)}</span>
             </div>
             <div class="mensaje-item__body">${esc(m.contenido)}</div>
-            <button class="mensaje-item__read" data-id="${m.id}">Leído ✓</button>
+            <button class="mensaje-item__read" data-id="${m.id}">${icon('check', 'success')} Leído</button>
           `;
           el.querySelector('.mensaje-item__read').addEventListener('click', async (e) => {
             const btn = e.currentTarget;
             btn.disabled = true;
-            btn.textContent = '✓';
+            btn.innerHTML = icon('check', 'success');
             try {
               await fetch(`${API}/diario/mensajes/${m.id}`, { method: 'PATCH' });
               el.classList.add('mensaje-item--leido');
@@ -507,7 +507,7 @@
                 el.remove();
                 if (!mensajesList.children.length) mensajesSection.classList.add('hidden');
               }, 600);
-            } catch { btn.disabled = false; btn.textContent = 'Leído ✓'; }
+            } catch { btn.disabled = false; btn.innerHTML = icon('check', 'success') + ' Leído'; }
           });
           mensajesList.appendChild(el);
         });
@@ -553,7 +553,7 @@
           checkedIn = true;
           btnCheckin.classList.add('hidden');
           checkinStatus.classList.remove('hidden');
-          checkinTime.textContent = '📍 Llegaste a las ' + formatTime(new Date(ci.created_at));
+          checkinTime.innerHTML = icon('mapPin') + ' Llegaste a las ' + formatTime(new Date(ci.created_at));
         }
       }
     } catch { /* offline */ }
@@ -573,9 +573,9 @@
         : e.foto_url ? 'timeline-entry--foto' : '';
       el.className = `timeline-entry ${tipoClass}`;
 
-      const icono = e.tipo === 'checkin' ? '📍'
-        : e.tipo === 'checkout' ? '👋'
-        : e.diario_categorias?.icono || '📝';
+      const icono = e.tipo === 'checkin' ? icon('mapPin')
+        : e.tipo === 'checkout' ? icon('logOut')
+        : e.diario_categorias?.icono || icon('fileText');
 
       const catNombre = e.tipo === 'checkin' ? 'Check-in'
         : e.tipo === 'checkout' ? 'Check-out'
@@ -588,7 +588,7 @@
         : '';
 
       const reacciones = (e.diario_reacciones || []).map(r =>
-        `<span class="timeline-reaction">${r.tipo === 'corazon' ? '❤️' : r.tipo === 'gracias' ? '🙏' : '👁️'}${r.comentario ? ' ' + esc(r.comentario) : ''}</span>`
+        `<span class="timeline-reaction">${r.tipo === 'corazon' ? icon('heartFilled', 'danger') : r.tipo === 'gracias' ? icon('handHeart') : icon('eye')}${r.comentario ? ' ' + esc(r.comentario) : ''}</span>`
       ).join('');
 
       el.innerHTML = `
