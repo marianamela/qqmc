@@ -29,8 +29,8 @@
     <a href="index.html" class="admin-back">← Volver a candidaturas</a>
     <nav class="admin-subnav" style="margin-bottom: 16px">
       <a href="index.html">Candidaturas</a>
-      <a href="agenda.html">📅 Agenda</a>
-      <a href="horarios.html">⚙️ Mis horarios</a>
+      <a href="agenda.html"><span class="ci" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg></span> Agenda</a>
+      <a href="horarios.html"><span class="ci" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span> Mis horarios</a>
     </nav>
     <div id="detalle">
       <p class="admin-empty">Cargando…</p>
@@ -52,6 +52,7 @@
     </div>
   </div>
 
+  <script src="../icons.js"></script>
   <script src="admin.js"></script>
   <script>
     // Global: preview modal for documents
@@ -84,6 +85,8 @@
       document.getElementById('adminUser').textContent = session.user;
       document.getElementById('btnLogout').addEventListener('click', logout);
       addUsuariosNav();
+      addFamiliasNav();
+      addOperacionesNav();
 
       const id = new URLSearchParams(location.search).get('id');
       if (!id) { location.href = 'index.html'; return; }
@@ -258,22 +261,22 @@
       function botonesAcciones(estado) {
         const A = [];
         if (estado === 'enviado') {
-          A.push({ accion: 'aprobar_identidad', label: '✅ Aprobar identidad', variant: 'btn--primary' });
-          A.push({ accion: 'pedir_correcciones', label: '✏️ Pedir correcciones', variant: 'btn--ghost' });
-          A.push({ accion: 'rechazar', label: '✗ Rechazar', variant: 'btn--ghost' });
+          A.push({ accion: 'aprobar_identidad', label: icon('checkCircle', 'success') + ' Aprobar identidad', variant: 'btn--primary' });
+          A.push({ accion: 'pedir_correcciones', label: icon('penLine') + ' Pedir correcciones', variant: 'btn--ghost' });
+          A.push({ accion: 'rechazar', label: icon('xCircle', 'danger') + ' Rechazar', variant: 'btn--ghost' });
         }
         if (estado === 'identidad_aprobada') {
           // Esperando que el cuidador complete su perfil
-          A.push({ accion: 'pedir_correcciones', label: '✏️ Pedir correcciones', variant: 'btn--ghost' });
+          A.push({ accion: 'pedir_correcciones', label: icon('penLine') + ' Pedir correcciones', variant: 'btn--ghost' });
         }
         if (estado === 'perfil_completo') {
           A.push({ accion: 'tomar_revision', label: 'Tomar para revisar', variant: 'btn--primary' });
         }
         if (['perfil_completo','en_revision','entrevista_agendada'].includes(estado)) {
-          A.push({ accion: 'agendar_entrevista', label: '📅 Agendar entrevista', variant: 'btn--ghost' });
-          A.push({ accion: 'pedir_correcciones', label: '✏️ Pedir correcciones', variant: 'btn--ghost' });
-          A.push({ accion: 'aprobar', label: '✓ Aprobar perfil', variant: 'btn--primary' });
-          A.push({ accion: 'rechazar', label: '✗ Rechazar', variant: 'btn--ghost' });
+          A.push({ accion: 'agendar_entrevista', label: icon('calendar') + ' Agendar entrevista', variant: 'btn--ghost' });
+          A.push({ accion: 'pedir_correcciones', label: icon('penLine') + ' Pedir correcciones', variant: 'btn--ghost' });
+          A.push({ accion: 'aprobar', label: icon('check') + ' Aprobar perfil', variant: 'btn--primary' });
+          A.push({ accion: 'rechazar', label: icon('xCircle', 'danger') + ' Rechazar', variant: 'btn--ghost' });
         }
         if (estado === 'correcciones_pedidas') {
           A.push({ accion: 'tomar_revision', label: 'Marcar como en revisión', variant: 'btn--primary' });
@@ -540,8 +543,8 @@
         } else if (hasPreview && isPdf) {
           thumbHtml = `<div class="docs-list__thumb docs-list__thumb--pdf" data-preview="${docId}" data-preview-type="pdf">PDF</div>`;
         } else {
-          const icon = isPdf ? 'PDF' : (isWord ? 'DOC' : (isImage ? '🖼' : '📄'));
-          thumbHtml = `<div class="docs-list__thumb docs-list__thumb--none">${icon}<br><small>Sin preview</small></div>`;
+          const docIcon = isPdf ? 'PDF' : (isWord ? 'DOC' : (isImage ? icon('image') : icon('fileText')));
+          thumbHtml = `<div class="docs-list__thumb docs-list__thumb--none">${docIcon}<br><small>Sin preview</small></div>`;
         }
         return `
           <div class="docs-list__item">

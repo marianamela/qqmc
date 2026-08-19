@@ -31,8 +31,8 @@
       <p class="admin-main__sub">Configurá qué días aceptás entrevistas virtuales y en qué franja. Podés poner horarios distintos por cada día.</p>
       <nav class="admin-subnav">
         <a href="index.html">Candidaturas</a>
-        <a href="agenda.html">📅 Agenda</a>
-        <a href="horarios.html" class="is-active">⚙️ Mis horarios</a>
+        <a href="agenda.html"><span class="ci" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg></span> Agenda</a>
+        <a href="horarios.html" class="is-active"><span class="ci" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span> Mis horarios</a>
       </nav>
     </header>
 
@@ -83,10 +83,11 @@
         <a href="index.html" class="btn btn--ghost">Cancelar</a>
         <button class="btn btn--primary" type="submit">Guardar horarios</button>
       </div>
-      <p id="msgOk" class="field__hint" style="margin-top:14px; display:none; color: var(--teal-dark); font-weight:600">✓ Horarios guardados.</p>
+      <p id="msgOk" class="field__hint" style="margin-top:14px; display:none; color: var(--teal-dark); font-weight:600"><span class="ci ci--success" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span> Horarios guardados.</p>
     </form>
   </main>
 
+  <script src="../icons.js"></script>
   <script src="admin.js"></script>
   <script>
     (async () => {
@@ -94,6 +95,8 @@
       document.getElementById('adminUser').textContent = session.user;
       document.getElementById('btnLogout').addEventListener('click', logout);
       addUsuariosNav();
+      addFamiliasNav();
+      addOperacionesNav();
 
       // Orden lunes a domingo para la UI, pero guardamos con JS getDay() (0=Dom...6=Sab)
       const DIAS = [

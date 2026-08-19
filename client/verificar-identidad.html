@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <title>Verificar identidad · Cuidy</title>
+  <meta name="description" content="Completá la verificación de identidad para poder contactar cuidadores en Cuidy." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <script src="js/analytics.js"></script>
+</head>
+<body class="page-wizard">
+  <header class="topbar">
+    <div class="container topbar__row">
+      <a class="brand" href="/" aria-label="Cuidy">
+        <img class="brand__logo" src="assets/logo.svg" alt="Cuidy" />
+      </a>
+      <nav class="topbar__nav">
+        <a href="/">Volver al inicio</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wizard">
+    <div class="container wizard__container wizard__container--wide">
+      <header class="wizard__head">
+        <p class="wizard__kicker">Último paso</p>
+        <h1 class="wizard__title">Verificación de identidad</h1>
+        <p class="wizard__lede">
+          Para garantizar la seguridad de los cuidadores, necesitamos verificar que sos una persona real.
+          Subí una foto de tu DNI y sacate una selfie. Es rápido y solo toma un minuto.
+        </p>
+      </header>
+
+      <!-- Not logged in message -->
+      <div id="notLoggedIn" class="consent-card consent-card--soft hidden" style="text-align:center;margin-bottom:24px">
+        <p>Necesitás estar logueada para completar la verificación.</p>
+        <a href="login.html" class="btn btn--primary" style="margin-top:12px">Ingresar</a>
+      </div>
+
+      <!-- Already verified message -->
+      <div id="alreadyVerified" class="consent-card hidden" style="text-align:center;margin-bottom:24px;background:#d1fae5;border-color:#10b981">
+        <div style="font-size:32px;margin-bottom:8px"><span class="ci ci--success"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></span></div>
+        <p style="color:#065f46;font-weight:600">Tu identidad ya fue verificada. Ya podés contactar cuidadores.</p>
+        <a href="/" class="btn btn--primary" style="margin-top:12px">Ir al inicio</a>
+      </div>
+
+      <!-- Pending review message -->
+      <div id="pendingReview" class="consent-card hidden" style="text-align:center;margin-bottom:24px;background:#fef3c7;border-color:#f59e0b">
+        <div style="font-size:32px;margin-bottom:8px"><span class="ci ci--xl ci--warning"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg></span></div>
+        <p style="color:#92400e;font-weight:600">Ya enviaste tu verificación. Nuestro equipo la está revisando.</p>
+        <p style="color:#78350f;font-size:13px;margin-top:4px">Te avisamos por WhatsApp cuando esté aprobada.</p>
+        <a href="/" class="btn btn--ghost" style="margin-top:12px">Volver al inicio</a>
+      </div>
+
+      <!-- Verification form -->
+      <form id="verifyForm" class="wizard__form hidden" novalidate>
+        <section class="step is-active">
+          <div class="verify-grid">
+            <!-- DNI Upload -->
+            <div class="verify-card" id="dniCard">
+              <div class="verify-card__icon">🪪</div>
+              <h4 class="verify-card__title">Foto del DNI (frente)</h4>
+              <p class="verify-card__desc">Sacale una foto al frente de tu DNI donde se vea tu nombre y foto claramente.</p>
+              <div class="verify-card__preview" id="dniPreview">
+                <img id="dniImg" src="" alt="DNI cargado" />
+              </div>
+              <label class="btn btn--ghost btn--sm verify-card__btn" id="dniLabel">
+                <input type="file" id="dniInput" accept="image/*" capture="environment" hidden />
+                Subir foto del DNI
+              </label>
+              <p class="verify-card__status" id="dniStatus"></p>
+            </div>
+
+            <!-- Selfie en vivo -->
+            <div class="verify-card" id="selfieCard">
+              <div class="verify-card__icon"><span class="ci ci--xl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg></span></div>
+              <h4 class="verify-card__title">Selfie sosteniendo el DNI</h4>
+              <p class="verify-card__desc">Abrí la cámara y sacate una foto sosteniendo el DNI cerca de tu cara.</p>
+              <div class="verify-card__preview" id="selfiePreview">
+                <img id="selfieImg" src="" alt="Selfie capturada" />
+              </div>
+              <div class="verify-card__camera" id="cameraContainer">
+                <video id="cameraVideo" autoplay playsinline muted></video>
+                <canvas id="cameraCanvas" hidden></canvas>
+              </div>
+              <button type="button" class="btn btn--ghost btn--sm verify-card__btn" id="btnStartCamera">Abrir cámara</button>
+              <button type="button" class="btn btn--primary btn--sm verify-card__btn" id="btnCapture" hidden>Sacar foto</button>
+              <button type="button" class="btn btn--ghost btn--sm verify-card__btn" id="btnRetake" hidden>Sacar otra vez</button>
+              <p class="verify-card__status" id="selfieStatus"></p>
+            </div>
+          </div>
+
+          <div class="verify-notice">
+            <strong><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span> Tu privacidad es importante</strong>
+            Estas fotos solo las ve nuestro equipo de verificación. No se comparten con cuidadores ni se publican.
+          </div>
+
+          <div class="field field--check" style="margin-top: 16px">
+            <label class="check">
+              <input type="checkbox" id="consent_privacidad" required />
+              <span>Acepto la <a href="privacidad.html" target="_blank" class="link">Política de Privacidad</a> y los <a href="terminos.html" target="_blank" class="link">Términos y Condiciones</a> y doy mi consentimiento para la verificación de identidad.</span>
+            </label>
+          </div>
+          <div class="field field--check">
+            <label class="check">
+              <input type="checkbox" id="consent_datos_veraces" required />
+              <span>Declaro que la información que estoy enviando es <strong>verdadera y vigente</strong>.</span>
+            </label>
+          </div>
+        </section>
+
+        <div class="wizard__actions">
+          <div></div>
+          <button type="submit" class="btn btn--primary btn--lg" id="btnSubmitVerify">Enviar verificación</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- Modal de éxito -->
+  <div id="okModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal__backdrop"></div>
+    <div class="modal__content ok-modal">
+      <div class="ok-modal__emoji"><span class="ci ci--xl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></span></div>
+      <h3 class="ok-modal__title">¡Verificación enviada!</h3>
+      <p class="ok-modal__text">Nuestro equipo va a revisar tu identidad y te avisamos por WhatsApp en las próximas 24 a 48 horas.</p>
+      <p class="ok-modal__text" style="font-size:13px;color:#6b7280;margin-top:8px">Mientras tanto, podés seguir buscando cuidadores y recomendando personas de confianza.</p>
+      <a href="/" class="btn btn--primary btn--lg">Volver al inicio</a>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container footer__row">
+      <span>© <span id="year"></span> Cuidy</span>
+      <em class="footer__tagline">"Somos el punto de encuentro entre vos y quien te cuida"</em>
+      <br><a href="terminos.html" style="color:inherit;opacity:.7;text-decoration:underline;">Términos y Condiciones</a> · <a href="privacidad.html" style="color:inherit;opacity:.7;text-decoration:underline;">Política de Privacidad</a>
+    </div>
+  </footer>
+
+  <script src="auth.js"></script>
+  <script src="verificar-identidad.js"></script>
+</body>
+</html>

@@ -23,6 +23,7 @@
   let dniDataUrl = null;
   let selfieDataUrl = null;
   let cuidCameraStream = null;
+  let invitacionValidada = null; // { codigo, familia_nombre }
 
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('year').textContent = new Date().getFullYear();
@@ -32,12 +33,69 @@
     initSubmit();
     loadDraft();
     updateStepUI();
+    detectarInvitacion();
 
     // GA4: registro iniciado
     if (window.CuidyAnalytics) {
       CuidyAnalytics.registrationStarted('cuidador');
     }
   });
+
+  async function detectarInvitacion() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const invCode = urlParams.get('inv');
+    if (!invCode) {
+      mostrarMensajeListaEspera();
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/invitaciones/validar?codigo=${encodeURIComponent(invCode)}`);
+      const json = await res.json();
+      if (json.ok && json.data) {
+        invitacionValidada = { codigo: invCode, familia_nombre: json.data.familia_nombre };
+        mostrarBannerInvitacion(json.data.familia_nombre);
+      } else {
+        mostrarMensajeListaEspera();
+      }
+    } catch {
+      mostrarMensajeListaEspera();
+    }
+  }
+
+  function mostrarBannerInvitacion(familiaNombre) {
+    // Update hero badge and title for invited users
+    const badge = document.getElementById('heroBadge');
+    if (badge) badge.textContent = 'Invitación recomendada';
+    const title = document.getElementById('heroTitle');
+    if (title) title.innerHTML = 'Te invitaron a <em>Cuidy</em>';
+
+    // Show static banner with family name
+    const banner = document.getElementById('recBanner');
+    if (banner) {
+      banner.classList.remove('hidden');
+      const nombreEl = document.getElementById('recNombreFamilia');
+      if (nombreEl) nombreEl.textContent = familiaNombre;
+    }
+
+    // Show the "ser recomendado" info section for invited users
+    const recInfo = document.getElementById('recInfo');
+    if (recInfo) recInfo.classList.remove('hidden');
+  }
+
+  function mostrarMensajeListaEspera() {
+    const urlParams = new URLSearchParams(window.location.search);
+    // Only show waitlist messaging if no inv param (organic registration)
+    if (urlParams.has('inv')) return; // invalid inv code, don't change messaging
+
+    const sub = document.getElementById('heroSub');
+    if (sub) {
+      sub.innerHTML = `
+        Estamos construyendo una comunidad de cuidadores verificados y recomendados por familias.
+        Completá tus datos y nuestro equipo evaluará tu perfil. Te avisamos por WhatsApp cuando tu cuenta esté aprobada.
+      `;
+    }
+  }
 
   // === Navegación ===
   const STEP_NAMES = ['datos_personales', 'verificacion_identidad', 'confirmacion'];
@@ -69,7 +127,7 @@
     document.querySelectorAll('.step').forEach(s => {
       s.classList.toggle('is-active', Number(s.dataset.step) === currentStep);
     });
-    document.querySelectorAll('.steps__item').forEach(item => {
+    document.querySelectorAll('.rc-progress__step, .steps__item').forEach(item => {
       const n = Number(item.dataset.step);
       item.classList.toggle('is-active', n === currentStep);
       item.classList.toggle('is-done', n < currentStep);
@@ -100,6 +158,12 @@
         markError('email', 'Email inválido'); return false;
       }
       if (!markIfEmpty('telefono')) return false;
+      // Verificar que el teléfono esté validado por OTP
+      const telVerificado = document.getElementById('telefonoVerificado');
+      if (!telVerificado || !telVerificado.value) {
+        markError('telefono', 'Verificá tu WhatsApp con el código OTP');
+        return false;
+      }
       if (!markIfEmpty('password')) return false;
       if (form.password.value.length < 8) { markError('password', 'Mínimo 8 caracteres'); return false; }
       if (!markIfEmpty('provincia')) return false;
@@ -399,6 +463,11 @@
         password: document.getElementById('password').value,
         registro_simplificado: true
       };
+
+      // Invitación por familia
+      if (invitacionValidada) {
+        payload.invitacion_codigo = invitacionValidada.codigo;
+      }
 
       // Tracking: referido y UTMs
       const urlParams = new URLSearchParams(window.location.search);

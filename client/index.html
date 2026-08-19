@@ -29,36 +29,138 @@
       </a>
       <nav class="topbar__nav">
         <a href="#como-funciona">Cómo funciona</a>
-        <a href="registro-cuidador.html">Soy cuidador/a</a>
-        <a href="login.html" class="btn btn--ghost">Ingresar</a>
-        <a href="registro-familia.html" class="btn btn--primary">Registrarme</a>
+        <a href="sumate-cuidador.html" id="navSoyCuidador">Soy cuidador/a</a>
+        <script>try{if(JSON.parse(localStorage.getItem('qqmc_cuidador')||'null')?.id){var l=document.getElementById('navSoyCuidador');l.href='panel-cuidador.html';l.textContent='Mi panel';}}catch(e){}</script>
+        <!-- Guest -->
+        <a href="login.html" class="btn btn--ghost" id="navIngresar">Ingresar</a>
+        <a href="registro-familia.html" class="btn btn--primary" id="navRegistrarme">Registrarme</a>
+        <!-- Logged in -->
+        <div class="user-menu hidden" id="userMenu">
+          <button class="user-menu__trigger" id="userMenuBtn">
+            <span class="user-menu__avatar" id="userAvatar"></span>
+            <span class="user-menu__name" id="userName"></span>
+            <svg class="user-menu__chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <div class="user-menu__dropdown hidden" id="userDropdown">
+            <button class="user-menu__item" id="menuMisContactos"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span> Mis contactos</button>
+            <button class="user-menu__item" id="menuRecomendar"><span class="ci" style="color:#f59e0b"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span> Recomendar cuidador</button>
+            <a class="user-menu__item hidden" id="menuVerificar" href="verificar-identidad.html"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span> Verificar identidad</a>
+            <button class="user-menu__item" id="menuMisDatos"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> Mis datos</button>
+            <hr class="user-menu__divider" />
+            <button class="user-menu__item user-menu__item--logout" id="menuSalir">Cerrar sesión</button>
+          </div>
+        </div>
       </nav>
     </div>
   </header>
 
-  <section class="hero-unified">
+  <!-- Redirect cuidador logueado -->
+  <script>
+    try {
+      var _cuid = JSON.parse(localStorage.getItem('qqmc_cuidador') || 'null');
+      if (_cuid && _cuid.id) { window.location.replace('panel-cuidador.html'); }
+    } catch(e) {}
+  </script>
+
+  <!-- Hero campaña #cuidarBien (solo visitantes) -->
+  <section class="hero-unified" data-visitor-only>
     <div class="hero-unified__bg"></div>
     <div class="container hero-unified__inner">
-      <h1 class="hero-unified__title">Encuentra personas de confianza cerca tuyo</h1>
-      <p class="hero-unified__sub">Te acompañamos paso a paso hasta dar con la persona indicada para tu hogar.</p>
+      <span class="hero-hashtag">#cuidarBien</span>
+      <h1 class="hero-unified__title">Que se ponga de moda<br>cuidar bien</h1>
+      <p class="hero-unified__sub">Trabajamos para que el cuidado sea valorado, profesional y humano.<br>Para quienes cuidan y para quienes confían.</p>
+      <div class="hero-ctas">
+        <a href="#asistente" class="btn btn--primary btn--lg hero-cta-btn">Busco un cuidador/a</a>
+        <a href="sumate-cuidador.html" class="btn btn--ghost-light btn--lg hero-cta-btn">Soy cuidador/a</a>
+      </div>
+    </div>
+  </section>
 
-      <div class="caro-intro">
-        <img class="caro-avatar caro-avatar--lg" src="assets/caro-avatar.png" alt="Caro" />
-        <div class="caro-intro__text">
-          <strong>Caro</strong> · Asistente Cuidy
+  <!-- Manifiesto: 3 pilares (solo visitantes) -->
+  <section class="landing-section manifiesto-section" data-visitor-only>
+    <div class="container">
+      <p class="manifiesto-label">Nuestro compromiso</p>
+      <div class="manifiesto-grid">
+        <div class="manifiesto-card">
+          <span class="manifiesto-card__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span></span>
+          <h3 class="manifiesto-card__title">Valorado</h3>
+          <p class="manifiesto-card__desc">Cuidar es un trabajo que merece reconocimiento, condiciones justas y respeto profesional.</p>
+        </div>
+        <div class="manifiesto-card">
+          <span class="manifiesto-card__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span></span>
+          <h3 class="manifiesto-card__title">Cuidado</h3>
+          <p class="manifiesto-card__desc">Verificamos la identidad de cada persona. Tanto de quien cuida como de quien contrata.</p>
+        </div>
+        <div class="manifiesto-card">
+          <span class="manifiesto-card__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg></span></span>
+          <h3 class="manifiesto-card__title">Responsable</h3>
+          <p class="manifiesto-card__desc">Conectamos personas comprometidas que entienden que cuidar bien es una responsabilidad compartida.</p>
         </div>
       </div>
+    </div>
+  </section>
 
-      <div class="chat" id="chat">
-        <div class="chat__messages" id="chatMessages"></div>
-        <div class="chat__input-area">
-          <div class="chat__options" id="chatOptions"></div>
-          <form class="chat__form" id="chatForm">
-            <input class="chat__input" id="chatInput" type="text" placeholder="Escribí tu respuesta…" autocomplete="off" />
-            <button class="chat__send btn btn--primary" type="submit" aria-label="Enviar">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            </button>
-          </form>
+  <!-- Bienvenida familia logueada (oculta por defecto) -->
+  <section class="welcome-familia hidden" id="welcomeFamilia" data-familia-only>
+    <div class="container welcome-familia__inner">
+      <div class="welcome-familia__greeting">
+        <h1 class="welcome-familia__title">Hola <span id="welcomeNombre"></span>, bienvenida de vuelta</h1>
+        <p class="welcome-familia__sub">Caro está lista para ayudarte a encontrar a la persona indicada.</p>
+      </div>
+      <div class="welcome-familia__shortcuts">
+        <button class="shortcut-btn" id="shortcutContactos">
+          <span class="shortcut-btn__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span></span>
+          <span class="shortcut-btn__label">Mis contactos</span>
+        </button>
+        <button class="shortcut-btn" id="shortcutRecomendar">
+          <span class="shortcut-btn__icon"><span class="ci" style="color:#f59e0b"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span></span>
+          <span class="shortcut-btn__label">Recomendar cuidador</span>
+        </button>
+        <button class="shortcut-btn" id="shortcutDatos">
+          <span class="shortcut-btn__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span></span>
+          <span class="shortcut-btn__label">Mis datos</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Banner verificación familia -->
+  <div id="bannerVerificacion" class="banner-verificacion hidden">
+    <div class="container banner-verificacion__inner">
+      <span class="banner-verificacion__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></span>
+      <div class="banner-verificacion__text">
+        <strong>Completá tu verificación de identidad para contactar cuidadores.</strong>
+        Podés navegar, buscar perfiles y recomendar cuidadores de confianza. Para contactarlos directamente, necesitamos verificar tu identidad.
+      </div>
+      <a href="verificar-identidad.html" class="btn btn--primary btn--sm banner-verificacion__cta" id="bannerVerifCta">Verificar identidad</a>
+    </div>
+  </div>
+
+  <!-- Asistente de búsqueda -->
+  <section class="landing-section landing-section--alt asistente-section" id="asistente">
+    <div class="container">
+      <h2 class="landing-section__title" id="asistenteTitulo">Contanos qué necesitás</h2>
+      <p class="landing-section__sub" id="asistenteSubtitulo">Caro, nuestra asistente, te ayuda a encontrar a la persona indicada para tu hogar.</p>
+
+      <div class="asistente-chat-wrap">
+        <div class="caro-intro">
+          <img class="caro-avatar caro-avatar--lg" src="assets/caro-avatar.png" alt="Caro" />
+          <div class="caro-intro__text">
+            <strong>Caro</strong> · Asistente Cuidy
+          </div>
+        </div>
+
+        <div class="chat" id="chat">
+          <div class="chat__messages" id="chatMessages"></div>
+          <div class="chat__input-area">
+            <div class="chat__options" id="chatOptions"></div>
+            <form class="chat__form" id="chatForm">
+              <input class="chat__input" id="chatInput" type="text" placeholder="Escribí tu respuesta…" autocomplete="off" />
+              <button class="chat__send btn btn--primary" type="submit" aria-label="Enviar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -71,8 +173,8 @@
     </div>
   </main>
 
-  <!-- Cómo funciona -->
-  <section class="landing-section" id="como-funciona">
+  <!-- Cómo funciona (solo visitantes) -->
+  <section class="landing-section" id="como-funciona" data-visitor-only>
     <div class="container">
       <h2 class="landing-section__title">¿Cómo funciona Cuidy?</h2>
       <p class="landing-section__sub">Encontrar a la persona indicada es simple, seguro y 100% online.</p>
@@ -96,29 +198,29 @@
     </div>
   </section>
 
-  <!-- Diferencial -->
-  <section class="landing-section landing-section--alt" id="diferencial">
+  <!-- Diferencial (solo visitantes) -->
+  <section class="landing-section landing-section--alt" id="diferencial" data-visitor-only>
     <div class="container">
       <h2 class="landing-section__title">¿Por qué elegir Cuidy?</h2>
       <p class="landing-section__sub">No somos un simple directorio. Cada persona que encontrás en Cuidy pasó por un proceso de verificación real.</p>
       <div class="diff-grid">
         <div class="diff-card">
-          <div class="diff-card__icon">🛡️</div>
+          <div class="diff-card__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span></div>
           <h3 class="diff-card__title">Verificación personal</h3>
           <p class="diff-card__desc">Aunque somos 100% online, cada cuidador tiene una entrevista personal con nuestro equipo antes de aparecer en la plataforma.</p>
         </div>
         <div class="diff-card">
-          <div class="diff-card__icon">📋</div>
+          <div class="diff-card__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span></div>
           <h3 class="diff-card__title">Documentación respaldatoria</h3>
           <p class="diff-card__desc">Solicitamos DNI, antecedentes penales, certificados de formación y referencias laborales. Todo se valida antes de aprobar un perfil.</p>
         </div>
         <div class="diff-card">
-          <div class="diff-card__icon">👨‍👩‍👧</div>
+          <div class="diff-card__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span></div>
           <h3 class="diff-card__title">Seguridad para tu familia</h3>
           <p class="diff-card__desc">Sabemos que dejás lo más importante en manos de alguien. Por eso nos tomamos el proceso de selección tan en serio como vos.</p>
         </div>
         <div class="diff-card">
-          <div class="diff-card__icon">⭐</div>
+          <div class="diff-card__icon"><span class="ci" style="color:#f59e0b"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span></div>
           <h3 class="diff-card__title">Valoraciones reales</h3>
           <p class="diff-card__desc">Las familias califican a los cuidadores después de cada experiencia. Así podés tomar decisiones informadas con opiniones genuinas.</p>
         </div>
@@ -126,13 +228,13 @@
     </div>
   </section>
 
-  <!-- CTA Cuidadores -->
-  <section class="landing-section landing-section--cuidador">
+  <!-- CTA Cuidadores (solo visitantes) -->
+  <section class="landing-section landing-section--cuidador" data-visitor-only>
     <div class="container cuidador-cta">
       <div class="cuidador-cta__text">
-        <h2 class="landing-section__title">¿Sos cuidador/a?</h2>
-        <p class="cuidador-cta__desc">Sumate a la red de profesionales verificados de Cuidy. Creá tu perfil, mostrá tu experiencia y conectá con familias que buscan a alguien como vos.</p>
-        <a href="registro-cuidador.html" class="btn btn--primary btn--lg">Registrarme como cuidador/a</a>
+        <h2 class="landing-section__title">Cuidar bien merece ser reconocido</h2>
+        <p class="cuidador-cta__desc">Tu trabajo transforma vidas. En Cuidy construimos un espacio donde el cuidado se valora como corresponde. Creá tu perfil, mostrá tu experiencia y conectá con familias que buscan a alguien como vos.</p>
+        <a href="sumate-cuidador.html" class="btn btn--primary btn--lg">Quiero ser parte</a>
       </div>
     </div>
   </section>
@@ -146,21 +248,150 @@
     </div>
   </div>
 
+  <!-- Modal Mis Datos -->
+  <div id="modalMisDatos" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal__backdrop" data-close-misdatos></div>
+    <div class="modal__content modal__content--misdatos">
+      <button class="modal__close" aria-label="Cerrar" data-close-misdatos>&times;</button>
+      <h2 class="planes__title">Mis datos</h2>
+      <p class="planes__sub">Actualizá tu información personal</p>
+      <form id="formMisDatos" class="misdatos-form">
+        <label class="misdatos-label">Nombre
+          <input type="text" id="mdNombre" class="planes-input" />
+        </label>
+        <label class="misdatos-label">Apellido
+          <input type="text" id="mdApellido" class="planes-input" />
+        </label>
+        <label class="misdatos-label">Email
+          <input type="email" id="mdEmail" class="planes-input" disabled />
+          <small class="misdatos-hint">El email no se puede cambiar (se usa para iniciar sesión)</small>
+        </label>
+        <label class="misdatos-label">WhatsApp *
+          <input type="tel" id="mdTelefono" class="planes-input" required value="+549" placeholder="+549 11 12345678" />
+          <small class="misdatos-hint">+549 + prefijo de área + número (sin 0 ni 15)</small>
+        </label>
+
+        <hr class="misdatos-divider" />
+        <h3 class="misdatos-section">Qué tipo de cuidado buscás</h3>
+        <small class="misdatos-hint">Completar estos datos ayuda a que los cuidadores entiendan mejor tus necesidades.</small>
+        <div class="misdatos-checks">
+          <label class="check"><input type="checkbox" id="mdTipoNinera" value="ninera" /><span>Niñera</span></label>
+          <label class="check"><input type="checkbox" id="mdTipoAdulto" value="adulto_mayor" /><span>Adulto mayor</span></label>
+          <label class="check"><input type="checkbox" id="mdTipoDomestica" value="domestica" /><span>Empleada doméstica</span></label>
+          <label class="check"><input type="checkbox" id="mdTipoCocinera" value="cocinera" /><span>Cocinera</span></label>
+        </div>
+
+        <label class="misdatos-label">Modalidad
+          <select id="mdModalidad" class="planes-input">
+            <option value="">Seleccionar…</option>
+            <option value="full_time">Full time</option>
+            <option value="part_time">Part time</option>
+            <option value="por_hora">Por hora</option>
+            <option value="eventual">Eventual</option>
+          </select>
+        </label>
+
+        <hr class="misdatos-divider" />
+        <h3 class="misdatos-section">Zona</h3>
+        <div class="field-row" style="gap: 12px">
+          <label class="misdatos-label" style="flex:1">Provincia
+            <select id="mdProvincia" class="planes-input">
+              <option value="">Seleccionar…</option>
+              <option value="caba">CABA</option>
+              <option value="bsas">Buenos Aires</option>
+              <option value="cordoba">Córdoba</option>
+              <option value="santafe">Santa Fe</option>
+              <option value="mendoza">Mendoza</option>
+              <option value="tucuman">Tucumán</option>
+              <option value="otra">Otra</option>
+            </select>
+          </label>
+          <label class="misdatos-label" style="flex:1">Localidad
+            <input type="text" id="mdLocalidad" class="planes-input" placeholder="Ej: Palermo, San Isidro" />
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--full" id="btnGuardarDatos">Guardar cambios</button>
+        <p class="misdatos-msg hidden" id="mdMsg"></p>
+      </form>
+
+      <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
+        <h3 style="font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 600; color: #991b1b; margin-bottom: 8px;">Eliminar mi cuenta</h3>
+        <p style="font-size: 13px; color: #52606D; line-height: 1.6; margin-bottom: 14px;">
+          Si eliminás tu cuenta, tus datos se borrarán definitivamente en 30 días. Podés reactivarla durante ese período.
+        </p>
+        <button id="btnBajaFamilia" class="btn" style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; font-size: 13px; padding: 10px 24px; border-radius: 20px; cursor: pointer; font-weight: 600;">
+          Dar de baja mi cuenta
+        </button>
+        <p id="bajaFamMsg" style="display:none; margin-top: 12px; font-size: 13px; padding: 12px 16px; border-radius: 8px;"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Mis Contactos -->
+  <div id="modalContactos" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal__backdrop" data-close-contactos></div>
+    <div class="modal__content modal__content--contactos">
+      <button class="modal__close" aria-label="Cerrar" data-close-contactos>&times;</button>
+      <h2 class="planes__title">Mis contactos</h2>
+      <p class="planes__sub">Solicitudes enviadas y respuestas de cuidadores</p>
+      <div id="contactosList"></div>
+    </div>
+  </div>
+
+  <!-- Modal Recomendar Cuidador -->
+  <div id="modalRecomendar" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal__backdrop" data-close-recomendar></div>
+    <div class="modal__content modal__content--recomendar">
+      <button class="modal__close" aria-label="Cerrar" data-close-recomendar>&times;</button>
+      <h2 class="planes__title">Recomendar cuidador/a</h2>
+      <p class="planes__sub">Invitá a un/a cuidador/a de confianza a unirse a Cuidy con tu recomendación.</p>
+
+      <form id="formRecomendar" class="recomendar-form">
+        <label class="misdatos-label">Nombre del cuidador/a (opcional)
+          <input type="text" id="recNombre" class="planes-input" placeholder="Ej: María" />
+        </label>
+        <label class="misdatos-label">WhatsApp del cuidador/a *
+          <input type="tel" id="recTelefono" class="planes-input" required value="+549" placeholder="+549 11 12345678" />
+          <small class="misdatos-hint">Le enviaremos una invitación personalizada por WhatsApp</small>
+        </label>
+        <button type="submit" class="btn btn--primary btn--full" id="btnEnviarInvitacion">
+          Enviar invitación por WhatsApp
+        </button>
+        <p class="recomendar-msg hidden" id="recMsg"></p>
+      </form>
+
+      <hr class="misdatos-divider" />
+      <h3 class="misdatos-section">Invitaciones enviadas</h3>
+      <div id="invitacionesList" class="invitaciones-list">
+        <p class="invitaciones-empty">Cargando...</p>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal de Planes / Paywall -->
   <div id="modalPlanes" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal__backdrop" data-close-planes></div>
     <div class="modal__content modal__content--planes">
       <button class="modal__close" aria-label="Cerrar" data-close-planes>&times;</button>
       <div id="planesBody">
-        <h2 class="planes__title">Elegí tu plan</h2>
-        <p class="planes__sub">Accedé a los datos de contacto de los cuidadores verificados</p>
-        <div id="planesGrid" class="planes-grid"></div>
-        <div id="planesRegistro" class="planes-registro hidden">
-          <h3>Completá tus datos para continuar</h3>
+        <!-- Paso 1: Elegir plan -->
+        <div id="planesStep1">
+          <h2 class="planes__title">Elegí tu plan</h2>
+          <p class="planes__sub">Accedé a los datos de contacto de los cuidadores verificados</p>
+          <div id="planesGrid" class="planes-grid"></div>
+        </div>
+        <!-- Paso 2: Datos + pagar -->
+        <div id="planesStep2" class="hidden">
+          <button type="button" class="planes-back" id="btnVolverPlanes">← Cambiar plan</button>
+          <div id="planResumen" class="plan-resumen"></div>
+          <h3 class="planes-registro__title">Completá tus datos para continuar</h3>
           <input type="text" id="regNombre" placeholder="Nombre" class="planes-input" />
           <input type="text" id="regApellido" placeholder="Apellido" class="planes-input" />
           <input type="email" id="regEmail" placeholder="Email" class="planes-input" />
-          <input type="tel" id="regTelefono" placeholder="Teléfono (opcional)" class="planes-input" />
+          <label class="planes-input-label" for="regTelefono">WhatsApp *</label>
+          <input type="tel" id="regTelefono" value="+549" placeholder="+549 11 12345678" class="planes-input" required />
+          <small class="planes-input-hint">+549 + prefijo de área + número (sin 0 ni 15)</small>
           <button id="btnConfirmarPlan" class="btn btn--primary btn--full">Ir a pagar</button>
         </div>
       </div>
@@ -184,18 +415,33 @@
     <div class="container footer__row">
       <span>© <span id="year"></span> Cuidy</span>
       <em class="footer__tagline">"Somos el punto de encuentro entre vos y quien te cuida"</em>
+      <br><a href="terminos.html" style="color:inherit;opacity:.7;text-decoration:underline;">Términos y Condiciones</a> · <a href="privacidad.html" style="color:inherit;opacity:.7;text-decoration:underline;">Política de Privacidad</a>
     </div>
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="auth.js"></script>
+  <script src="icons.js"></script>
   <script src="app.js"></script>
   <script src="chat.js"></script>
   <script>
-    // Registro del Service Worker + banner de instalación PWA
+    // Registro del Service Worker + actualización automática
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').then(function(reg) {
         console.log('[PWA] Service Worker registrado:', reg.scope);
+        // Chequear actualizaciones cada 30 segundos en dev, 5 min en prod
+        var interval = location.hostname === 'localhost' ? 30000 : 300000;
+        setInterval(function() { reg.update(); }, interval);
+        // Cuando hay nueva versión, recargar automáticamente
+        reg.addEventListener('updatefound', function() {
+          var newSW = reg.installing;
+          newSW.addEventListener('statechange', function() {
+            if (newSW.state === 'activated') {
+              console.log('[PWA] Nueva versión detectada, recargando...');
+              window.location.reload();
+            }
+          });
+        });
       }).catch(function(err) {
         console.warn('[PWA] Error registrando SW:', err);
       });

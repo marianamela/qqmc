@@ -27,32 +27,43 @@
   </header>
 
   <main class="wizard">
-    <div class="container wizard__container">
+    <div class="container wizard__container wizard__container--wide">
       <header class="wizard__head">
-        <p class="wizard__kicker">Registro de familia</p>
-        <h1 class="wizard__title">Creá tu cuenta</h1>
+        <p class="wizard__kicker">Primer paso</p>
+        <h1 class="wizard__title">Creá tu cuenta familiar</h1>
         <p class="wizard__lede">
-          Registrarte es <strong>gratis</strong>. Cuando quieras contactar a un
-          cuidador, podrás pagar un contacto único o suscribirte a un plan.
+          Registrarte es <strong>gratis</strong> y solo toma un minuto.
+          Después vas a poder buscar cuidadores verificados y recomendar a personas de confianza.
         </p>
       </header>
 
-      <!-- Barra de progreso -->
-      <ol class="steps" aria-label="Progreso del registro">
-        <li class="steps__item is-active" data-step="1"><span class="steps__dot">1</span><span class="steps__label">Cuenta</span></li>
-        <li class="steps__item" data-step="2"><span class="steps__dot">2</span><span class="steps__label">Identidad</span></li>
-        <li class="steps__item" data-step="3"><span class="steps__dot">3</span><span class="steps__label">Qué buscás</span></li>
-        <li class="steps__item" data-step="4"><span class="steps__dot">4</span><span class="steps__label">Detalle</span></li>
-        <li class="steps__item" data-step="5"><span class="steps__dot">5</span><span class="steps__label">Zona</span></li>
-        <li class="steps__item" data-step="6"><span class="steps__dot">6</span><span class="steps__label">Confirmación</span></li>
+      <!-- Barra de progreso simplificada -->
+      <ol class="steps steps--compact" aria-label="Progreso del registro">
+        <li class="steps__item is-active" data-step="0"><span class="steps__dot">1</span><span class="steps__label">Datos</span></li>
+        <li class="steps__item" data-step="1"><span class="steps__dot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="steps__label">Confirmar</span></li>
       </ol>
 
       <form id="wizardForm" class="wizard__form" novalidate>
 
-        <!-- ============ PASO 1 · CUENTA ============ -->
-        <section class="step is-active" data-step="1">
-          <h2 class="step__title">Tus datos</h2>
-          <p class="step__hint">Necesitamos estos datos para crear tu cuenta y que puedas volver a ingresar.</p>
+        <!-- ============ PASO 0 · DATOS PERSONALES + CONTACTO ============ -->
+        <section class="step is-active" data-step="0">
+          <h2 class="step__title">Tus datos personales</h2>
+          <p class="step__hint">Completá tus datos básicos para crear tu cuenta.</p>
+
+          <!-- Foto de perfil -->
+          <div class="foto-perfil-upload">
+            <div class="foto-perfil-upload__preview" id="fotoPerfilPreview">
+              <span class="foto-perfil-upload__placeholder" id="fotoPerfilPlaceholder"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></span></span>
+              <img class="foto-perfil-upload__img" id="fotoPerfilImg" src="" alt="Tu foto" />
+            </div>
+            <div class="foto-perfil-upload__info">
+              <label class="btn btn--ghost btn--sm" id="fotoPerfilLabel">
+                <input type="file" id="fotoPerfilInput" accept="image/*" hidden />
+                Subir foto de perfil
+              </label>
+              <p class="foto-perfil-upload__hint">Esta foto la van a ver los cuidadores cuando los contactes. Elegí una donde se te vea bien la cara.</p>
+            </div>
+          </div>
 
           <div class="field-row">
             <div class="field">
@@ -72,8 +83,21 @@
 
           <div class="field-row">
             <div class="field">
-              <label for="telefono">Teléfono *</label>
-              <input id="telefono" name="telefono" type="tel" required autocomplete="tel" placeholder="+54 9 11 ..." />
+              <label for="telefono">WhatsApp *</label>
+              <div class="otp-field">
+                <input id="telefono" name="telefono" type="tel" required autocomplete="tel" value="+549" placeholder="+549 11 12345678" />
+                <button type="button" class="btn btn--sm btn--ghost otp-send" id="btnOtpSend">Verificar</button>
+              </div>
+              <p class="field__hint">+549 + prefijo de área + número (sin 0 ni 15)</p>
+              <div class="otp-verify hidden" id="otpVerify">
+                <p class="otp-verify__msg">Ingresá el código de 6 dígitos que te enviamos por WhatsApp</p>
+                <div class="otp-verify__row">
+                  <input type="text" id="otpCode" maxlength="6" pattern="[0-9]{6}" placeholder="000000" class="otp-verify__input" />
+                  <button type="button" class="btn btn--sm btn--primary" id="btnOtpVerify">Confirmar</button>
+                </div>
+                <p class="otp-verify__status" id="otpStatus"></p>
+              </div>
+              <input type="hidden" id="telefonoVerificado" name="telefono_verificado" value="" />
             </div>
             <div class="field">
               <label for="fecha_nacimiento">Fecha de nacimiento</label>
@@ -92,207 +116,8 @@
               <input id="password2" name="password2" type="password" required autocomplete="new-password" />
             </div>
           </div>
-        </section>
 
-        <!-- ============ PASO 2 · VERIFICACIÓN DE IDENTIDAD ============ -->
-        <section class="step" data-step="2">
-          <h2 class="step__title">Verificá tu identidad</h2>
-          <p class="step__hint">
-            Para garantizar la seguridad de los cuidadores, necesitamos verificar que sos una persona real.
-            Subí una foto de tu DNI y sacate una selfie en el momento.
-          </p>
-
-          <div class="verify-grid">
-            <!-- DNI Upload -->
-            <div class="verify-card" id="dniCard">
-              <div class="verify-card__icon">🪪</div>
-              <h3 class="verify-card__title">Foto del DNI (frente)</h3>
-              <p class="verify-card__desc">Sacale una foto al frente de tu DNI donde se vea tu nombre y foto claramente.</p>
-              <div class="verify-card__preview" id="dniPreview">
-                <img id="dniImg" alt="Preview DNI" />
-              </div>
-              <label class="btn btn--ghost btn--sm verify-card__btn" id="dniLabel">
-                <input type="file" id="dniInput" accept="image/*" capture="environment" hidden />
-                Subir foto del DNI
-              </label>
-              <p class="verify-card__status" id="dniStatus"></p>
-            </div>
-
-            <!-- Selfie en vivo -->
-            <div class="verify-card" id="selfieCard">
-              <div class="verify-card__icon">🤳</div>
-              <h3 class="verify-card__title">Selfie en vivo</h3>
-              <p class="verify-card__desc">Usamos tu cámara para sacarte una foto en el momento. No se puede subir una imagen guardada.</p>
-              <div class="verify-card__camera" id="cameraContainer">
-                <video id="cameraVideo" autoplay playsinline></video>
-                <canvas id="cameraCanvas" hidden></canvas>
-              </div>
-              <div class="verify-card__preview" id="selfiePreview">
-                <img id="selfieImg" alt="Preview selfie" />
-              </div>
-              <button type="button" class="btn btn--ghost btn--sm verify-card__btn" id="btnStartCamera">
-                Abrir cámara
-              </button>
-              <button type="button" class="btn btn--primary btn--sm verify-card__btn" id="btnCapture" hidden>
-                Sacar foto
-              </button>
-              <button type="button" class="btn btn--ghost btn--sm verify-card__btn" id="btnRetake" hidden>
-                Sacar otra vez
-              </button>
-              <p class="verify-card__status" id="selfieStatus"></p>
-            </div>
-          </div>
-
-          <div class="verify-notice">
-            <strong>Tu privacidad es importante.</strong> Estas imágenes solo se usan para verificar tu identidad
-            y son revisadas por nuestro equipo de manera confidencial. No se comparten con terceros.
-          </div>
-        </section>
-
-        <!-- ============ PASO 3 · QUÉ BUSCÁS ============ -->
-        <section class="step" data-step="3">
-          <h2 class="step__title">¿Qué tipo de cuidado buscás?</h2>
-          <p class="step__hint">Podés seleccionar más de una opción.</p>
-
-          <div class="choice-grid" data-name="tipos">
-            <label class="choice">
-              <input type="checkbox" name="tipos" value="ninera" />
-              <span class="choice__icon" aria-hidden="true">👶</span>
-              <span class="choice__title">Niñera</span>
-              <span class="choice__sub">Cuidado de niños y niñas</span>
-            </label>
-            <label class="choice">
-              <input type="checkbox" name="tipos" value="adulto_mayor" />
-              <span class="choice__icon" aria-hidden="true">🧓</span>
-              <span class="choice__title">Adulto mayor</span>
-              <span class="choice__sub">Acompañamiento lúdico y recreativo</span>
-            </label>
-            <label class="choice">
-              <input type="checkbox" name="tipos" value="domestica" />
-              <span class="choice__icon" aria-hidden="true">🏠</span>
-              <span class="choice__title">Empleada doméstica</span>
-              <span class="choice__sub">Tareas del hogar</span>
-            </label>
-          </div>
-
-          <h3 class="step__subtitle">Modalidad</h3>
-          <div class="choice-grid choice-grid--compact" data-name="modalidad">
-            <label class="choice choice--pill">
-              <input type="radio" name="modalidad" value="full_time" />
-              <span>Full time</span>
-            </label>
-            <label class="choice choice--pill">
-              <input type="radio" name="modalidad" value="part_time" />
-              <span>Part time</span>
-            </label>
-            <label class="choice choice--pill">
-              <input type="radio" name="modalidad" value="por_hora" />
-              <span>Por hora</span>
-            </label>
-            <label class="choice choice--pill">
-              <input type="radio" name="modalidad" value="eventual" />
-              <span>Eventual</span>
-            </label>
-          </div>
-
-          <div class="field">
-            <label for="frecuencia">Frecuencia</label>
-            <select id="frecuencia" name="frecuencia">
-              <option value="">Seleccionar…</option>
-              <option value="diaria">Diaria</option>
-              <option value="semanal">Semanal</option>
-              <option value="quincenal">Quincenal</option>
-              <option value="mensual">Mensual</option>
-            </select>
-          </div>
-        </section>
-
-        <!-- ============ PASO 4 · DETALLE ============ -->
-        <section class="step" data-step="4">
-          <h2 class="step__title">Contanos un poco más</h2>
-          <p class="step__hint">Estos datos nos ayudan a recomendarte el mejor cuidador.</p>
-
-          <!-- Bloque NIÑERA -->
-          <div class="detail-block" data-show-for="ninera">
-            <h3 class="step__subtitle">Niños a cuidar</h3>
-            <div class="field" style="max-width: 220px">
-              <label for="cantidad_ninos">Cantidad de niños</label>
-              <input id="cantidad_ninos" name="cantidad_ninos" type="number" min="1" max="10" value="1" />
-            </div>
-            <div id="ninosContainer" class="ninos"></div>
-
-            <div class="field field--check">
-              <label class="check">
-                <input type="checkbox" id="cuidado_especial" name="cuidado_especial" />
-                <span>Algún niño requiere cuidado especial (patología, condición, etc.)</span>
-              </label>
-            </div>
-            <div class="field" id="cuidadoEspecialDetalle" hidden>
-              <label for="cuidado_especial_detalle">Describinos brevemente</label>
-              <textarea id="cuidado_especial_detalle" name="cuidado_especial_detalle" rows="3"
-                placeholder="Ej: TEA, diabetes, alergias, movilidad reducida…"></textarea>
-            </div>
-          </div>
-
-          <!-- Bloque ADULTO MAYOR -->
-          <div class="detail-block" data-show-for="adulto_mayor">
-            <h3 class="step__subtitle">Adulto mayor a cuidar</h3>
-            <div class="field-row">
-              <div class="field">
-                <label for="am_edad">Edad aproximada</label>
-                <input id="am_edad" name="am_edad" type="number" min="50" max="110" />
-              </div>
-              <div class="field">
-                <label for="am_autovalido">Nivel de autonomía</label>
-                <select id="am_autovalido" name="am_autovalido">
-                  <option value="">Seleccionar…</option>
-                  <option value="autovalido">Autoválido</option>
-                  <option value="semidependiente">Semi dependiente</option>
-                  <option value="dependiente">Dependiente</option>
-                </select>
-              </div>
-            </div>
-            <div class="field">
-              <label for="am_patologias">Patologías o condiciones</label>
-              <textarea id="am_patologias" name="am_patologias" rows="3"
-                placeholder="Ej: Alzheimer, Parkinson, cuidados post-operatorios…"></textarea>
-            </div>
-          </div>
-
-          <!-- Bloque DOMÉSTICA -->
-          <div class="detail-block" data-show-for="domestica">
-            <h3 class="step__subtitle">Tareas del hogar</h3>
-            <div class="field-row">
-              <div class="field">
-                <label for="dom_ambientes">Ambientes de la vivienda</label>
-                <input id="dom_ambientes" name="dom_ambientes" type="number" min="1" max="20" />
-              </div>
-              <div class="field field--check">
-                <label class="check">
-                  <input type="checkbox" id="dom_mascotas" name="dom_mascotas" />
-                  <span>Hay mascotas en la casa</span>
-                </label>
-              </div>
-            </div>
-            <div class="choice-grid choice-grid--compact">
-              <label class="choice choice--pill"><input type="checkbox" name="dom_tareas" value="limpieza" /><span>Limpieza</span></label>
-              <label class="choice choice--pill"><input type="checkbox" name="dom_tareas" value="cocina" /><span>Cocina</span></label>
-              <label class="choice choice--pill"><input type="checkbox" name="dom_tareas" value="planchado" /><span>Planchado</span></label>
-              <label class="choice choice--pill"><input type="checkbox" name="dom_tareas" value="lavado" /><span>Lavado de ropa</span></label>
-              <label class="choice choice--pill"><input type="checkbox" name="dom_tareas" value="compras" /><span>Compras</span></label>
-            </div>
-          </div>
-
-          <p class="step__empty" id="detalleEmpty" hidden>
-            Seleccioná al menos un tipo de cuidado en el paso anterior para ver este detalle.
-          </p>
-        </section>
-
-        <!-- ============ PASO 5 · ZONA ============ -->
-        <section class="step" data-step="5">
-          <h2 class="step__title">¿Dónde vivís?</h2>
-          <p class="step__hint">Con el barrio y localidad alcanza para matcharte con cuidadores cercanos. La dirección exacta es opcional.</p>
-
+          <h3 class="step__subtitle">¿Dónde vivís?</h3>
           <div class="field-row">
             <div class="field">
               <label for="provincia">Provincia *</label>
@@ -312,49 +137,30 @@
               <input id="localidad" name="localidad" type="text" required placeholder="Ej: Palermo, San Isidro" />
             </div>
           </div>
-
-          <div class="field field--check">
-            <label class="check">
-              <input type="checkbox" id="compartirDireccion" />
-              <span>Quiero compartir mi dirección exacta (sólo visible para cuidadores que contrate)</span>
-            </label>
-          </div>
-
-          <div id="direccionBlock" hidden>
-            <div class="field">
-              <label for="direccion">Dirección</label>
-              <input id="direccion" name="direccion" type="text" placeholder="Calle y número" />
-            </div>
-            <div class="field-row">
-              <div class="field">
-                <label for="depto">Piso / Depto</label>
-                <input id="depto" name="depto" type="text" />
-              </div>
-              <div class="field">
-                <label for="cp">Código postal</label>
-                <input id="cp" name="cp" type="text" />
-              </div>
-            </div>
-          </div>
         </section>
 
-        <!-- ============ PASO 6 · CONFIRMACIÓN ============ -->
-        <section class="step" data-step="6">
-          <h2 class="step__title">Revisá tus datos</h2>
-          <p class="step__hint">Verificá que todo esté bien antes de crear tu cuenta.</p>
+        <!-- ============ PASO 1 · CONFIRMACIÓN ============ -->
+        <section class="step" data-step="1">
+          <h2 class="step__title">Revisá tus datos antes de enviar</h2>
+          <p class="step__hint">Verificá que todo esté bien. Después de crear tu cuenta, ya podés empezar a buscar cuidadores y recomendar a alguien de confianza.</p>
 
-          <div id="resumen" class="resumen"></div>
+          <div id="resumenRegistro" class="resumen"></div>
 
-          <div class="field field--check">
+          <div class="consent-card consent-card--soft" style="margin-top: 20px">
+            <h3 class="consent-card__title"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg></span> ¿Qué sigue?</h3>
+            <p>Una vez creada tu cuenta, podés buscar cuidadores y recomendar cuidadoras/es de confianza. Para contactar cuidadores, te vamos a pedir que completes una verificación de identidad rápida (DNI + selfie).</p>
+          </div>
+
+          <div class="field field--check" style="margin-top: 16px">
             <label class="check">
               <input type="checkbox" id="acepta_terminos" name="acepta_terminos" required />
-              <span>Acepto los <a href="#" class="link">términos y condiciones</a> y la <a href="#" class="link">política de privacidad</a>.</span>
+              <span>Acepto los <a href="#" class="link">términos y condiciones</a>.</span>
             </label>
           </div>
           <div class="field field--check">
             <label class="check">
               <input type="checkbox" id="acepta_newsletter" name="acepta_newsletter" />
-              <span>Quiero recibir novedades y recomendaciones de cuidadores.</span>
+              <span>Declaro que la información que estoy enviando es <strong>verdadera y vigente</strong>.</span>
             </label>
           </div>
         </section>
@@ -375,9 +181,10 @@
   <div id="okModal" class="modal hidden" role="dialog" aria-modal="true">
     <div class="modal__backdrop" data-close></div>
     <div class="modal__content ok-modal">
-      <div class="ok-modal__emoji">🎉</div>
+      <div class="ok-modal__emoji"><span class="ci ci--xl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.8 11.3 2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12v0c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11v0c-.11.7-.72 1.22-1.43 1.22H17"/><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98v0C9.52 4.9 9 5.52 9 6.23V7"/><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z"/></svg></span></div>
       <h3 class="ok-modal__title">¡Bienvenida a Cuidy!</h3>
-      <p class="ok-modal__text">Tu cuenta familiar se creó correctamente. Ya podés buscar cuidadores en tu zona.</p>
+      <p class="ok-modal__text">Tu cuenta se creó correctamente. Ya podés buscar cuidadores y recomendar a alguien de confianza.</p>
+      <p class="ok-modal__text" style="font-size:13px;color:#6b7280;margin-top:8px">Para contactar cuidadores, vas a necesitar completar una verificación de identidad rápida desde tu panel.</p>
       <a href="/" class="btn btn--primary btn--lg">Empezar a buscar</a>
     </div>
   </div>
@@ -386,10 +193,13 @@
     <div class="container footer__row">
       <span>© <span id="year"></span> Cuidy</span>
       <em class="footer__tagline">"Somos el punto de encuentro entre vos y quien te cuida"</em>
+      <br><a href="terminos.html" style="color:inherit;opacity:.7;text-decoration:underline;">Términos y Condiciones</a> · <a href="privacidad.html" style="color:inherit;opacity:.7;text-decoration:underline;">Política de Privacidad</a>
     </div>
   </footer>
 
   <script src="auth.js"></script>
+  <script src="icons.js"></script>
+  <script src="js/otp-whatsapp.js"></script>
   <script src="registro-familia.js"></script>
 </body>
 </html>

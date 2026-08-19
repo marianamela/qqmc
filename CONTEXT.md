@@ -27,12 +27,15 @@ Plataforma que conecta familias con cuidadores de confianza verificados: niñera
 - `client/` → frontend estático
 - `client/admin/` → panel interno del equipo Cuidy
 - `client/invita-cuidador.html` → landing campaña para cuidadores (llegan por recomendación de familia)
-- `client/invita-familia.html` → landing campaña para familias (llegan por campaña de WhatsApp)
+- `client/recomendar-cuidador.html` → landing campaña para familias (llegan por campaña de WhatsApp, pueden recomendar un cuidador)
 - `client/registro-cuidador.html` → registro simplificado en 3 pasos (datos + identidad + enviar)
 - `client/registro-familia.html` → registro de familias
 - `client/completar-perfil.html` → segundo paso del registro de cuidador (después de aprobación de identidad)
 - `client/cuidador-enviado.html` → página post-registro con timeline de 5 pasos
 - `client/index.html` → home con chat asistente Caro
+- `client/verificar-identidad.html` → verificación de identidad de familias (DNI + selfie)
+- `client/panel-cuidador.html` → panel del cuidador logueado
+- `client/reactivar.html` → reactivación de cuenta tras solicitud de baja
 - `client/login.html` → login de usuarios
 - `client/auth-callback.html` → callback de Google SSO
 - `client/diario-cuidador.html` → diario de cuidado (vista cuidador)
@@ -76,6 +79,38 @@ Plataforma que conecta familias con cuidadores de confianza verificados: niñera
 ### Estados del cuidador
 `enviado` → `identidad_aprobada` → `perfil_completo` → `en_revision` → `entrevista_agendada` → `aprobado`
 
+Otros estados posibles: `lista_espera`, `rechazado`, `suspendido`, `vencido`, `baja_solicitada`, `correcciones_pedidas`
+
+## Flujo de registro de la familia
+### Fase 1 — Registro rápido (`registro-familia.html`)
+1. Datos básicos: nombre, apellido, email, teléfono
+2. POST /familias → fila con `estado='pendiente'`
+3. La familia puede loguearse, buscar cuidadores y navegar perfiles, pero NO puede contactar cuidadores
+
+### Fase 2 — Verificación de identidad (`verificar-identidad.html`)
+1. La familia accede voluntariamente desde el banner de verificación o el menú
+2. Sube foto de DNI + selfie
+3. PATCH /familias/:id → `estado='pendiente_verificacion'`
+4. El equipo revisa desde `/admin/familias.html` y aprueba o rechaza
+5. Si aprueba → `estado='aprobada'` → la familia puede contactar cuidadores
+6. Si rechaza → `estado='rechazada'` + motivo
+
+### Estados de la familia
+`pendiente` → `pendiente_verificacion` → `aprobada`
+
+| Estado | Significado | Puede buscar | Puede contactar |
+|--------|-------------|:---:|:---:|
+| `pendiente` | Cuenta creada, identidad no verificada | Sí | No |
+| `pendiente_verificacion` | Envió DNI/selfie, esperando revisión del equipo | Sí | No |
+| `aprobada` | Identidad verificada | Sí | Sí |
+| `rechazada` | Verificación rechazada (con motivo) | Sí | No |
+| `baja_solicitada` | Pidió eliminar cuenta (30 días de gracia) | No | No |
+
+### Acciones del admin sobre familias
+- **Sin verificar** (`pendiente`): puede enviar recordatorio por WhatsApp con link a verificar-identidad.html
+- **En revisión** (`pendiente_verificacion`): puede aprobar o rechazar la identidad (revisa DNI + selfie)
+- **Aprobada/Rechazada**: sin acciones adicionales
+
 ## Funcionalidades principales
 - **Chat asistente Caro**: búsqueda guiada de cuidadores por tipo, zona, disponibilidad
 - **Verificación de identidad**: DNI + selfie para cuidadores y familias
@@ -84,7 +119,8 @@ Plataforma que conecta familias con cuidadores de confianza verificados: niñera
 - **Solicitudes de contacto**: familias piden contacto, cuidadores aceptan/rechazan
 - **Suscripciones**: MercadoPago Checkout Pro, paywall para contacto
 - **PWA**: manifest.json, service worker, notificaciones push
-- **Panel admin**: gestión de cuidadores, estados, eventos, aprobaciones
+- **Baja de cuenta**: familia o cuidador solicita baja → 30 días de gracia → purga automática. Endpoint de reactivación dentro del plazo.
+- **Panel admin**: gestión de cuidadores y familias (estados, verificación de identidad, recordatorios, aprobaciones)
 - **Usuarios admin en DB**: tabla `admin_usuarios` con roles `superadmin` y `admin`, passwords hasheados con scrypt. Superadmin puede crear/editar/desactivar usuarios admin via endpoints `/admin/usuarios`
 - **GA4**: tracking de eventos de conversión personalizados
 - **UTM tracking**: captura de origen y campaña en sessionStorage
@@ -93,5 +129,5 @@ Plataforma que conecta familias con cuidadores de confianza verificados: niñera
 - Lema: "Que se ponga de moda cuidar bien. Porque cuidar bien merece más oportunidades."
 - Hashtag: #CuidarBien
 - Landing cuidadores: llegan por recomendación de una familia (`invita-cuidador.html?ref=CODIGO`)
-- Landing familias: llegan por campaña de WhatsApp (`invita-familia.html?utm_source=whatsapp`)
+- Landing familias: llegan por campaña de WhatsApp (`recomendar-cuidador.html?utm_source=whatsapp`)
 - UTM defaults familias: source=whatsapp, medium=campaign, campaign=lanzamiento_familias

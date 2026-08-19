@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <title>Mi Panel · Cuidy</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#006D77" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="panel-cuidador.css" />
+  <script src="js/analytics.js"></script>
+</head>
+<body class="page-panel">
+
+  <!-- Header -->
+  <header class="panel-header">
+    <div class="container panel-header__row">
+      <a class="brand" href="/" aria-label="Cuidy">
+        <img class="brand__logo" src="assets/logo.svg" alt="Cuidy" />
+      </a>
+      <div class="panel-header__user">
+        <span class="panel-header__avatar" id="cuidAvatar">C</span>
+        <span class="panel-header__name" id="cuidName">Cuidador</span>
+        <button class="btn btn--ghost btn--sm" id="btnLogout">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navegación por tabs -->
+  <nav class="panel-nav">
+    <div class="container">
+      <div class="panel-nav__tabs">
+        <button class="panel-nav__tab is-active" data-section="solicitudes">
+          <span class="panel-nav__icon"><span class="ci ci--xl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></span></span>
+          <span class="panel-nav__label">Solicitudes</span>
+          <span class="panel-nav__badge hidden" id="badgeSolicitudes">0</span>
+        </button>
+        <button class="panel-nav__tab" data-section="misdatos">
+          <span class="panel-nav__icon"><span class="ci ci--xl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span></span>
+          <span class="panel-nav__label">Mis datos</span>
+        </button>
+        <button class="panel-nav__tab" data-section="diario">
+          <span class="panel-nav__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M16 2v20"/></svg></span></span>
+          <span class="panel-nav__label">Mi diario</span>
+        </button>
+        <button class="panel-nav__tab" data-section="perfil">
+          <span class="panel-nav__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg></span></span>
+          <span class="panel-nav__label">Mi perfil</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="panel-main">
+    <div class="container">
+
+      <!-- Banner de estado del perfil -->
+      <div class="panel-estado hidden" id="bannerEstado">
+        <div class="panel-estado__icon" id="estadoIcon"></div>
+        <div class="panel-estado__body">
+          <h3 class="panel-estado__title" id="estadoTitle"></h3>
+          <p class="panel-estado__text" id="estadoText"></p>
+        </div>
+        <a class="btn btn--sm btn--primary hidden" id="estadoCTA" href="#">Acción</a>
+      </div>
+
+      <!-- ===== SECCIÓN: SOLICITUDES DE CONTACTO ===== -->
+      <section class="panel-section is-active" id="secSolicitudes">
+        <h2 class="panel-section__title">Solicitudes de contacto</h2>
+        <p class="panel-section__desc">Familias que se contactaron con vos a través de Cuidy.</p>
+        <div id="solicitudesList" class="solicitudes-list">
+          <div class="panel-loading">Cargando solicitudes...</div>
+        </div>
+      </section>
+
+      <!-- ===== SECCIÓN: MIS DATOS ===== -->
+      <section class="panel-section" id="secMisdatos">
+        <h2 class="panel-section__title">Mis datos personales</h2>
+        <p class="panel-section__desc">Editá tu información personal y profesional.</p>
+
+        <form id="formMisDatosCuid" class="panel-form">
+          <div class="panel-form__row">
+            <label class="panel-form__label">Nombre
+              <input type="text" id="cdNombre" class="panel-form__input" required />
+            </label>
+            <label class="panel-form__label">Apellido
+              <input type="text" id="cdApellido" class="panel-form__input" required />
+            </label>
+          </div>
+
+          <label class="panel-form__label">Email
+            <input type="email" id="cdEmail" class="panel-form__input" disabled />
+            <small class="panel-form__hint">El email no se puede cambiar</small>
+          </label>
+
+          <label class="panel-form__label">WhatsApp
+            <input type="tel" id="cdTelefono" class="panel-form__input" value="+549" placeholder="+549 11 12345678" />
+          </label>
+
+          <div class="panel-form__row">
+            <label class="panel-form__label">Provincia
+              <select id="cdProvincia" class="panel-form__input">
+                <option value="">Seleccionar…</option>
+                <option value="caba">CABA</option>
+                <option value="bsas">Buenos Aires</option>
+                <option value="cordoba">Córdoba</option>
+                <option value="santafe">Santa Fe</option>
+                <option value="mendoza">Mendoza</option>
+                <option value="tucuman">Tucumán</option>
+                <option value="otra">Otra</option>
+              </select>
+            </label>
+            <label class="panel-form__label">Localidad
+              <input type="text" id="cdLocalidad" class="panel-form__input" placeholder="Ej: Palermo" />
+            </label>
+          </div>
+
+          <div class="panel-form__group">
+            <h3 class="panel-form__subtitle">Especialidades</h3>
+            <div class="panel-form__checks">
+              <label class="check"><input type="checkbox" id="cdEspNinera" value="ninera" /><span>Niñera</span></label>
+              <label class="check"><input type="checkbox" id="cdEspAdulto" value="adulto_mayor" /><span>Adulto mayor</span></label>
+              <label class="check"><input type="checkbox" id="cdEspDomestica" value="domestica" /><span>Empleada doméstica</span></label>
+              <label class="check"><input type="checkbox" id="cdEspCocinera" value="cocinera" /><span>Cocinera</span></label>
+            </div>
+          </div>
+
+          <label class="panel-form__label">Bio / Presentación
+            <textarea id="cdBio" class="panel-form__input panel-form__textarea" rows="4" placeholder="Contá un poco sobre vos y tu experiencia..."></textarea>
+          </label>
+
+          <div class="panel-form__group">
+            <h3 class="panel-form__subtitle">Disponibilidad y tarifas</h3>
+            <div class="panel-form__row">
+              <label class="panel-form__label">Modalidad
+                <select id="cdModalidad" class="panel-form__input">
+                  <option value="">Seleccionar…</option>
+                  <option value="full_time">Full time</option>
+                  <option value="part_time">Part time</option>
+                  <option value="por_hora">Por hora</option>
+                  <option value="eventual">Eventual</option>
+                </select>
+              </label>
+              <label class="panel-form__label">Zona de trabajo
+                <input type="text" id="cdZonasTrabajo" class="panel-form__input" placeholder="Ej: Palermo, Belgrano" />
+              </label>
+            </div>
+            <div class="panel-form__row">
+              <label class="panel-form__label">Valor hora mín ($)
+                <input type="number" id="cdValorMin" class="panel-form__input" min="0" step="100" />
+              </label>
+              <label class="panel-form__label">Valor hora máx ($)
+                <input type="number" id="cdValorMax" class="panel-form__input" min="0" step="100" />
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--full" id="btnGuardarCuid">Guardar cambios</button>
+          <p class="panel-form__msg hidden" id="cdMsg"></p>
+        </form>
+
+        <div style="margin-top: 48px; padding-top: 32px; border-top: 1px solid #e5e7eb;">
+          <h3 style="font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 600; color: #991b1b; margin-bottom: 8px;">Eliminar mi cuenta</h3>
+          <p style="font-size: 13px; color: #52606D; line-height: 1.6; margin-bottom: 16px;">
+            Si eliminás tu cuenta, tu perfil dejará de ser visible y tus datos se borrarán definitivamente en 30 días. Durante ese período podés reactivarla.
+          </p>
+          <button id="btnBajaCuidador" class="btn" style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; font-size: 13px; padding: 10px 24px; border-radius: 20px; cursor: pointer; font-weight: 600;">
+            Dar de baja mi cuenta
+          </button>
+          <p id="bajaCuidMsg" style="display:none; margin-top: 12px; font-size: 13px; padding: 12px 16px; border-radius: 8px;"></p>
+        </div>
+      </section>
+
+      <!-- ===== SECCIÓN: MI DIARIO ===== -->
+      <section class="panel-section" id="secDiario">
+        <h2 class="panel-section__title">Mi Diario de Cuidado</h2>
+        <p class="panel-section__desc">Accedé al diario para registrar las actividades del día.</p>
+        <div class="panel-diario-link">
+          <a href="diario-cuidador.html" class="btn btn--primary btn--lg">Abrir mi Diario</a>
+          <p class="panel-form__hint" style="margin-top: 12px">El diario se abre en una pantalla completa optimizada para celular.</p>
+        </div>
+      </section>
+
+      <!-- ===== SECCIÓN: MI PERFIL PÚBLICO ===== -->
+      <section class="panel-section" id="secPerfil">
+        <h2 class="panel-section__title">Así te ven las familias</h2>
+        <p class="panel-section__desc">Esta es una vista previa de tu perfil público en Cuidy.</p>
+        <div id="perfilPreview" class="perfil-preview">
+          <div class="panel-loading">Cargando perfil...</div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__row">
+      <span>© <span id="year"></span> Cuidy</span>
+      <em class="footer__tagline">"Somos el punto de encuentro entre vos y quien te cuida"</em>
+      <br><a href="terminos.html" style="color:inherit;opacity:.7;text-decoration:underline;">Términos y Condiciones</a> · <a href="privacidad.html" style="color:inherit;opacity:.7;text-decoration:underline;">Política de Privacidad</a>
+    </div>
+  </footer>
+
+  <script src="icons.js"></script>
+  <script src="panel-cuidador.js"></script>
+</body>
+</html>

@@ -86,7 +86,7 @@
           mensajeInput.value = '';
           prioridadActual = 'normal';
           btnPriority.classList.remove('is-importante');
-          mensajeSent.textContent = '✓ Mensaje enviado';
+          mensajeSent.innerHTML = icon('check', 'success') + ' Mensaje enviado';
           mensajeSent.classList.remove('hidden');
           setTimeout(() => mensajeSent.classList.add('hidden'), 2500);
           await loadMensajesEnviados();
@@ -125,7 +125,7 @@
       mensajeBar.innerHTML = `
         <div style="text-align:center;padding:8px;width:100%">
           <p style="font-size:13px;color:var(--muted);margin:0 0 6px">
-            🔒 Tu plan venció. Renovalo para enviar mensajes y recibir notificaciones.
+            ${icon('lock')} Tu plan venció. Renovalo para enviar mensajes y recibir notificaciones.
           </p>
           <a href="/" style="font-size:13px;font-weight:700;color:var(--teal);text-decoration:none">
             Renovar plan →
@@ -189,9 +189,9 @@
         : e.foto_url ? 'timeline-entry--foto' : '';
       el.className = `timeline-entry ${tipoClass}`;
 
-      const icono = e.tipo === 'checkin' ? '📍'
-        : e.tipo === 'checkout' ? '👋'
-        : e.diario_categorias?.icono || '📝';
+      const icono = e.tipo === 'checkin' ? icon('mapPin')
+        : e.tipo === 'checkout' ? icon('logOut')
+        : e.diario_categorias?.icono || icon('fileText');
 
       const catNombre = e.tipo === 'checkin' ? 'Check-in'
         : e.tipo === 'checkout' ? 'Check-out'
@@ -205,7 +205,7 @@
 
       // Reacciones existentes
       const reacciones = (e.diario_reacciones || []).map(r =>
-        `<span class="timeline-reaction">${r.tipo === 'corazon' ? '❤️' : r.tipo === 'gracias' ? '🙏' : '👁️'}${r.comentario ? ' ' + esc(r.comentario) : ''}</span>`
+        `<span class="timeline-reaction">${r.tipo === 'corazon' ? icon('heartFilled', 'danger') : r.tipo === 'gracias' ? icon('handHeart') : icon('eye')}${r.comentario ? ' ' + esc(r.comentario) : ''}</span>`
       ).join('');
 
       // ¿Ya reaccionó esta familia?
@@ -222,7 +222,7 @@
           ${e.foto_url ? `<img class="timeline-entry__photo" src="${e.foto_url}" alt="Foto" loading="lazy" />` : ''}
           ${reacciones ? `<div class="timeline-entry__reactions">${reacciones}</div>` : ''}
           ${!soloLectura && !yaReacciono && e.tipo !== 'checkin' && e.tipo !== 'checkout'
-            ? `<button class="timeline-entry__react-btn" data-entry-id="${e.id}">❤️ Me encanta</button>`
+            ? `<button class="timeline-entry__react-btn" data-entry-id="${e.id}">${icon('heartFilled', 'danger')} Me encanta</button>`
             : ''}
         </div>
       `;
@@ -240,7 +240,7 @@
   // ---- Reaccionar a una entrada ----
   async function react(entradaId, btn) {
     btn.classList.add('is-reacted');
-    btn.textContent = '❤️ Enviado';
+    btn.innerHTML = icon('heartFilled', 'danger') + ' Enviado';
     btn.disabled = true;
 
     try {
@@ -257,7 +257,7 @@
     } catch {
       showToast('Error al enviar');
       btn.classList.remove('is-reacted');
-      btn.textContent = '❤️ Me encanta';
+      btn.innerHTML = icon('heartFilled', 'danger') + ' Me encanta';
       btn.disabled = false;
     }
   }
@@ -311,16 +311,16 @@
       <div class="resumen__title">Resumen del día</div>
       <div class="resumen__stats">
         <div class="resumen__stat">
-          <span class="resumen__stat-icon">🕐</span>
-          ${checkinStr} → ${checkoutStr}
+          <span class="resumen__stat-icon">${icon('clock')}</span>
+          ${checkinStr} ${icon('arrowRight')} ${checkoutStr}
         </div>
         <div class="resumen__stat">
-          <span class="resumen__stat-icon">📋</span>
+          <span class="resumen__stat-icon">${icon('clipboardList')}</span>
           ${data.total_entradas} registros
         </div>
         ${data.fotos > 0 ? `
         <div class="resumen__stat">
-          <span class="resumen__stat-icon">📷</span>
+          <span class="resumen__stat-icon">${icon('camera')}</span>
           ${data.fotos} foto${data.fotos > 1 ? 's' : ''}
         </div>` : ''}
       </div>
@@ -380,9 +380,9 @@
         let estadoHtml;
         if (m.leido) {
           const leidoHora = m.leido_at ? formatTime(new Date(m.leido_at)) : '';
-          estadoHtml = `<span class="msg-enviado__estado msg-enviado__estado--leido">✓✓ Leído${leidoHora ? ' a las ' + leidoHora : ''}</span>`;
+          estadoHtml = `<span class="msg-enviado__estado msg-enviado__estado--leido">${icon('checkCheck', 'success')} Leído${leidoHora ? ' a las ' + leidoHora : ''}</span>`;
         } else {
-          estadoHtml = '<span class="msg-enviado__estado msg-enviado__estado--pendiente">✓ Enviado · sin leer</span>';
+          estadoHtml = `<span class="msg-enviado__estado msg-enviado__estado--pendiente">${icon('check', 'muted')} Enviado · sin leer</span>`;
         }
 
         el.innerHTML = `

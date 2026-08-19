@@ -5,29 +5,30 @@
    - Sincronización de entradas del Diario cuando vuelve la conexión
    ============================================================= */
 
-const CACHE_NAME = 'qqmc-v1';
+// Versión del cache — cambiar este valor fuerza actualización completa
+const CACHE_VERSION = 3;
+const CACHE_NAME = `cuidy-v${CACHE_VERSION}`;
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/style.css',
   '/app.js',
   '/chat.js',
+  '/auth.js',
   '/manifest.json',
   '/assets/logo.svg',
   '/assets/icon-192.png'
 ];
 
-// Instalar: cachear assets estáticos
+// Instalar: cachear assets estáticos y forzar activación inmediata
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
   );
   self.skipWaiting();
 });
 
-// Activar: limpiar caches viejos
+// Activar: limpiar TODOS los caches anteriores
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -39,15 +40,14 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: Network first para API, Cache first para assets
+// Fetch: Network first para todo, cache como fallback offline
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // API calls: siempre a la red, guardar entradas del diario offline si falla
+  // API calls: siempre a la red
   if (url.pathname.startsWith('/.netlify/functions/')) {
     event.respondWith(
       fetch(event.request.clone()).catch(() => {
-        // Si es un POST al diario y estamos offline, guardar para sync
         if (event.request.method === 'POST' && url.pathname.includes('/diario')) {
           return saveForSync(event.request.clone()).then(() => {
             return new Response(JSON.stringify({
@@ -68,20 +68,25 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Assets: cache first, fallback a red
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        // Cachear nuevos assets (solo GET exitosos)
-        if (response.ok && event.request.method === 'GET') {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
+  // Assets: NETWORK FIRST, cache solo como fallback offline
+  if (event.request.method === 'GET') {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        // Guardar en cache para uso offline
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         return response;
-      });
-    })
-  );
+      }).catch(() => {
+        // Sin red: usar cache
+        return caches.match(event.request).then((cached) => {
+          return cached || new Response('Offline', { status: 503 });
+        });
+      })
+    );
+    return;
+  }
+
+  event.respondWith(fetch(event.request));
 });
 
 // ---- Sync offline: guardar entradas del diario para enviar después ----

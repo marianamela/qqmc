@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+  <title>Admin · Familias · Cuidy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="page-admin">
+  <header class="admin-topbar">
+    <div class="container admin-topbar__row">
+      <a href="index.html" class="admin-brand">
+        <img src="../assets/logo.svg" alt="Cuidy" />
+        <span class="admin-brand__label">Panel interno</span>
+      </a>
+      <div class="admin-topbar__user">
+        <span id="adminUser">—</span>
+        <button id="btnLogout" class="btn btn--ghost">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container admin-main">
+    <header class="admin-main__head">
+      <h1>Familias registradas</h1>
+      <p class="admin-main__sub">Gestioná las familias registradas: verificación de identidad, estado de cuenta y seguimiento.</p>
+      <nav class="admin-subnav">
+        <a href="index.html">Candidaturas</a>
+        <a href="familias.html" class="is-active"><span class="ci" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span> Familias</a>
+        <a href="agenda.html"><span class="ci" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg></span> Agenda</a>
+        <a href="horarios.html"><span class="ci" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span> Mis horarios</a>
+      </nav>
+    </header>
+
+    <!-- Tabs por estado -->
+    <div class="estado-tabs" id="estadoTabs"></div>
+
+    <div class="admin-filters admin-filters--grid">
+      <div class="field field--compact">
+        <label>Buscar</label>
+        <input id="busqueda" type="search" placeholder="Nombre o email…" />
+      </div>
+      <div class="field field--compact field--actions">
+        <button class="btn btn--ghost" id="btnRefresh"><span class="ci" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg></span> Actualizar</button>
+      </div>
+    </div>
+
+    <div class="admin-table" id="tabla"></div>
+
+    <!-- Modal detalle familia -->
+    <div class="admin-modal hidden" id="modalFamilia">
+      <div class="admin-modal__overlay" data-close></div>
+      <div class="admin-modal__box" style="max-width:600px">
+        <button class="admin-modal__close" data-close>&times;</button>
+        <div id="modalFamiliaBody">Cargando…</div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../icons.js"></script>
+  <script src="admin.js"></script>
+  <script>
+    (async () => {
+      if (!await ensureSession()) return;
+      document.getElementById('adminUser').textContent = session.user;
+      document.getElementById('btnLogout').addEventListener('click', logout);
+      addUsuariosNav();
+
+      // Agregar link familias al subnav de otras páginas
+      addFamiliasNav();
+      addOperacionesNav();
+
+      const tabla = document.getElementById('tabla');
+      const tabs = document.getElementById('estadoTabs');
+      const busq = document.getElementById('busqueda');
+      let filtroEstado = null;
+      let debounce;
+
+      async function cargar() {
+        tabla.innerHTML = '<p class="admin-empty">Cargando…</p>';
+        const qs = new URLSearchParams({ per_page: '50' });
+        if (filtroEstado) qs.set('estado', filtroEstado);
+        if (busq.value.trim()) qs.set('q', busq.value.trim());
+
+        const json = await adminFetch('/admin/familias?' + qs);
+        if (!json.ok) { tabla.innerHTML = '<p class="admin-empty">Error al cargar</p>'; return; }
+
+        renderTabs(json.data);
+        renderTabla(json.data);
+      }
+
+      function renderTabs(data) {
+        const conteo = {};
+        data.forEach(f => { conteo[f.estado || 'pendiente'] = (conteo[f.estado || 'pendiente'] || 0) + 1; });
+
+        const estados = ['pendiente', 'pendiente_verificacion', 'aprobada', 'rechazada', 'baja_solicitada'];
+        const labels = {
+          pendiente: icon('fileText') + ' Sin verificar',
+          pendiente_verificacion: icon('hourglass') + ' En revisión',
+          aprobada: icon('checkCircle', 'success') + ' Aprobadas',
+          rechazada: icon('xCircle', 'danger') + ' Rechazadas',
+          baja_solicitada: icon('trash', 'danger') + ' Baja'
+        };
+
+        tabs.innerHTML = `
+          <button class="estado-tab ${!filtroEstado ? 'is-active' : ''}" data-estado="">
+            Todas <span class="estado-tab__count">${data.length}</span>
+          </button>
+          ${estados.map(e => `
+            <button class="estado-tab ${filtroEstado === e ? 'is-active' : ''}" data-estado="${e}">
+              ${labels[e]} <span class="estado-tab__count">${conteo[e] || 0}</span>
+            </button>
+          `).join('')}`;
+
+        tabs.querySelectorAll('.estado-tab').forEach(btn => {
+          btn.addEventListener('click', () => {
+            filtroEstado = btn.dataset.estado || null;
+            cargar();
+          });
+        });
+      }
+
+      function renderTabla(data) {
+        if (!data.length) {
+          tabla.innerHTML = '<p class="admin-empty">No hay familias con este filtro.</p>';
+          return;
+        }
+
+        const estadoClass = {
+          pendiente: 'badge-estado--pendiente',
+          pendiente_verificacion: 'badge-estado--enviado',
+          aprobada: 'badge-estado--aprobado',
+          rechazada: 'badge-estado--rechazado',
+          baja_solicitada: 'badge-estado--baja'
+        };
+        const estadoLabel = {
+          pendiente: 'Sin verificar',
+          pendiente_verificacion: 'En revisión',
+          aprobada: 'Aprobada',
+          rechazada: 'Rechazada',
+          baja_solicitada: 'Baja solicitada'
+        };
+
+        tabla.innerHTML = `
+          <div class="admin-table__head admin-table__head--fam">
+            <span>Nombre</span>
+            <span>Email</span>
+            <span>Teléfono</span>
+            <span>Estado</span>
+            <span>Registro</span>
+            <span>Acciones</span>
+          </div>
+          ${data.map(f => {
+            const est = f.estado || 'pendiente';
+            const fecha = new Date(f.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+
+            let acciones = `<button class="btn btn--ghost btn--sm" data-ver="${f.id}">Ver</button>`;
+            if (est === 'pendiente') {
+              acciones += `<button class="btn btn--ghost btn--sm" data-recordar="${f.id}" title="Enviar recordatorio para que verifique identidad">${icon('send')} Recordar</button>`;
+            } else if (est === 'pendiente_verificacion') {
+              acciones += `
+                <button class="btn btn--primary btn--sm" data-aprobar="${f.id}">Aprobar</button>
+                <button class="btn btn--ghost btn--sm" data-rechazar="${f.id}" style="color:#b91c1c">Rechazar</button>`;
+            }
+
+            return `
+              <div class="admin-table__row admin-table__row--fam">
+                <span><strong>${esc(f.nombre || '')} ${esc(f.apellido || '')}</strong></span>
+                <span class="fam-email">${esc(f.email || '')}</span>
+                <span class="fam-tel">${esc(f.telefono || '—')}</span>
+                <span><span class="badge-estado ${estadoClass[est] || ''}">${estadoLabel[est] || est}</span></span>
+                <span class="fam-fecha">${fecha}</span>
+                <span class="fam-actions">${acciones}</span>
+              </div>`;
+          }).join('')}`;
+
+        // Event listeners
+        tabla.querySelectorAll('[data-ver]').forEach(btn => {
+          btn.addEventListener('click', () => abrirDetalle(btn.dataset.ver));
+        });
+        tabla.querySelectorAll('[data-aprobar]').forEach(btn => {
+          btn.addEventListener('click', (e) => { e.stopPropagation(); accionFamilia(btn.dataset.aprobar, 'aprobar'); });
+        });
+        tabla.querySelectorAll('[data-rechazar]').forEach(btn => {
+          btn.addEventListener('click', (e) => { e.stopPropagation(); accionFamilia(btn.dataset.rechazar, 'rechazar'); });
+        });
+        tabla.querySelectorAll('[data-recordar]').forEach(btn => {
+          btn.addEventListener('click', (e) => { e.stopPropagation(); enviarRecordatorio(btn.dataset.recordar); });
+        });
+      }
+
+      async function accionFamilia(id, accion) {
+        if (accion === 'aprobar' && !confirm('¿Aprobar la identidad de esta familia?')) return;
+
+        let motivo = '';
+        if (accion === 'rechazar') {
+          motivo = prompt('Motivo del rechazo:');
+          if (!motivo) return;
+        }
+
+        const json = await adminFetch(`/admin/familias/${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ accion, motivo })
+        });
+
+        if (json.ok) {
+          alert(accion === 'aprobar' ? 'Familia aprobada. Se envió WhatsApp.' : 'Familia rechazada.');
+          cargar();
+        } else {
+          alert('Error: ' + (json.error || 'Desconocido'));
+        }
+      }
+
+      async function abrirDetalle(id) {
+        const modal = document.getElementById('modalFamilia');
+        const body = document.getElementById('modalFamiliaBody');
+        body.innerHTML = 'Cargando…';
+        modal.classList.remove('hidden');
+
+        const json = await adminFetch(`/admin/familias/${id}`);
+        if (!json.ok) { body.innerHTML = 'Error al cargar'; return; }
+
+        const f = json.data;
+        const verif = f.verificacion || {};
+        const est = f.estado || 'pendiente';
+        const estadoLabel = {
+          pendiente: 'Sin verificar',
+          pendiente_verificacion: 'En revisión',
+          aprobada: 'Aprobada',
+          rechazada: 'Rechazada',
+          baja_solicitada: 'Baja solicitada'
+        };
+        const estadoClass = {
+          pendiente: 'badge-estado--pendiente',
+          pendiente_verificacion: 'badge-estado--enviado',
+          aprobada: 'badge-estado--aprobado',
+          rechazada: 'badge-estado--rechazado',
+          baja_solicitada: 'badge-estado--baja'
+        };
+
+        // Info contextual según estado
+        let estadoInfo = '';
+        if (est === 'pendiente') {
+          estadoInfo = `
+            <div class="fam-modal__alert fam-modal__alert--info">
+              <strong>${icon('fileText')} Cuenta creada, identidad no verificada.</strong><br>
+              Esta familia puede buscar y navegar perfiles, pero no puede contactar cuidadores hasta que verifique su identidad.
+            </div>`;
+        } else if (est === 'pendiente_verificacion') {
+          estadoInfo = `
+            <div class="fam-modal__alert fam-modal__alert--warning">
+              <strong>${icon('hourglass')} Documentación enviada, pendiente de revisión.</strong><br>
+              Revisá las fotos de DNI y selfie para aprobar o rechazar la identidad.
+            </div>`;
+        } else if (est === 'baja_solicitada') {
+          const bajaDias = f.baja_solicitada_at ? Math.round((Date.now() - new Date(f.baja_solicitada_at)) / 864e5) : '?';
+          estadoInfo = `
+            <div class="fam-modal__alert fam-modal__alert--danger">
+              <strong>${icon('trash', 'danger')} Baja solicitada hace ${bajaDias} días.</strong><br>
+              La cuenta se purgará automáticamente a los 30 días. La familia puede reactivarla antes de ese plazo.
+            </div>`;
+        }
+
+        // Zona desde el objeto zona o campos directos
+        const zona = f.zona || {};
+        const zonaText = zona.localidad || f.localidad || zona.provincia || f.provincia
+          ? esc((zona.localidad || f.localidad || '') + (zona.provincia || f.provincia ? ', ' + (zona.provincia || f.provincia) : ''))
+          : '—';
+
+        body.innerHTML = `
+          <h2 class="fam-modal__name">${esc(f.nombre || '')} ${esc(f.apellido || '')}</h2>
+          <span class="badge-estado ${estadoClass[est] || ''}" style="margin-bottom:16px;display:inline-block">${estadoLabel[est] || est}</span>
+
+          ${estadoInfo}
+
+          <div class="fam-modal__grid">
+            <div class="kv"><span class="kv__k">Email</span><span class="kv__v">${esc(f.email || '—')}</span></div>
+            <div class="kv"><span class="kv__k">Teléfono</span><span class="kv__v">${esc(f.telefono || '—')}</span></div>
+            <div class="kv"><span class="kv__k">Registro</span><span class="kv__v">${new Date(f.created_at).toLocaleDateString('es-AR')}</span></div>
+            <div class="kv"><span class="kv__k">Zona</span><span class="kv__v">${zonaText}</span></div>
+          </div>
+
+          ${f.busqueda && Object.keys(f.busqueda).length ? `
+          <div class="fam-modal__section">
+            <h3 class="fam-modal__subtitle">Búsqueda</h3>
+            <div class="fam-modal__grid">
+              ${f.busqueda.tipo_cuidado ? `<div class="kv"><span class="kv__k">Tipo de cuidado</span><span class="kv__v">${Array.isArray(f.busqueda.tipo_cuidado) ? f.busqueda.tipo_cuidado.join(', ') : esc(f.busqueda.tipo_cuidado)}</span></div>` : ''}
+              ${f.busqueda.modalidad ? `<div class="kv"><span class="kv__k">Modalidad</span><span class="kv__v">${esc(f.busqueda.modalidad)}</span></div>` : ''}
+            </div>
+          </div>` : ''}
+
+          ${est !== 'pendiente' ? `
+          <div class="fam-modal__section">
+            <h3 class="fam-modal__subtitle">Verificación de identidad</h3>
+            <div class="fam-modal__docs">
+              ${verif.dni_foto
+                ? `<div class="fam-modal__doc">
+                    <span class="fam-modal__doc-label">${icon('fileText')} Foto DNI</span>
+                    <img src="${esc(verif.dni_foto)}" class="fam-modal__doc-img" />
+                  </div>`
+                : `<div class="fam-modal__doc fam-modal__doc--empty"><span>${icon('fileText')}</span><span>Sin foto de DNI</span></div>`}
+              ${verif.selfie
+                ? `<div class="fam-modal__doc">
+                    <span class="fam-modal__doc-label">${icon('scanFace')} Selfie</span>
+                    <img src="${esc(verif.selfie)}" class="fam-modal__doc-img" />
+                  </div>`
+                : `<div class="fam-modal__doc fam-modal__doc--empty"><span>${icon('scanFace')}</span><span>Sin selfie</span></div>`}
+            </div>
+          </div>` : ''}
+
+          ${f.motivo_rechazo ? `
+          <div class="fam-modal__section">
+            <h3 class="fam-modal__subtitle">Motivo de rechazo</h3>
+            <p style="font-size:14px;color:#991b1b;background:#fef2f2;padding:10px 14px;border-radius:8px;margin:0">${esc(f.motivo_rechazo)}</p>
+          </div>` : ''}
+
+          ${est === 'pendiente' ? `
+            <div class="fam-modal__actions">
+              <button class="btn btn--primary" id="btnRecordarModal">${icon('send')} Enviar recordatorio de verificación</button>
+            </div>
+          ` : ''}
+          ${est === 'pendiente_verificacion' ? `
+            <div class="fam-modal__actions">
+              <button class="btn btn--primary" id="btnAprobarModal">${icon('checkCircle', 'success')} Aprobar identidad</button>
+              <button class="btn btn--ghost" id="btnRechazarModal" style="color:#b91c1c">${icon('xCircle', 'danger')} Rechazar</button>
+            </div>
+          ` : ''}
+        `;
+
+        document.getElementById('btnAprobarModal')?.addEventListener('click', async () => {
+          await accionFamilia(id, 'aprobar');
+          modal.classList.add('hidden');
+        });
+        document.getElementById('btnRechazarModal')?.addEventListener('click', async () => {
+          await accionFamilia(id, 'rechazar');
+          modal.classList.add('hidden');
+        });
+        document.getElementById('btnRecordarModal')?.addEventListener('click', async () => {
+          await enviarRecordatorio(id);
+          modal.classList.add('hidden');
+        });
+
+        // Cerrar modal
+        modal.querySelectorAll('[data-close]').forEach(el => {
+          el.addEventListener('click', () => modal.classList.add('hidden'));
+        });
+      }
+
+      async function enviarRecordatorio(id) {
+        if (!confirm('¿Enviar recordatorio por WhatsApp para que verifique su identidad?')) return;
+
+        const json = await adminFetch(`/admin/familias/${id}/recordar`, {
+          method: 'POST'
+        });
+
+        if (json.ok) {
+          alert('Recordatorio enviado por WhatsApp.');
+        } else {
+          alert('Error: ' + (json.error || 'No se pudo enviar'));
+        }
+      }
+
+      function esc(s) {
+        return String(s ?? '').replace(/[&<>"']/g, c => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+      }
+
+      // Listeners
+      busq.addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(cargar, 400); });
+      document.getElementById('btnRefresh').addEventListener('click', cargar);
+
+      cargar();
+    })();
+  </script>
+</body>
+</html>

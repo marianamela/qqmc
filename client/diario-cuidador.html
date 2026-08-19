@@ -31,7 +31,7 @@
   <!-- Check-in / Check-out bar -->
   <div class="diario-checkin" id="checkinBar">
     <button class="diario-checkin__btn diario-checkin__btn--in" id="btnCheckin">
-      <span class="diario-checkin__icon">📍</span>
+      <span class="diario-checkin__icon"><span class="ci ci--xl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span></span>
       <span>Llegué</span>
     </button>
     <div class="diario-checkin__status hidden" id="checkinStatus">
@@ -74,7 +74,7 @@
     </div>
     <div class="diario-panel__body" id="panelBody"></div>
     <div class="diario-panel__actions">
-      <button class="diario-panel__photo" id="btnPhoto" aria-label="Agregar foto">📷 Foto</button>
+      <button class="diario-panel__photo" id="btnPhoto" aria-label="Agregar foto"><span class="ci ci--xl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></span> Foto</button>
       <textarea class="diario-panel__note" id="panelNote" placeholder="Nota opcional…" rows="2"></textarea>
       <button class="diario-panel__send btn btn--primary" id="btnSend">Guardar</button>
     </div>
@@ -83,14 +83,14 @@
   <!-- Botón flotante: nota libre / foto rápida -->
   <div class="diario-fab" id="fab">
     <button class="diario-fab__btn" id="btnNotaLibre" title="Nota o foto rápida">
-      <span>✏️</span>
+      <span><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span></span>
     </button>
   </div>
 
   <!-- Banner de invitación para cuidadores -->
   <div class="invita-banner invita-banner--cuidador" id="invitaBanner">
     <div class="invita-banner__content">
-      <span class="invita-banner__icon">🌟</span>
+      <span class="invita-banner__icon"><span class="ci ci--xl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg></span></span>
       <div class="invita-banner__text">
         <strong>Sumá más familias</strong>
         <p>Pedí a tus empleadores que te recomienden en Cuidy</p>
@@ -118,6 +118,7 @@
   <!-- Toast de confirmación -->
   <div class="diario-toast hidden" id="toast"></div>
 
+  <script src="icons.js"></script>
   <script src="js/invita.js"></script>
   <script src="diario-cuidador.js"></script>
 </body>

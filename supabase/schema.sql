@@ -81,7 +81,8 @@ create table if not exists public.cuidadores (
 
   -- Experiencia y bio
   experiencia_anios int not null default 0,
-  tarifa_hora int,
+  valor_hora_min int,
+  valor_hora_max int,
   bio text,
   empleos jsonb not null default '[]'::jsonb,  -- [{familia, duracion, tareas}]
 

@@ -41,44 +41,59 @@
         const apellido = meta.full_name?.split(' ').slice(1).join(' ') || '';
         const email = user.email;
 
-        // Buscar o crear familia en nuestra tabla
         const API = '/.netlify/functions/api';
-        const res = await fetch(`${API}/familias/me?email=${encodeURIComponent(email)}`);
-        const json = await res.json();
 
-        let familiaData;
-        if (json.ok && json.data) {
-          familiaData = json.data;
+        // Determinar rol: familia o cuidador
+        const authRole = sessionStorage.getItem('cuidy_auth_role') || 'familia';
+        sessionStorage.removeItem('cuidy_auth_role');
+
+        if (authRole === 'cuidador') {
+          // === FLUJO CUIDADOR ===
+          const res = await fetch(`${API}/cuidadores/me?email=${encodeURIComponent(email)}`);
+          const json = await res.json();
+
+          if (!json.ok || !json.data) {
+            throw new Error('No encontramos una cuenta de cuidador/a con este email. Primero tenés que registrarte.');
+          }
+
+          localStorage.setItem('qqmc_cuidador', JSON.stringify(json.data));
+          window.location.href = '/panel-cuidador.html';
+
         } else {
-          // Crear familia con datos de Google
-          const createRes = await fetch(`${API}/familias`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              cuenta: { nombre, apellido, email, telefono: '' },
-              busqueda: {},
-              detalle: {},
-              zona: {},
-              preferencias: {}
-            })
-          });
-          const createJson = await createRes.json();
-          familiaData = createJson.data || { id: user.id, nombre, apellido, email };
+          // === FLUJO FAMILIA ===
+          const res = await fetch(`${API}/familias/me?email=${encodeURIComponent(email)}`);
+          const json = await res.json();
+
+          if (!json.ok || !json.data) {
+            throw new Error('No encontramos una cuenta de familia con este email. Primero tenés que registrarte.');
+          }
+
+          const familiaData = json.data;
+
+          saveSession(
+            { access_token: accessToken, user: { id: user.id, email, user_metadata: meta } },
+            { id: familiaData.id, nombre: familiaData.nombre || nombre, apellido: familiaData.apellido || apellido, email, telefono: familiaData.telefono || '' }
+          );
+
+          window.location.href = '/';
         }
-
-        // Guardar sesión
-        saveSession(
-          { access_token: accessToken, user: { id: user.id, email, user_metadata: meta } },
-          { id: familiaData.id, nombre, apellido, email, telefono: familiaData.telefono || '' }
-        );
-
-        // Redirigir al inicio
-        window.location.href = '/';
       } catch (err) {
         document.querySelector('.auth-callback__spinner').style.display = 'none';
-        document.querySelector('.auth-callback__text').textContent =
-          'Error al conectar: ' + err.message;
-        setTimeout(() => { window.location.href = '/login.html'; }, 3000);
+        const box = document.querySelector('.auth-callback__box');
+        const role = sessionStorage.getItem('cuidy_auth_role') || 'familia';
+        sessionStorage.removeItem('cuidy_auth_role');
+
+        const regLink = role === 'cuidador' ? '/registro-cuidador.html' : '/registro-familia.html';
+        const loginLink = '/login.html' + (role === 'cuidador' ? '?rol=cuidador' : '');
+
+        box.innerHTML = `
+          <p style="font-size:2rem;margin:0 0 16px"><span class="ci ci--xl ci--muted"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg></span></p>
+          <p style="color:var(--ink);font-size:1rem;margin:0 0 20px">${err.message}</p>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <a href="${regLink}" class="btn btn--primary">Registrarme</a>
+            <a href="${loginLink}" class="btn btn--ghost">Volver al login</a>
+          </div>
+        `;
       }
     })();
   </script>
