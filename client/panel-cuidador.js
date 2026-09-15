@@ -43,6 +43,7 @@
     renderEstadoBanner();
 
     // Cargar sección inicial
+    loadMatches();
     loadSolicitudes();
     loadMisDatos();
   });
@@ -125,24 +126,148 @@
     });
   }
 
-  // === Solicitudes de contacto ===
-  async function loadSolicitudes() {
-    const list = document.getElementById('solicitudesList');
+  // === Matches (nuevo flujo) ===
+  async function loadMatches() {
+    const list = document.getElementById('matchesList');
+    if (!list) return;
     try {
-      const res = await fetch(`${API}/contactos/solicitudes?cuidador_id=${cuidador.id}`);
+      const res = await fetch(`${API}/matches?cuidador_id=${cuidador.id}`);
       const json = await res.json();
       if (!json.ok || !json.data?.length) {
-        list.innerHTML = '<p class="solicitudes-empty">Todavía no recibiste solicitudes de contacto. Cuando una familia te contacte, vas a verlo acá.</p>';
+        list.innerHTML = '<p class="solicitudes-empty">Todavía no recibiste intereses de familias. Cuando una familia se interese en tu perfil, vas a verlo acá.</p>';
         return;
       }
 
-      // Badge
-      const pendientes = json.data.filter(s => s.estado === 'pendiente').length;
+      // Badge: matches pendientes de respuesta
+      const pendientes = json.data.filter(m => m.estado === 'pendiente_cuidador').length;
       const badge = document.getElementById('badgeSolicitudes');
       if (pendientes > 0) {
         badge.textContent = pendientes;
         badge.classList.remove('hidden');
       }
+
+      list.innerHTML = json.data.map(m => renderMatch(m)).join('');
+
+      // Event listeners para aceptar/rechazar matches
+      list.querySelectorAll('[data-match-accion]').forEach(btn => {
+        btn.addEventListener('click', () => responderMatch(btn.dataset.matchId, btn.dataset.matchAccion));
+      });
+    } catch {
+      list.innerHTML = '<p class="solicitudes-empty">Error al cargar. Intentá recargar la página.</p>';
+    }
+  }
+
+  function renderMatch(m) {
+    const fam = m.familia || {};
+    const fecha = m.created_at ? new Date(m.created_at).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+    const estadoLabels = {
+      pendiente_cuidador: 'Esperando tu respuesta',
+      match: 'Match confirmado',
+      desbloqueado: 'Contacto desbloqueado',
+      rechazado: 'Rechazado',
+      vencido: 'Vencido',
+      descartado: 'Descartado'
+    };
+    const estadoColors = {
+      pendiente_cuidador: '#d97706',
+      match: '#059669',
+      desbloqueado: '#006D77',
+      rechazado: '#dc2626',
+      vencido: '#6b7280',
+      descartado: '#6b7280'
+    };
+    const estadoLabel = estadoLabels[m.estado] || m.estado;
+    const estadoColor = estadoColors[m.estado] || '#6b7280';
+
+    const zona = fam.zona || m.familia_zona || '';
+    const servicio = fam.servicio || m.familia_servicio || '';
+    const horarios = fam.horarios || m.familia_horarios || '';
+    const detalle = fam.detalle || m.familia_detalle || '';
+
+    let contactoInfo = '';
+    if (m.estado === 'desbloqueado' && fam.nombre) {
+      const datos = [];
+      if (fam.telefono) datos.push(`${icon('phone')} ${esc(fam.telefono)}`);
+      if (fam.email) datos.push(`${icon('mail')} ${esc(fam.email)}`);
+      contactoInfo = `
+        <div class="solicitud-card__contacto-info" style="background:#e0f7fa;border-radius:8px;padding:12px;margin-top:8px">
+          <strong>${esc(fam.nombre)} ${esc(fam.apellido || '')}</strong><br>${datos.join('<br>')}
+        </div>`;
+    }
+
+    let acciones = '';
+    if (m.estado === 'pendiente_cuidador') {
+      acciones = `
+        <div class="solicitud-card__acciones">
+          <button class="btn btn--primary btn--sm" data-match-id="${m.id}" data-match-accion="aceptar">Aceptar</button>
+          <button class="btn btn--ghost btn--sm" data-match-id="${m.id}" data-match-accion="rechazar">No me interesa</button>
+        </div>`;
+    }
+
+    return `
+      <div class="solicitud-card" style="border-left:4px solid ${estadoColor}">
+        <div class="solicitud-card__header">
+          <div class="solicitud-card__avatar" style="background:${estadoColor};color:white">💙</div>
+          <div class="solicitud-card__header-info">
+            <span class="solicitud-card__nombre">${m.estado === 'desbloqueado' && fam.nombre ? esc(fam.nombre + ' ' + (fam.apellido || '')) : 'Familia interesada'}</span>
+            ${zona ? `<span class="solicitud-card__ubicacion">${icon('mapPin')} ${esc(zona)}</span>` : ''}
+          </div>
+          <div class="solicitud-card__header-right">
+            <span class="solicitud-card__estado" style="color:${estadoColor};font-weight:600">${estadoLabel}</span>
+            <span class="solicitud-card__fecha">${fecha}</span>
+          </div>
+        </div>
+        ${servicio || horarios ? `
+        <div class="solicitud-card__contexto">
+          <strong>Lo que busca:</strong>
+          <div class="solicitud-card__detalle-grid">
+            ${servicio ? `<span class="solicitud-detalle-item">${icon('tag')} ${esc(servicio)}</span>` : ''}
+            ${horarios ? `<span class="solicitud-detalle-item">${icon('clock')} ${esc(horarios)}</span>` : ''}
+          </div>
+        </div>` : ''}
+        ${detalle ? `<div class="solicitud-card__mensaje">${icon('messageCircle')} ${esc(detalle)}</div>` : ''}
+        ${contactoInfo}
+        ${acciones}
+      </div>`;
+  }
+
+  async function responderMatch(matchId, accion) {
+    const motivo = accion === 'rechazar'
+      ? prompt('¿Querés indicar un motivo? (opcional)') || ''
+      : '';
+
+    try {
+      const res = await fetch(`${API}/matches/${matchId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accion, motivo })
+      });
+      const json = await res.json();
+      if (json.ok) {
+        loadMatches();
+      } else {
+        alert(json.error || 'Error al responder');
+      }
+    } catch {
+      alert('Sin conexión. Intentá nuevamente.');
+    }
+  }
+
+  // === Solicitudes de contacto (legacy — sistema anterior) ===
+  async function loadSolicitudes() {
+    const list = document.getElementById('solicitudesList');
+    if (!list) return;
+    try {
+      const res = await fetch(`${API}/contactos/solicitudes?cuidador_id=${cuidador.id}`);
+      const json = await res.json();
+      if (!json.ok || !json.data?.length) {
+        // No hay solicitudes legacy → ocultar sección
+        return;
+      }
+
+      // Mostrar sección legacy
+      const wrapper = document.getElementById('solicitudesLegacy');
+      if (wrapper) wrapper.classList.remove('hidden');
 
       list.innerHTML = json.data.map(s => renderSolicitud(s)).join('');
 

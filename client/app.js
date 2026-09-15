@@ -352,6 +352,17 @@
     const res = await fetch(`${API_BASE}/cuidadores/${id}${qs}`);
     const json = await res.json();
     if (!json.ok) throw new Error(json.error || 'Error');
+
+    // Buscar match activo entre esta familia y este cuidador
+    if (familiaState?.id) {
+      try {
+        const mRes = await fetch(`${API_BASE}/matches?familia_id=${familiaState.id}&activos=true`);
+        const mJson = await mRes.json();
+        if (mJson.ok && mJson.data) {
+          json.match = mJson.data.find(m => m.cuidador_id === id) || null;
+        }
+      } catch { /* silenciar */ }
+    }
     return json;
   }
 
@@ -483,7 +494,8 @@
       const requiere_suscripcion = resultado.requiere_suscripcion;
       const contacto_visible = resultado.contacto_visible;
       const solicitud = resultado.solicitud;
-      body.innerHTML = fichaHtml(c, requiere_suscripcion, contacto_visible, solicitud);
+      const matchData = resultado.match || null;
+      body.innerHTML = fichaHtml(c, requiere_suscripcion, contacto_visible, solicitud, matchData);
       // Init favorito button
       initFavoritoBtn(c.id);
       // Botón "Ver planes" dentro de la ficha
@@ -496,7 +508,78 @@
           abrirModalPlanes(id);
         });
       }
-      // Botón "Enviar mensaje" (contacto por plataforma)
+
+      // === MATCH: Botón "Me interesa" ===
+      const btnInteres = document.getElementById('btnMeInteresa');
+      if (btnInteres) {
+        btnInteres.addEventListener('click', async () => {
+          const detalle = document.getElementById('msgInteres')?.value?.trim() || '';
+          btnInteres.disabled = true;
+          btnInteres.textContent = 'Enviando…';
+          try {
+            const res = await fetch(`${API_BASE}/matches/interes`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                familia_id: familiaState.id,
+                cuidador_id: id,
+                mensaje: detalle
+              })
+            });
+            const json = await res.json();
+            if (json.ok) {
+              btnInteres.innerHTML = icon('check', 'success') + ' ¡Interés enviado!';
+              const info = document.querySelector('.contactar__info');
+              if (info) info.textContent = 'Le avisamos al cuidador. Si acepta, te vamos a notificar para que desbloquees su contacto.';
+            } else {
+              alert(json.error || 'Error al enviar');
+              btnInteres.disabled = false;
+              btnInteres.textContent = '💙 Me interesa';
+            }
+          } catch {
+            alert('Sin conexión');
+            btnInteres.disabled = false;
+            btnInteres.textContent = '💙 Me interesa';
+          }
+        });
+      }
+
+      // === MATCH: Botón "Desbloquear contacto" (post-match, pago) ===
+      const btnDesbloquear = document.getElementById('btnDesbloquear');
+      if (btnDesbloquear) {
+        btnDesbloquear.addEventListener('click', async () => {
+          btnDesbloquear.disabled = true;
+          btnDesbloquear.textContent = 'Procesando…';
+          try {
+            const matchId = btnDesbloquear.dataset.matchId;
+            const res = await fetch(`${API_BASE}/matches/${matchId}/desbloquear`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' }
+            });
+            const json = await res.json();
+            if (json.ok) {
+              // Recargar ficha para mostrar datos de contacto
+              abrirFicha(id);
+            } else if (json.codigo === 'sin_suscripcion') {
+              cerrarModal();
+              abrirModalPlanes(id);
+            } else if (json.codigo === 'match_vencido') {
+              alert('Este match venció. Podés expresar interés nuevamente.');
+              abrirFicha(id);
+            } else {
+              alert(json.error || 'Error al desbloquear');
+              btnDesbloquear.disabled = false;
+              btnDesbloquear.textContent = '🔓 Desbloquear contacto';
+            }
+          } catch {
+            alert('Sin conexión');
+            btnDesbloquear.disabled = false;
+            btnDesbloquear.textContent = '🔓 Desbloquear contacto';
+          }
+        });
+      }
+
+      // Legacy: Botón "Enviar mensaje" (contacto directo por plataforma - backward compat)
       const btnContactar = document.getElementById('btnContactar');
       if (btnContactar) {
         btnContactar.addEventListener('click', async () => {
@@ -519,18 +602,7 @@
               btnContactar.innerHTML = icon('check', 'success') + ' Mensaje enviado';
               document.getElementById('msgContactar').value = '';
               const info = document.querySelector('.contactar__info');
-              // Sugerir completar perfil si la familia no tiene datos de búsqueda
-              const fam = JSON.parse(localStorage.getItem('qqmc_familia') || '{}');
-              if (!fam.busqueda || !fam.busqueda?.tipos?.length) {
-                if (info) info.innerHTML = icon('check', 'success') + ' Tu mensaje fue enviado.<br><br>' + icon('lightbulb') + ' <strong>Tip:</strong> Completá tu perfil con el tipo de cuidado que buscás para que los cuidadores conozcan mejor tus necesidades. <a href="#" id="linkCompletarPerfil" style="color:var(--teal);text-decoration:underline">Completar perfil</a>';
-                document.getElementById('linkCompletarPerfil')?.addEventListener('click', (ev) => {
-                  ev.preventDefault();
-                  cerrarModal();
-                  if (typeof abrirMisDatos === 'function') abrirMisDatos(fam);
-                });
-              } else {
-                if (info) info.textContent = 'Tu mensaje fue enviado. Cuando el cuidador acepte, se intercambiarán los datos de contacto.';
-              }
+              if (info) info.textContent = 'Tu mensaje fue enviado. Cuando el cuidador acepte, se intercambiarán los datos de contacto.';
             } else {
               alert(json.error || 'Error al enviar');
               btnContactar.disabled = false;
@@ -552,7 +624,7 @@
     document.getElementById('modal').classList.add('hidden');
   }
 
-  function fichaHtml(c, requiereSuscripcion, contactoVisible, solicitud) {
+  function fichaHtml(c, requiereSuscripcion, contactoVisible, solicitud, matchData) {
     const primerNombre = escapeHtml(c.nombre.split(' ')[0]);
     const familiaEstado = (JSON.parse(localStorage.getItem('qqmc_familia') || '{}')).estado;
     let contactoBloque;
@@ -564,11 +636,11 @@
         estadoTitle = icon('lock') + ' Verificación no aprobada';
         estadoMsg = 'Tu verificación de identidad no fue aprobada. Contactá a soporte@cuidy.com.ar si creés que es un error.';
       } else if (familiaEstado === 'pendiente') {
-        estadoTitle = icon('lock') + ' Verificá tu identidad para contactar';
-        estadoMsg = 'Para contactar cuidadores necesitás verificar tu identidad. Es rápido: solo una foto de tu DNI y una selfie.';
+        estadoTitle = icon('lock') + ' Verificá tu identidad';
+        estadoMsg = 'Para conectar con cuidadores necesitás verificar tu identidad. Es rápido: solo una foto de tu DNI y una selfie.';
       } else {
         estadoTitle = icon('lock') + ' Verificación en revisión';
-        estadoMsg = 'Tu identidad está en revisión. Te avisamos por WhatsApp cuando esté verificada y puedas contactar cuidadores.';
+        estadoMsg = 'Tu identidad está en revisión. Te avisamos por WhatsApp cuando esté verificada.';
       }
       contactoBloque = `
         <div class="locked">
@@ -577,26 +649,74 @@
           ${familiaEstado === 'pendiente' ? `<a href="verificar-identidad.html" class="btn btn--primary btn--sm" style="margin-top:8px">Verificar mi identidad</a>` : ''}
           <p style="font-size:0.82rem;color:var(--muted);margin-top:8px">Podés navegar y conocer los perfiles mientras tanto.</p>
         </div>`;
-    } else if (requiereSuscripcion) {
-      // Estado 1: Sin suscripción → mostrar paywall
+    } else if (matchData && matchData.estado === 'desbloqueado' && matchData.cuidador) {
+      // Match desbloqueado → mostrar datos de contacto
+      const cuid = matchData.cuidador;
       contactoBloque = `
-        <div class="locked">
-          <div class="locked__title">${icon('lock')} Datos de contacto bloqueados</div>
-          <div class="locked__text">
-            Para contactar a ${primerNombre} necesitás un plan activo.
-          </div>
-          <button class="btn btn--primary" id="btnVerPlanes" type="button">Ver planes</button>
+        <div class="profile__section" style="background:linear-gradient(135deg, #e0f7fa 0%, #f0fdf4 100%); border-radius:12px; padding:16px;">
+          <h4 style="color:var(--teal)">${icon('check', 'success')} Contacto desbloqueado</h4>
+          ${cuid.telefono ? `<p>${icon('phone')} <a href="https://wa.me/${cuid.telefono.replace(/[^0-9]/g,'')}" target="_blank" style="color:var(--teal);font-weight:600">${escapeHtml(cuid.telefono)}</a></p>` : ''}
+          ${cuid.email ? `<p>${icon('mail')} <a href="mailto:${escapeHtml(cuid.email)}" style="color:var(--teal)">${escapeHtml(cuid.email)}</a></p>` : ''}
+          <p style="font-size:0.82rem;color:var(--muted);margin-top:8px">Ya podés contactar a ${primerNombre} directamente.</p>
         </div>`;
     } else if (contactoVisible && c.contacto) {
-      // Estado 4: Contacto desbloqueado mutuamente → mostrar teléfono/email
+      // Contacto desbloqueado (legacy) → mostrar teléfono/email
       contactoBloque = `
         <div class="profile__section">
           <h4>Contacto directo</h4>
           <p>${icon('phone')} ${escapeHtml(c.contacto.telefono || '')}</p>
           <p>${icon('mail')} ${escapeHtml(c.contacto.email || '')}</p>
         </div>`;
+    } else if (matchData && matchData.estado === 'match') {
+      // Match confirmado → familia debe pagar para desbloquear
+      const vence = matchData.vence_at ? new Date(matchData.vence_at) : null;
+      const horasRestantes = vence ? Math.max(0, Math.round((vence - new Date()) / (1000*60*60))) : '?';
+      contactoBloque = `
+        <div class="profile__section profile__section--contactar" style="background:linear-gradient(135deg, #fef3c7 0%, #fff7ed 100%); border-radius:12px; padding:16px;">
+          <h4 style="color:#d97706">${icon('starFilled', 'gold')} ¡Tenés un match!</h4>
+          <p class="contactar__info" style="margin-bottom:12px">
+            <strong>${primerNombre}</strong> aceptó tu interés y quiere conectar con vos.
+            Desbloqueá sus datos de contacto para coordinar.
+          </p>
+          <p style="font-size:0.82rem;color:var(--muted);margin-bottom:12px">
+            ${icon('hourglass', 'warning')} Tenés <strong>${horasRestantes}h</strong> para desbloquear antes de que el match venza.
+          </p>
+          <button class="btn btn--primary btn--full" id="btnDesbloquear" data-match-id="${matchData.id}" type="button">
+            Desbloquear contacto
+          </button>
+        </div>`;
+    } else if (matchData && matchData.estado === 'pendiente_cuidador') {
+      // Interés enviado, esperando respuesta del cuidador
+      contactoBloque = `
+        <div class="profile__section profile__section--contactar">
+          <h4>${icon('hourglass', 'warning')} Interés enviado</h4>
+          <p class="contactar__info">
+            Le avisamos a ${primerNombre} que estás interesada. Cuando responda te vamos a notificar por WhatsApp.
+          </p>
+        </div>`;
+    } else if (matchData && matchData.estado === 'rechazado') {
+      // Cuidador rechazó
+      contactoBloque = `
+        <div class="profile__section profile__section--contactar">
+          <h4>${icon('xCircle', 'danger')} No disponible</h4>
+          <p class="contactar__info">
+            ${primerNombre} no pudo aceptar en este momento. Podés buscar otros cuidadores verificados.
+          </p>
+        </div>`;
+    } else if (matchData && matchData.estado === 'vencido') {
+      // Match venció → puede reintentar
+      contactoBloque = `
+        <div class="profile__section profile__section--contactar">
+          <h4>Match vencido</h4>
+          <p class="contactar__info" style="margin-bottom:12px">
+            Tu match anterior con ${primerNombre} venció. Podés expresar interés nuevamente.
+          </p>
+          <button class="btn btn--primary btn--full" id="btnMeInteresa" type="button">
+            💙 Me interesa
+          </button>
+        </div>`;
     } else if (solicitud) {
-      // Estado 3: Ya envió solicitud → mostrar estado
+      // Legacy: Ya envió solicitud (sistema viejo)
       const estadoTexto = solicitud.estado === 'pendiente'
         ? icon('hourglass', 'warning') + ' Tu mensaje fue enviado. Estamos esperando la respuesta del cuidador.'
         : solicitud.estado === 'rechazada'
@@ -608,17 +728,21 @@
           <p class="contactar__info">${estadoTexto}</p>
         </div>`;
     } else {
-      // Estado 2: Suscripción activa, sin solicitud → formulario de mensaje
+      // Default: Familia verificada, sin match → botón "Me interesa" (GRATIS)
       contactoBloque = `
         <div class="profile__section profile__section--contactar">
-          <h4>Contactar a ${primerNombre}</h4>
+          <h4>Conectar con ${primerNombre}</h4>
           <p class="contactar__info">
-            Para proteger la seguridad de los cuidadores, el primer contacto
-            es a través de la plataforma. Enviá tu mensaje y cuando ${primerNombre}
-            acepte, se intercambian los datos de contacto.
+            Si te interesa el perfil de ${primerNombre}, expresá tu interés.
+            Le vamos a avisar y si acepta, vas a poder desbloquear sus datos de contacto.
           </p>
-          <textarea class="contactar__msg" id="msgContactar" rows="3" placeholder="Hola ${primerNombre}, estoy buscando…"></textarea>
-          <button class="btn btn--primary btn--full" id="btnContactar" type="button">Enviar mensaje</button>
+          <textarea class="contactar__msg" id="msgInteres" rows="2" placeholder="Ej: Busco cuidado para mi mamá, 3 veces por semana… (opcional)"></textarea>
+          <button class="btn btn--primary btn--full" id="btnMeInteresa" type="button">
+            💙 Me interesa
+          </button>
+          <p style="font-size:0.82rem;color:var(--muted);margin-top:8px;text-align:center">
+            Expresar interés es gratis. Solo pagás si hay match.
+          </p>
         </div>`;
     }
 
@@ -1034,23 +1158,157 @@
     const modal = document.getElementById('modalContactos');
     const list = document.getElementById('contactosList');
     modal.classList.remove('hidden');
-    list.innerHTML = '<p class="contactos-loading">Cargando solicitudes...</p>';
+    list.innerHTML = '<p class="contactos-loading">Cargando matches...</p>';
 
     try {
-      const res = await fetch(`${API_BASE}/contactos/solicitudes?familia_id=${familiaId}`);
-      const json = await res.json();
-      if (!json.ok || !json.data?.length) {
-        list.innerHTML = '<p class="contactos-empty">No tenés solicitudes de contacto todavía.</p>';
+      // Cargar matches (nuevo flujo)
+      const mRes = await fetch(`${API_BASE}/matches?familia_id=${familiaId}`);
+      const mJson = await mRes.json();
+      const matches = (mJson.ok && mJson.data) ? mJson.data : [];
+
+      // Cargar solicitudes legacy
+      const sRes = await fetch(`${API_BASE}/contactos/solicitudes?familia_id=${familiaId}`);
+      const sJson = await sRes.json();
+      const solicitudes = (sJson.ok && sJson.data) ? sJson.data : [];
+
+      if (!matches.length && !solicitudes.length) {
+        list.innerHTML = '<p class="contactos-empty">No tenés matches ni solicitudes todavía. Explorá perfiles y expresá tu interés.</p>';
         return;
       }
+
       list.innerHTML = '';
-      json.data.forEach(s => {
-        const card = contactoCardEl(s);
-        list.appendChild(card);
-      });
+
+      // Matches primero
+      if (matches.length) {
+        matches.forEach(m => {
+          const card = matchCardEl(m);
+          list.appendChild(card);
+        });
+      }
+
+      // Solicitudes legacy después
+      if (solicitudes.length) {
+        const divider = document.createElement('p');
+        divider.style.cssText = 'color:var(--muted);font-size:0.85rem;margin:16px 0 8px;';
+        divider.textContent = 'Solicitudes anteriores';
+        list.appendChild(divider);
+        solicitudes.forEach(s => {
+          const card = contactoCardEl(s);
+          list.appendChild(card);
+        });
+      }
     } catch (err) {
-      list.innerHTML = '<p class="contactos-empty">Error al cargar solicitudes.</p>';
+      list.innerHTML = '<p class="contactos-empty">Error al cargar. Intentá recargar.</p>';
     }
+  }
+
+  function matchCardEl(m) {
+    const c = m.cuidador || {};
+    const nombre = `${c.nombre || ''} ${c.apellido || ''}`.trim() || 'Cuidador';
+    const esp = (c.especialidades || []).map(e => ESPECIALIDAD_LABEL[e] || e).join(', ');
+    const loc = [c.localidad, c.provincia].filter(Boolean).join(', ');
+    const foto = c.foto_url || 'assets/default-avatar.png';
+    const tarifa = c.valor_hora_min
+      ? `$${c.valor_hora_min.toLocaleString('es-AR')}${c.valor_hora_max && c.valor_hora_max !== c.valor_hora_min ? ' - $' + c.valor_hora_max.toLocaleString('es-AR') : ''}/h`
+      : '';
+
+    const estadoMap = {
+      pendiente_cuidador: { label: 'Esperando respuesta', icon: icon('hourglass', 'warning'), cls: 'contacto-estado--pendiente' },
+      match: { label: '¡Match!', icon: icon('starFilled', 'gold'), cls: 'contacto-estado--match' },
+      desbloqueado: { label: 'Contacto desbloqueado', icon: icon('checkCircle', 'success'), cls: 'contacto-estado--aceptada' },
+      rechazado: { label: 'No disponible', icon: icon('xCircle', 'danger'), cls: 'contacto-estado--rechazada' },
+      vencido: { label: 'Vencido', icon: icon('hourglass'), cls: 'contacto-estado--rechazada' },
+      descartado: { label: 'Descartado', icon: icon('xCircle'), cls: 'contacto-estado--rechazada' }
+    };
+    const st = estadoMap[m.estado] || { label: m.estado, icon: '', cls: '' };
+
+    let contactInfo = '';
+    if (m.estado === 'desbloqueado' && c.telefono) {
+      contactInfo = `
+        <div class="contacto-card__contacto" style="background:#e0f7fa;border-radius:8px;padding:10px;margin-top:8px">
+          <strong>Datos de contacto:</strong>
+          ${c.telefono ? `<span>${icon('phone')} <a href="https://wa.me/${c.telefono.replace(/[^0-9]/g,'')}" target="_blank" style="color:var(--teal);font-weight:600">${escapeHtml(c.telefono)}</a></span>` : ''}
+          ${c.email ? `<span>${icon('mail')} ${escapeHtml(c.email)}</span>` : ''}
+        </div>`;
+    }
+
+    let accionHtml = '';
+    if (m.estado === 'match') {
+      const vence = m.vence_at ? new Date(m.vence_at) : null;
+      const horas = vence ? Math.max(0, Math.round((vence - new Date()) / (1000*60*60))) : '?';
+      accionHtml = `
+        <div style="margin-top:10px;text-align:center">
+          <p style="font-size:0.82rem;color:#d97706;margin-bottom:8px">${icon('hourglass', 'warning')} ${horas}h para desbloquear</p>
+          <button class="btn btn--primary btn--sm match-desbloquear" data-match-id="${m.id}" data-cuidador-id="${c.id}">Desbloquear contacto</button>
+        </div>`;
+    }
+
+    const fecha = new Date(m.created_at).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    const div = document.createElement('div');
+    div.className = 'contacto-card';
+    if (m.estado === 'match') div.style.borderLeft = '4px solid #d97706';
+    if (m.estado === 'desbloqueado') div.style.borderLeft = '4px solid var(--teal)';
+    div.innerHTML = `
+      <div class="contacto-card__header">
+        <img class="contacto-card__foto" src="${foto}" alt="${escapeHtml(nombre)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+        <div class="contacto-card__avatar-fallback" style="display:none;width:56px;height:56px;border-radius:50%;background:var(--teal);color:#fff;align-items:center;justify-content:center;font-size:1.2rem;font-weight:600;flex-shrink:0">${(c.nombre || '?').charAt(0).toUpperCase()}</div>
+        <div class="contacto-card__info">
+          <h4 class="contacto-card__nombre">${escapeHtml(nombre)}</h4>
+          <span class="contacto-card__esp">${esp}</span>
+          ${loc ? `<span class="contacto-card__loc">${icon('mapPin')} ${escapeHtml(loc)}</span>` : ''}
+          ${tarifa ? `<span class="contacto-card__tarifa">${icon('dollarSign')} ${tarifa}</span>` : ''}
+        </div>
+        <span class="contacto-estado ${st.cls}">${st.icon} ${st.label}</span>
+      </div>
+      ${m.familia_detalle ? `<div class="contacto-card__mensaje"><strong>Tu mensaje:</strong> ${escapeHtml(m.familia_detalle)}</div>` : ''}
+      ${contactInfo}
+      ${accionHtml}
+      <div class="contacto-card__footer">
+        <span class="contacto-card__fecha">${fecha}</span>
+        ${c.id ? `<button class="contacto-card__ver-perfil btn btn--ghost btn--sm">Ver perfil</button>` : ''}
+      </div>`;
+
+    // Click en "Ver perfil"
+    const btnPerfil = div.querySelector('.contacto-card__ver-perfil');
+    if (btnPerfil && c.id) {
+      btnPerfil.addEventListener('click', () => {
+        cerrarModalContactos();
+        abrirFicha(c.id);
+      });
+    }
+
+    // Click en "Desbloquear contacto"
+    const btnDesbloquear = div.querySelector('.match-desbloquear');
+    if (btnDesbloquear) {
+      btnDesbloquear.addEventListener('click', async () => {
+        btnDesbloquear.disabled = true;
+        btnDesbloquear.textContent = 'Procesando…';
+        try {
+          const res = await fetch(`${API_BASE}/matches/${m.id}/desbloquear`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+          const json = await res.json();
+          if (json.ok) {
+            abrirMisContactos(familiaState.id);
+          } else if (json.codigo === 'sin_suscripcion') {
+            cerrarModalContactos();
+            abrirModalPlanes(c.id);
+          } else {
+            alert(json.error || 'Error al desbloquear');
+            btnDesbloquear.disabled = false;
+            btnDesbloquear.textContent = 'Desbloquear contacto';
+          }
+        } catch {
+          alert('Sin conexión');
+          btnDesbloquear.disabled = false;
+          btnDesbloquear.textContent = 'Desbloquear contacto';
+        }
+      });
+    }
+
+    return div;
   }
 
   function contactoCardEl(s) {

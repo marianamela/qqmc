@@ -42,7 +42,7 @@
             <svg class="user-menu__chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
           <div class="user-menu__dropdown hidden" id="userDropdown">
-            <button class="user-menu__item" id="menuMisContactos"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span> Mis contactos</button>
+            <button class="user-menu__item" id="menuMisContactos"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span> Mis matches</button>
             <button class="user-menu__item" id="menuRecomendar"><span class="ci" style="color:#f59e0b"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span> Recomendar cuidador</button>
             <a class="user-menu__item hidden" id="menuVerificar" href="verificar-identidad.html"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span> Verificar identidad</a>
             <button class="user-menu__item" id="menuMisDatos"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> Mis datos</button>
@@ -110,7 +110,7 @@
       <div class="welcome-familia__shortcuts">
         <button class="shortcut-btn" id="shortcutContactos">
           <span class="shortcut-btn__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span></span>
-          <span class="shortcut-btn__label">Mis contactos</span>
+          <span class="shortcut-btn__label">Mis matches</span>
         </button>
         <button class="shortcut-btn" id="shortcutRecomendar">
           <span class="shortcut-btn__icon"><span class="ci" style="color:#f59e0b"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span></span>
@@ -333,8 +333,8 @@
     <div class="modal__backdrop" data-close-contactos></div>
     <div class="modal__content modal__content--contactos">
       <button class="modal__close" aria-label="Cerrar" data-close-contactos>&times;</button>
-      <h2 class="planes__title">Mis contactos</h2>
-      <p class="planes__sub">Solicitudes enviadas y respuestas de cuidadores</p>
+      <h2 class="planes__title">Mis matches</h2>
+      <p class="planes__sub">Tus matches con cuidadores y el estado de cada uno</p>
       <div id="contactosList"></div>
     </div>
   </div>

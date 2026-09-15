@@ -35,8 +35,8 @@
     <div class="container">
       <div class="panel-nav__tabs">
         <button class="panel-nav__tab is-active" data-section="solicitudes">
-          <span class="panel-nav__icon"><span class="ci ci--xl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></span></span>
-          <span class="panel-nav__label">Solicitudes</span>
+          <span class="panel-nav__icon"><span class="ci ci--xl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span></span>
+          <span class="panel-nav__label">Matches</span>
           <span class="panel-nav__badge hidden" id="badgeSolicitudes">0</span>
         </button>
         <button class="panel-nav__tab" data-section="misdatos">
@@ -68,12 +68,18 @@
         <a class="btn btn--sm btn--primary hidden" id="estadoCTA" href="#">Acción</a>
       </div>
 
-      <!-- ===== SECCIÓN: SOLICITUDES DE CONTACTO ===== -->
+      <!-- ===== SECCIÓN: MATCHES + SOLICITUDES ===== -->
       <section class="panel-section is-active" id="secSolicitudes">
-        <h2 class="panel-section__title">Solicitudes de contacto</h2>
-        <p class="panel-section__desc">Familias que se contactaron con vos a través de Cuidy.</p>
-        <div id="solicitudesList" class="solicitudes-list">
-          <div class="panel-loading">Cargando solicitudes...</div>
+        <h2 class="panel-section__title">Familias interesadas</h2>
+        <p class="panel-section__desc">Familias que expresaron interés en tus servicios. Aceptá para que puedan contactarte.</p>
+        <div id="matchesList" class="solicitudes-list">
+          <div class="panel-loading">Cargando matches...</div>
+        </div>
+
+        <!-- Solicitudes legacy (sistema anterior) -->
+        <div id="solicitudesLegacy" class="hidden" style="margin-top:24px">
+          <h3 style="font-size:1rem;color:var(--muted);margin-bottom:8px">Solicitudes anteriores</h3>
+          <div id="solicitudesList" class="solicitudes-list"></div>
         </div>
       </section>
 

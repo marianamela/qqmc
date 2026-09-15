@@ -1,6 +1,8 @@
 /* =============================================================
    QQMC · API (Netlify Functions)
    - Público: GET /cuidadores, GET /cuidadores/:id, POST /cuidadores, POST /familias
+   - Matches: POST /matches/interes, GET /matches, PATCH /matches/:id,
+              POST /matches/:id/desbloquear, POST /matches/expirar
    - Admin:   POST /admin/login, POST /admin/logout, GET /admin/me,
               GET /admin/candidaturas (filtros: estado,q,especialidad,zona,min_valoracion),
               GET /admin/candidaturas/:id,
@@ -3475,6 +3477,351 @@ exports.handler = async (event) => {
       })
 
       return json(200, { ok: true, data: { metricas: data, resumen } })
+    }
+
+    // ============================================================
+    // MATCHES (confirmación mutua)
+    // ============================================================
+
+    // POST /matches/interes → familia expresa interés en un cuidador (GRATIS)
+    if (path === 'matches/interes' && event.httpMethod === 'POST') {
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'Supabase admin no configurado' })
+      const body = safeParse(event.body)
+      if (!body.familia_id || !body.cuidador_id) {
+        return json(400, { ok: false, error: 'familia_id y cuidador_id requeridos' })
+      }
+
+      // Verificar que la familia esté aprobada
+      const { data: famCheck } = await supabaseAdmin.from('familias')
+        .select('estado,nombre,zona,busqueda,detalle,preferencias')
+        .eq('id', body.familia_id).maybeSingle()
+      if (!famCheck || famCheck.estado !== 'aprobada') {
+        return json(403, { ok: false, error: 'Tu identidad aún está en revisión. Podrás expresar interés una vez verificada.', codigo: 'identidad_pendiente' })
+      }
+
+      // Verificar que el cuidador exista y esté aprobado
+      const { data: cuidCheck } = await supabaseAdmin.from('cuidadores')
+        .select('estado,nombre,telefono').eq('id', body.cuidador_id).maybeSingle()
+      if (!cuidCheck || cuidCheck.estado !== 'aprobado') {
+        return json(404, { ok: false, error: 'Cuidador no disponible' })
+      }
+
+      // Verificar si ya existe un match activo entre ambos
+      const { data: existente } = await supabaseAdmin.from('matches')
+        .select('id,estado').eq('familia_id', body.familia_id).eq('cuidador_id', body.cuidador_id)
+        .in('estado', ['pendiente_cuidador', 'match', 'desbloqueado'])
+        .maybeSingle()
+      if (existente) {
+        return json(200, { ok: true, data: existente, ya_existe: true })
+      }
+
+      // Verificar límite de matches simultáneos activos
+      const { data: configMax } = await supabaseAdmin.from('match_config')
+        .select('value').eq('key', 'max_matches_simultaneos').maybeSingle()
+      const maxMatches = parseInt(configMax?.value || '3')
+
+      const { count: matchesActivos } = await supabaseAdmin.from('matches')
+        .select('id', { count: 'exact', head: true })
+        .eq('familia_id', body.familia_id)
+        .in('estado', ['pendiente_cuidador', 'match'])
+      if (matchesActivos >= maxMatches) {
+        return json(409, { ok: false, error: `Tenés ${matchesActivos} matches activos. Resolvé alguno antes de iniciar otro.`, codigo: 'limite_matches', max: maxMatches })
+      }
+
+      // Extraer datos básicos para que el cuidador vea (sin datos personales)
+      const zona = famCheck.zona || {}
+      const busqueda = famCheck.busqueda || {}
+      const detalle = famCheck.detalle || {}
+      const familiaZona = [zona.localidad, zona.provincia].filter(Boolean).join(', ') || ''
+      const familiaServicio = (busqueda.tipos || []).join(', ') || body.servicio || ''
+      const familiaHorarios = busqueda.frecuencia || body.horarios || ''
+      const familiaDetalle = body.mensaje || ''
+
+      // Crear match
+      const { data: match, error } = await supabaseAdmin.from('matches')
+        .insert({
+          familia_id: body.familia_id,
+          cuidador_id: body.cuidador_id,
+          estado: 'pendiente_cuidador',
+          familia_zona: familiaZona,
+          familia_servicio: familiaServicio,
+          familia_horarios: familiaHorarios,
+          familia_detalle: familiaDetalle
+        }).select().single()
+      if (error) return json(500, { ok: false, error: error.message })
+
+      // Notificar al cuidador por push
+      enviarPush('cuidador', body.cuidador_id, {
+        title: '💙 Una familia está interesada en vos',
+        body: `Zona: ${familiaZona || 'No especificada'}. Ingresá para ver los detalles.`,
+        url: '/panel-cuidador.html#matches'
+      })
+
+      // WhatsApp al cuidador
+      try {
+        if (cuidCheck.telefono) {
+          const telNorm = normalizarTelefono(cuidCheck.telefono)
+          if (telNorm) {
+            const msgWa = `💙 ¡Hola ${cuidCheck.nombre}!\n\nUna familia de ${familiaZona || 'tu zona'} está interesada en tus servicios en Cuidy.\n\n🔍 Servicio: ${familiaServicio || 'No especificado'}\n📍 Zona: ${familiaZona || 'No especificada'}\n\nIngresá a tu panel para ver los detalles y decidir si querés conectar:\n${SITE_URL}/login.html?rol=cuidador\n\n¡Tenés 48hs para responder! 💙`
+            enviarWhatsAppTexto(telNorm, msgWa)
+          }
+        }
+      } catch (e) { console.error('[wa] error match interés:', e.message) }
+
+      return json(201, { ok: true, data: match })
+    }
+
+    // GET /matches?familia_id=... o ?cuidador_id=... → listar matches
+    if (path === 'matches' && event.httpMethod === 'GET') {
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'Supabase no configurado' })
+
+      let query = supabaseAdmin.from('matches').select('*')
+
+      if (params.cuidador_id) {
+        query = query.eq('cuidador_id', params.cuidador_id)
+      } else if (params.familia_id) {
+        query = query.eq('familia_id', params.familia_id)
+      } else {
+        return json(400, { ok: false, error: 'cuidador_id o familia_id requerido' })
+      }
+
+      // Filtrar por estado si se pide
+      if (params.estado) {
+        query = query.eq('estado', params.estado)
+      } else if (params.activos === 'true') {
+        query = query.in('estado', ['pendiente_cuidador', 'match', 'desbloqueado'])
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false })
+      if (error) return json(500, { ok: false, error: error.message })
+
+      // Enriquecer con datos del otro lado
+      const enriched = []
+      for (const m of (data || [])) {
+        const enrichedMatch = { ...m }
+        if (params.cuidador_id) {
+          // Cuidador ve datos limitados de la familia
+          if (m.estado === 'desbloqueado') {
+            const { data: fam } = await supabaseAdmin.from('familias')
+              .select('nombre,apellido,email,telefono,zona,foto_url')
+              .eq('id', m.familia_id).maybeSingle()
+            enrichedMatch.familia = fam
+          } else {
+            // Solo datos anónimos (ya están en el match)
+            enrichedMatch.familia = {
+              zona: m.familia_zona,
+              servicio: m.familia_servicio,
+              horarios: m.familia_horarios,
+              detalle: m.familia_detalle
+            }
+          }
+        } else if (params.familia_id) {
+          // Familia ve datos del cuidador
+          const { data: cuid } = await supabaseAdmin.from('cuidadores')
+            .select('id,nombre,apellido,especialidades,foto_url,localidad,provincia,valor_hora_min,valor_hora_max' +
+              (m.estado === 'desbloqueado' ? ',telefono,email' : ''))
+            .eq('id', m.cuidador_id).maybeSingle()
+          if (cuid && m.estado !== 'desbloqueado') {
+            cuid.apellido = (cuid.apellido || '').charAt(0) + '.'
+          }
+          enrichedMatch.cuidador = cuid
+        }
+        enriched.push(enrichedMatch)
+      }
+
+      return json(200, { ok: true, data: enriched })
+    }
+
+    // PATCH /matches/:id → cuidador acepta o rechaza
+    const mMatch = path.match(/^matches\/([0-9a-f-]{36})$/)
+    if (mMatch && event.httpMethod === 'PATCH') {
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'Supabase admin no configurado' })
+      const body = safeParse(event.body)
+
+      const { data: match } = await supabaseAdmin.from('matches')
+        .select('*').eq('id', mMatch[1]).single()
+      if (!match) return json(404, { ok: false, error: 'Match no encontrado' })
+
+      // Cuidador acepta
+      if (body.accion === 'aceptar') {
+        if (match.estado !== 'pendiente_cuidador') {
+          return json(400, { ok: false, error: 'Este match ya fue respondido' })
+        }
+
+        const { data: configHoras } = await supabaseAdmin.from('match_config')
+          .select('value').eq('key', 'horas_vencimiento').maybeSingle()
+        const horasVenc = parseInt(configHoras?.value || '48')
+
+        const ahora = new Date()
+        const vence = new Date(ahora.getTime() + horasVenc * 60 * 60 * 1000)
+
+        await supabaseAdmin.from('matches').update({
+          estado: 'match',
+          cuidador_respondio_at: ahora.toISOString(),
+          match_at: ahora.toISOString(),
+          vence_at: vence.toISOString()
+        }).eq('id', mMatch[1])
+
+        // Notificar a la familia
+        enviarPush('familia', match.familia_id, {
+          title: '🎉 ¡Tenés un match!',
+          body: 'Un cuidador aceptó tu interés. Desbloqueá el contacto para conectar.',
+          url: '/login.html#matches'
+        })
+
+        // WhatsApp a la familia
+        try {
+          const { data: familia } = await supabaseAdmin.from('familias')
+            .select('nombre,telefono').eq('id', match.familia_id).single()
+          const { data: cuidador } = await supabaseAdmin.from('cuidadores')
+            .select('nombre,apellido').eq('id', match.cuidador_id).single()
+          if (familia?.telefono) {
+            const telFam = normalizarTelefono(familia.telefono)
+            if (telFam) {
+              const nombreCuid = cuidador.nombre + ' ' + (cuidador.apellido?.[0] || '') + '.'
+              const msgWa = `🎉 ¡Hola ${familia.nombre}!\n\n*${nombreCuid}* está interesado/a en conectar con vos en Cuidy.\n\nDesbloqueá sus datos de contacto para coordinar:\n${SITE_URL}/login.html\n\n⏰ Tenés ${horasVenc} horas para desbloquear el contacto.\n\n¡Esperamos que sea un gran vínculo! 💙`
+              enviarWhatsAppTexto(telFam, msgWa)
+            }
+          }
+        } catch (e) { console.error('[wa] error match aceptado:', e.message) }
+
+        return json(200, { ok: true, estado: 'match', vence_at: vence.toISOString() })
+      }
+
+      // Cuidador rechaza
+      if (body.accion === 'rechazar') {
+        if (match.estado !== 'pendiente_cuidador') {
+          return json(400, { ok: false, error: 'Este match ya fue respondido' })
+        }
+        await supabaseAdmin.from('matches').update({
+          estado: 'rechazado',
+          cuidador_respondio_at: new Date().toISOString(),
+          cuidador_motivo_rechazo: body.motivo || null
+        }).eq('id', mMatch[1])
+
+        return json(200, { ok: true, estado: 'rechazado' })
+      }
+
+      // Familia descarta
+      if (body.accion === 'descartar') {
+        if (!['pendiente_cuidador', 'match'].includes(match.estado)) {
+          return json(400, { ok: false, error: 'No se puede descartar en este estado' })
+        }
+        await supabaseAdmin.from('matches').update({
+          estado: 'descartado',
+          descartado_at: new Date().toISOString()
+        }).eq('id', mMatch[1])
+
+        return json(200, { ok: true, estado: 'descartado' })
+      }
+
+      return json(400, { ok: false, error: 'accion debe ser aceptar, rechazar o descartar' })
+    }
+
+    // POST /matches/:id/desbloquear → familia paga para ver contacto post-match
+    const mDesbloq = path.match(/^matches\/([0-9a-f-]{36})\/desbloquear$/)
+    if (mDesbloq && event.httpMethod === 'POST') {
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'Supabase admin no configurado' })
+
+      const { data: match } = await supabaseAdmin.from('matches')
+        .select('*').eq('id', mDesbloq[1]).single()
+      if (!match) return json(404, { ok: false, error: 'Match no encontrado' })
+      if (match.estado !== 'match') {
+        return json(400, { ok: false, error: 'Solo se puede desbloquear un match confirmado' })
+      }
+
+      // Verificar que no haya vencido
+      if (match.vence_at && new Date(match.vence_at) < new Date()) {
+        await supabaseAdmin.from('matches').update({
+          estado: 'vencido',
+          vencido_at: new Date().toISOString()
+        }).eq('id', mDesbloq[1])
+        return json(410, { ok: false, error: 'Este match venció. Podés expresar interés nuevamente.', codigo: 'match_vencido' })
+      }
+
+      // Verificar suscripción activa o crear pago individual
+      const { data: sub } = await supabaseAdmin.from('suscripciones')
+        .select('id,contactos_usados,planes(contactos_incluidos)')
+        .eq('familia_id', match.familia_id).eq('estado', 'activa')
+        .limit(1).maybeSingle()
+
+      if (!sub) {
+        // Sin suscripción → redirigir a checkout (el frontend maneja esto)
+        return json(402, { ok: false, error: 'Necesitás un plan activo para desbloquear contactos.', codigo: 'sin_suscripcion', match_id: match.id })
+      }
+
+      // Desbloquear
+      const ahora = new Date()
+      await supabaseAdmin.from('matches').update({
+        estado: 'desbloqueado',
+        desbloqueado_at: ahora.toISOString()
+      }).eq('id', mDesbloq[1])
+
+      // Registrar desbloqueo en tabla legacy (compatibilidad)
+      await supabaseAdmin.from('contactos_desbloqueados')
+        .upsert({
+          familia_id: match.familia_id,
+          cuidador_id: match.cuidador_id,
+          suscripcion_id: sub.id
+        }, { onConflict: 'familia_id,cuidador_id' })
+
+      // Incrementar contador de contactos usados
+      if (sub.planes?.contactos_incluidos !== null) {
+        await supabaseAdmin.from('suscripciones')
+          .update({ contactos_usados: (sub.contactos_usados || 0) + 1, updated_at: ahora.toISOString() })
+          .eq('id', sub.id)
+      }
+
+      // Obtener datos de contacto del cuidador para devolver
+      const { data: cuidador } = await supabaseAdmin.from('cuidadores')
+        .select('nombre,apellido,telefono,email,foto_url')
+        .eq('id', match.cuidador_id).single()
+
+      // Notificar al cuidador que fue desbloqueado
+      enviarPush('cuidador', match.cuidador_id, {
+        title: '🤝 ¡Conexión confirmada!',
+        body: 'Una familia desbloqueó tu contacto. Pronto te escribirá.',
+        url: '/panel-cuidador.html#matches'
+      })
+
+      // WhatsApp al cuidador
+      try {
+        const { data: familia } = await supabaseAdmin.from('familias')
+          .select('nombre').eq('id', match.familia_id).single()
+        if (cuidador?.telefono) {
+          const telCuid = normalizarTelefono(cuidador.telefono)
+          if (telCuid) {
+            const msgWa = `🤝 ¡Hola ${cuidador.nombre}!\n\n*${familia?.nombre || 'Una familia'}* desbloqueó tu contacto en Cuidy y puede escribirte pronto.\n\nIngresá a tu panel para ver sus datos:\n${SITE_URL}/login.html?rol=cuidador\n\n¡Éxitos con esta conexión! 💙`
+            enviarWhatsAppTexto(telCuid, msgWa)
+          }
+        }
+      } catch (e) { console.error('[wa] error match desbloqueado:', e.message) }
+
+      return json(200, { ok: true, estado: 'desbloqueado', cuidador })
+    }
+
+    // POST /matches/expirar → endpoint para cron: vencer matches pasados de 48hs
+    if (path === 'matches/expirar' && event.httpMethod === 'POST') {
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'Supabase admin no configurado' })
+
+      const ahora = new Date().toISOString()
+      const { data: vencidos, error } = await supabaseAdmin.from('matches')
+        .update({ estado: 'vencido', vencido_at: ahora })
+        .eq('estado', 'match')
+        .lt('vence_at', ahora)
+        .select('id,familia_id,cuidador_id')
+
+      // También vencer pendiente_cuidador sin respuesta después de 48hs
+      const limite48 = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
+      const { data: sinRespuesta } = await supabaseAdmin.from('matches')
+        .update({ estado: 'vencido', vencido_at: ahora })
+        .eq('estado', 'pendiente_cuidador')
+        .lt('created_at', limite48)
+        .select('id')
+
+      const totalVencidos = (vencidos?.length || 0) + (sinRespuesta?.length || 0)
+      console.log(`[matches] ${totalVencidos} matches vencidos`)
+      return json(200, { ok: true, vencidos: totalVencidos })
     }
 
     return json(404, { ok: false, error: 'Ruta no encontrada' })

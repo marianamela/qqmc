@@ -38,7 +38,7 @@ Plataforma que conecta familias con cuidadores de confianza verificados: niñera
 
 ### Service Worker (cache)
 - El archivo `client/sw.js` tiene un `CACHE_VERSION` que debe incrementarse cada vez que se hacen cambios significativos en archivos estáticos (HTML, CSS, JS). Si no se incrementa, los usuarios pueden ver versiones cacheadas viejas.
-- Versión actual: 3
+- Versión actual: 4
 
 ## Estructura
 - `client/` → frontend estático
@@ -128,13 +128,53 @@ Otros estados posibles: `lista_espera`, `rechazado`, `suspendido`, `vencido`, `b
 - **En revisión** (`pendiente_verificacion`): puede aprobar o rechazar la identidad (revisa DNI + selfie)
 - **Aprobada/Rechazada**: sin acciones adicionales
 
+## Sistema de match (confirmación mutua)
+
+### Flujo
+1. La familia busca cuidadores y ve perfiles (gratis)
+2. Toca **"Me interesa"** en un perfil (gratis, sin pago)
+3. El cuidador recibe notificación (push + WhatsApp) con datos básicos: zona, tipo de servicio, horarios. Sin datos personales de la familia
+4. El cuidador **acepta** o **rechaza**
+5. Si acepta → **match**. La familia recibe notificación
+6. La familia **paga** para desbloquear los datos de contacto del cuidador
+7. Ambos se conectan por WhatsApp
+
+### Reglas
+- Máximo 3 matches simultáneos por familia (configurable en `match_config`)
+- El match vence a las 48 horas si la familia no paga (configurable)
+- Si el cuidador no responde en 48hs, el interés también vence
+- La familia puede descartar un match antes de pagar
+
+### Estados del match
+`pendiente_cuidador` → `match` → `desbloqueado`
+
+Otros estados: `rechazado`, `vencido`, `descartado`
+
+### Endpoints
+- `POST /matches/interes` → familia expresa interés (gratis)
+- `GET /matches?familia_id=...` o `?cuidador_id=...` → listar matches
+- `PATCH /matches/:id` → cuidador acepta/rechaza (body: `{accion: "aceptar"|"rechazar"}`)
+- `POST /matches/:id/desbloquear` → familia paga para desbloquear contacto
+- `POST /matches/expirar` → cron para vencer matches pasados de 48hs
+
+### Tabla `matches`
+- `familia_id`, `cuidador_id`, `estado` (enum `estado_match`)
+- Datos anónimos para el cuidador: `familia_zona`, `familia_servicio`, `familia_horarios`, `familia_detalle`
+- Timestamps: `match_at`, `vence_at`, `desbloqueado_at`
+- Configuración en tabla `match_config` (key/value)
+
+### Migración
+- SQL: `supabase/migrations/010_matches.sql`
+- Ejecutar en Supabase SQL Editor antes de deployar
+
 ## Funcionalidades principales
 - **Chat asistente Caro**: búsqueda guiada de cuidadores por tipo, zona, disponibilidad
 - **Verificación de identidad**: DNI + selfie para cuidadores y familias
 - **Sistema de referidos**: códigos únicos, tracking de invitaciones entre familias y cuidadores
 - **Diario de cuidado**: registro diario con fotos/notas del cuidador, timeline para familias
-- **Solicitudes de contacto**: familias piden contacto, cuidadores aceptan/rechazan
-- **Suscripciones**: MercadoPago Checkout Pro, paywall para contacto
+- **Matches**: familias expresan interés → cuidador acepta/rechaza → familia paga para desbloquear contacto
+- **Solicitudes de contacto** (legacy): familias piden contacto directo, cuidadores aceptan/rechazan
+- **Suscripciones**: MercadoPago Checkout Pro, paywall para desbloqueo de contacto post-match
 - **PWA**: manifest.json, service worker, notificaciones push
 - **Baja de cuenta**: familia o cuidador solicita baja → 30 días de gracia → purga automática. Endpoint de reactivación dentro del plazo.
 - **Panel admin**: gestión de cuidadores y familias (estados, verificación de identidad, recordatorios, aprobaciones)
