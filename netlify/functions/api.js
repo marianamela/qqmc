@@ -1601,21 +1601,27 @@ exports.handler = async (event) => {
       if (error || !data) return json(404, { ok: false, error: 'Cuidador no encontrado' })
       const base = rowToListado(data)
 
-      // Verificar si la familia tiene acceso al contacto
+      // Verificar si la familia tiene acceso a ver la ficha completa
+      // Con el modelo de match, cualquier familia aprobada puede ver fichas completas
+      // y expresar interés (gratis). La suscripción solo se requiere al desbloquear post-match.
       let tieneAcceso = false
+      let tieneSuscripcion = false
       if (params.familia_id && supabaseAdmin) {
         try {
-          // ¿Ya desbloqueó este contacto?
+          // Familia aprobada → puede ver ficha completa y expresar interés
+          const { data: fam } = await supabaseAdmin.from('familias')
+            .select('estado').eq('id', params.familia_id).maybeSingle()
+          if (fam && fam.estado === 'aprobada') tieneAcceso = true
+
+          // ¿Ya desbloqueó este contacto? (legacy o match)
           const { data: desbloqueado } = await supabaseAdmin.from('contactos_desbloqueados')
             .select('id').eq('familia_id', params.familia_id).eq('cuidador_id', id).maybeSingle()
-          if (desbloqueado) {
-            tieneAcceso = true
-          } else {
-            // ¿Tiene suscripción activa?
-            const { data: sub } = await supabaseAdmin.from('suscripciones')
-              .select('id').eq('familia_id', params.familia_id).eq('estado', 'activa').limit(1).maybeSingle()
-            if (sub) tieneAcceso = true
-          }
+          if (desbloqueado) tieneAcceso = true
+
+          // Suscripción activa (se usa para desbloqueo, no para ver fichas)
+          const { data: sub } = await supabaseAdmin.from('suscripciones')
+            .select('id').eq('familia_id', params.familia_id).eq('estado', 'activa').limit(1).maybeSingle()
+          if (sub) tieneSuscripcion = true
         } catch { /* sin acceso */ }
       }
 
@@ -1645,6 +1651,7 @@ exports.handler = async (event) => {
         ok: true,
         data: fichaData,
         requiere_suscripcion: !tieneAcceso,
+        tiene_suscripcion: tieneSuscripcion,
         contacto_visible: !!desbloqueadoFull,
         solicitud: solicitudEstado
       })
