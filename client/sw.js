@@ -6,7 +6,7 @@
    ============================================================= */
 
 // Versión del cache — cambiar este valor fuerza actualización completa
-const CACHE_VERSION = 5;
+const CACHE_VERSION = 6;
 const CACHE_NAME = `cuidy-v${CACHE_VERSION}`;
 const STATIC_ASSETS = [
   '/',

@@ -1,6 +1,6 @@
-/* Registro de cuidador/a — wizard simplificado (3 pasos)
-   Paso 0: Datos personales + contacto + zona + especialidades
-   Paso 1: Verificación de identidad (DNI + selfie) + consentimientos
+/* Registro de cuidador/a — flujo optimizado (3 pasos)
+   Paso 0: Datos básicos (6 campos: nombre, apellido, email, whatsapp, password, especialidades)
+   Paso 1: Verificación de identidad vía Didit.me (embebido)
    Paso 2: Revisión y envío
 */
 (() => {
@@ -18,22 +18,31 @@
 
   let currentStep = 0;
   let autosaveTimer;
-
-  // Estado de verificación de identidad
-  let dniDataUrl = null;
-  let selfieDataUrl = null;
-  let cuidCameraStream = null;
-  let invitacionValidada = null; // { codigo, familia_nombre }
+  let invitacionValidada = null;
+  let cuidadorId = null;        // ID del cuidador creado
+  let diditSessionId = null;    // Session ID de Didit.me
+  let diditVerificado = false;  // ¿Ya pasó la verificación?
+  let diditSandboxMode = false; // ¿Sandbox (sin Didit configurado)?
 
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('year').textContent = new Date().getFullYear();
     initNavigation();
-    initIdentityVerification();
     initAutosave();
     initSubmit();
     loadDraft();
     updateStepUI();
     detectarInvitacion();
+
+    // Botones de Didit
+    const btnSkip = document.getElementById('btnSkipVerif');
+    if (btnSkip) btnSkip.addEventListener('click', () => {
+      diditSandboxMode = true;
+      diditVerificado = true;
+      goTo(2);
+    });
+
+    const btnRetry = document.getElementById('btnRetryVerif');
+    if (btnRetry) btnRetry.addEventListener('click', () => iniciarVerificacionDidit());
 
     // GA4: registro iniciado
     if (window.CuidyAnalytics) {
@@ -64,30 +73,23 @@
   }
 
   function mostrarBannerInvitacion(familiaNombre) {
-    // Update hero badge and title for invited users
     const badge = document.getElementById('heroBadge');
     if (badge) badge.textContent = 'Invitación recomendada';
     const title = document.getElementById('heroTitle');
     if (title) title.innerHTML = 'Te invitaron a <em>Cuidy</em>';
-
-    // Show static banner with family name
     const banner = document.getElementById('recBanner');
     if (banner) {
       banner.classList.remove('hidden');
       const nombreEl = document.getElementById('recNombreFamilia');
       if (nombreEl) nombreEl.textContent = familiaNombre;
     }
-
-    // Show the "ser recomendado" info section for invited users
     const recInfo = document.getElementById('recInfo');
     if (recInfo) recInfo.classList.remove('hidden');
   }
 
   function mostrarMensajeListaEspera() {
     const urlParams = new URLSearchParams(window.location.search);
-    // Only show waitlist messaging if no inv param (organic registration)
-    if (urlParams.has('inv')) return; // invalid inv code, don't change messaging
-
+    if (urlParams.has('inv')) return;
     const sub = document.getElementById('heroSub');
     if (sub) {
       sub.innerHTML = `
@@ -98,12 +100,29 @@
   }
 
   // === Navegación ===
-  const STEP_NAMES = ['datos_personales', 'verificacion_identidad', 'confirmacion'];
+  const STEP_NAMES = ['datos_basicos', 'verificacion_identidad', 'confirmacion'];
 
   function initNavigation() {
     document.getElementById('btnPrev').addEventListener('click', () => goTo(currentStep - 1));
-    document.getElementById('btnNext').addEventListener('click', () => {
+    document.getElementById('btnNext').addEventListener('click', async () => {
       if (!validateStep(currentStep)) return;
+
+      if (currentStep === 0) {
+        // Al avanzar del paso 0 al 1: crear cuidador y luego iniciar verificación
+        const ok = await crearCuidador();
+        if (!ok) return;
+        goTo(1);
+        iniciarVerificacionDidit();
+        return;
+      }
+
+      if (currentStep === 1) {
+        if (!diditVerificado && !diditSandboxMode) {
+          alert('Completá la verificación de identidad para continuar.');
+          return;
+        }
+      }
+
       goTo(currentStep + 1);
     });
   }
@@ -114,12 +133,9 @@
     currentStep = step;
     updateStepUI();
     if (step === 2) renderResumen();
-    // GA4: tracking de paso
     if (window.CuidyAnalytics && step > prevStep) {
       CuidyAnalytics.registrationStep('cuidador', step, STEP_NAMES[step] || 'paso_' + step);
     }
-    // Detener cámara si salimos del paso 1
-    if (prevStep === 1 && step !== 1) stopCuidCamera();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -133,7 +149,13 @@
       item.classList.toggle('is-done', n < currentStep);
     });
     document.getElementById('btnPrev').disabled = currentStep === 0;
-    document.getElementById('btnNext').hidden = currentStep === TOTAL_STEPS - 1;
+    // Ocultar "Siguiente" en paso 1 (se avanza con la verificación) y en paso 2
+    const btnNext = document.getElementById('btnNext');
+    if (currentStep === 1) {
+      btnNext.hidden = !diditVerificado;
+    } else {
+      btnNext.hidden = currentStep === TOTAL_STEPS - 1;
+    }
     document.getElementById('btnSubmit').hidden = currentStep !== TOTAL_STEPS - 1;
   }
 
@@ -145,20 +167,11 @@
     if (step === 0) {
       if (!markIfEmpty('nombre')) return false;
       if (!markIfEmpty('apellido')) return false;
-      if (!markIfEmpty('dni')) return false;
-      if (!/^\d{7,9}$/.test(form.dni.value.replace(/\D/g, ''))) {
-        markError('dni', 'DNI inválido (7 a 9 dígitos)'); return false;
-      }
-      if (!markIfEmpty('fecha_nacimiento')) return false;
-      const nac = new Date(form.fecha_nacimiento.value);
-      const edad = (Date.now() - nac.getTime()) / (365.25 * 864e5);
-      if (edad < 18) { markError('fecha_nacimiento', 'Debés ser mayor de 18 años'); return false; }
       if (!markIfEmpty('email')) return false;
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.value)) {
         markError('email', 'Email inválido'); return false;
       }
       if (!markIfEmpty('telefono')) return false;
-      // Verificar que el teléfono esté validado por OTP
       const telVerificado = document.getElementById('telefonoVerificado');
       if (!telVerificado || !telVerificado.value) {
         markError('telefono', 'Verificá tu WhatsApp con el código OTP');
@@ -166,21 +179,8 @@
       }
       if (!markIfEmpty('password')) return false;
       if (form.password.value.length < 8) { markError('password', 'Mínimo 8 caracteres'); return false; }
-      if (!markIfEmpty('provincia')) return false;
-      if (!markIfEmpty('localidad')) return false;
       const esp = form.querySelectorAll('input[name="especialidades"]:checked');
       if (!esp.length) { alert('Seleccioná al menos una especialidad.'); return false; }
-    }
-
-    if (step === 1) {
-      if (!dniDataUrl) {
-        alert('Subí una foto del frente de tu DNI para continuar.');
-        return false;
-      }
-      if (!selfieDataUrl) {
-        alert('Sacate una selfie sosteniendo el DNI para continuar.');
-        return false;
-      }
       if (!document.getElementById('consent_privacidad').checked) {
         alert('Tenés que aceptar la política de privacidad para continuar.');
         return false;
@@ -217,107 +217,186 @@
     });
   }
 
-  // === Verificación de identidad: DNI + selfie ===
-  function initIdentityVerification() {
-    const dniInput = document.getElementById('dniInputCuid');
-    dniInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      if (!file.type.startsWith('image/')) { alert('Por favor seleccioná una imagen.'); return; }
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        dniDataUrl = ev.target.result;
-        document.getElementById('dniImgCuid').src = dniDataUrl;
-        document.getElementById('dniPreviewCuid').classList.add('has-image');
-        document.getElementById('dniStatusCuid').textContent = 'Foto del DNI cargada';
-        document.getElementById('dniStatusCuid').className = 'verify-card__status is-ok';
-        document.getElementById('dniCardCuid').classList.add('has-data');
-        document.getElementById('dniLabelCuid').innerHTML =
-          '<input type="file" id="dniInputCuid2" accept="image/*" capture="environment" hidden /> Cambiar foto';
-        document.getElementById('dniInputCuid2').addEventListener('change', (e2) => {
-          dniInput.files = e2.target.files;
-          dniInput.dispatchEvent(new Event('change'));
-        });
-        triggerAutosave();
-      };
-      reader.readAsDataURL(file);
-    });
+  // === Crear cuidador en la base (paso 0 → 1) ===
+  async function crearCuidador() {
+    if (cuidadorId) return true; // Ya creado
 
-    document.getElementById('btnStartCameraCuid').addEventListener('click', startCuidCamera);
-    document.getElementById('btnCaptureCuid').addEventListener('click', captureCuidPhoto);
-    document.getElementById('btnRetakeCuid').addEventListener('click', retakeCuidPhoto);
-  }
+    const btn = document.getElementById('btnNext');
+    const prevText = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Creando cuenta...';
 
-  async function startCuidCamera() {
-    const video = document.getElementById('cameraVideoCuid');
-    const container = document.getElementById('cameraContainerCuid');
-    const btnStart = document.getElementById('btnStartCameraCuid');
-    const btnCapture = document.getElementById('btnCaptureCuid');
+    const data = collectFormData();
+    const payload = {
+      identidad: { nombre: data.nombre, apellido: data.apellido },
+      contacto: { email: data.email, telefono: data.telefono },
+      especialidades: data.especialidades,
+      consentimientos: data.consentimientos,
+      password: document.getElementById('password').value,
+      registro_simplificado: true
+    };
+
+    if (invitacionValidada) {
+      payload.invitacion_codigo = invitacionValidada.codigo;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get('ref') || sessionStorage.getItem('cuidy_ref_code') || null;
+    payload.utm_source = urlParams.get('utm_source') || sessionStorage.getItem('cuidy_utm_source') || null;
+    payload.utm_campaign = urlParams.get('utm_campaign') || sessionStorage.getItem('cuidy_utm_campaign') || null;
+    if (refCode) payload.ref_code = refCode;
+
     try {
-      cuidCameraStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
-        audio: false
-      });
-      video.srcObject = cuidCameraStream;
-      container.classList.add('is-active');
-      btnStart.hidden = true;
-      btnCapture.hidden = false;
-      document.getElementById('selfiePreviewCuid').classList.remove('has-image');
-    } catch (err) {
-      if (err.name === 'NotAllowedError') {
-        alert('Necesitamos acceso a tu cámara para sacar la selfie. Habilitá el permiso en tu navegador.');
-      } else if (err.name === 'NotFoundError') {
-        alert('No detectamos una cámara en tu dispositivo.');
-      } else {
-        alert('No pudimos acceder a la cámara: ' + err.message);
+      if (refCode) {
+        try {
+          const refRes = await fetch(`${API_BASE}/referidos/validar?codigo=${encodeURIComponent(refCode)}`);
+          const refData = await refRes.json();
+          if (refData.ok) payload.referred_by = refData.data.id;
+        } catch {}
       }
+
+      const res = await fetch(`${API_BASE}/cuidadores`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || (json.detalles || []).join(', ') || 'Error al crear cuenta');
+
+      cuidadorId = json.data.id;
+
+      // Completar referido
+      if (refCode) {
+        fetch(`${API_BASE}/referidos/completar`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ codigo: refCode, referee_id: cuidadorId, referee_tipo: 'cuidador' })
+        }).catch(() => {});
+      }
+
+      localStorage.removeItem(DRAFT_KEY);
+      btn.disabled = false; btn.textContent = prevText;
+      return true;
+    } catch (err) {
+      alert('No pudimos crear tu cuenta: ' + err.message);
+      btn.disabled = false; btn.textContent = prevText;
+      return false;
     }
   }
 
-  function captureCuidPhoto() {
-    const video = document.getElementById('cameraVideoCuid');
-    const canvas = document.getElementById('cameraCanvasCuid');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(video, 0, 0);
+  // === Verificación Didit.me ===
+  async function iniciarVerificacionDidit() {
+    if (!cuidadorId) return;
 
-    selfieDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-    document.getElementById('selfieImgCuid').src = selfieDataUrl;
-    document.getElementById('selfiePreviewCuid').classList.add('has-image');
+    // Mostrar loading
+    showDiditState('loading');
 
-    video.pause();
-    stopCuidCamera();
-    document.getElementById('cameraContainerCuid').classList.remove('is-active');
-    document.getElementById('btnCaptureCuid').hidden = true;
-    document.getElementById('btnStartCameraCuid').hidden = true;
-    document.getElementById('btnRetakeCuid').hidden = false;
-    document.getElementById('selfieStatusCuid').textContent = 'Selfie capturada';
-    document.getElementById('selfieStatusCuid').className = 'verify-card__status is-ok';
-    document.getElementById('selfieCardCuid').classList.add('has-data');
-    triggerAutosave();
-  }
+    try {
+      const res = await fetch(`${API_BASE}/verificacion/iniciar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipo: 'cuidador', id: cuidadorId })
+      });
+      const json = await res.json();
 
-  function retakeCuidPhoto() {
-    selfieDataUrl = null;
-    document.getElementById('selfiePreviewCuid').classList.remove('has-image');
-    document.getElementById('selfieStatusCuid').textContent = '';
-    document.getElementById('selfieStatusCuid').className = 'verify-card__status';
-    document.getElementById('selfieCardCuid').classList.remove('has-data');
-    document.getElementById('btnRetakeCuid').hidden = true;
-    document.getElementById('btnStartCameraCuid').hidden = false;
-    document.getElementById('btnCaptureCuid').hidden = true;
-  }
+      if (!json.ok) throw new Error(json.error || 'Error al iniciar verificación');
 
-  function stopCuidCamera() {
-    if (cuidCameraStream) {
-      cuidCameraStream.getTracks().forEach(t => { t.stop(); t.enabled = false; });
-      cuidCameraStream = null;
+      // Ya verificado previamente
+      if (json.ya_verificado) {
+        diditVerificado = true;
+        showDiditState('success');
+        updateStepUI();
+        return;
+      }
+
+      // Sandbox mode (Didit no configurado)
+      if (json.sandbox) {
+        diditSandboxMode = true;
+        showDiditState('sandbox');
+        return;
+      }
+
+      // Sesión en progreso o nueva
+      diditSessionId = json.session_id;
+
+      if (json.url) {
+        // Embeber el SDK de Didit en iframe
+        const iframe = document.getElementById('diditFrame');
+        iframe.src = json.url;
+        showDiditState('iframe');
+
+        // Escuchar mensajes del iframe (Didit postMessage)
+        window.addEventListener('message', handleDiditMessage);
+
+        // Polling de estado como fallback
+        startVerificationPolling();
+      } else {
+        // Sin URL = en progreso, polling
+        startVerificationPolling();
+        showDiditState('loading');
+      }
+    } catch (err) {
+      console.error('[verificacion] Error:', err);
+      document.getElementById('diditErrorMsg').textContent = err.message;
+      showDiditState('error');
     }
-    const video = document.getElementById('cameraVideoCuid');
-    if (video) { video.pause(); video.srcObject = null; video.load(); }
+  }
+
+  function showDiditState(state) {
+    const states = {
+      loading: 'diditLoading',
+      iframe: 'diditContainer',
+      success: 'diditSuccess',
+      sandbox: 'diditSandbox',
+      error: 'diditError'
+    };
+    Object.values(states).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('hidden', states[state] !== id);
+    });
+  }
+
+  function handleDiditMessage(event) {
+    // Didit sends postMessage when verification completes
+    if (!event.data) return;
+    const data = typeof event.data === 'string' ? (() => { try { return JSON.parse(event.data); } catch { return {}; } })() : event.data;
+
+    if (data.type === 'didit_verification_complete' || data.status === 'Approved' || data.event === 'session_completed') {
+      diditVerificado = true;
+      showDiditState('success');
+      updateStepUI();
+      window.removeEventListener('message', handleDiditMessage);
+    }
+  }
+
+  let pollingTimer = null;
+  function startVerificationPolling() {
+    if (pollingTimer) clearInterval(pollingTimer);
+    let attempts = 0;
+    pollingTimer = setInterval(async () => {
+      attempts++;
+      if (attempts > 60 || diditVerificado) { // max 5 min
+        clearInterval(pollingTimer);
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/verificacion/estado/${cuidadorId}?tipo=cuidador`);
+        const json = await res.json();
+        if (json.ok && json.verificacion) {
+          const st = json.verificacion.estado;
+          if (st === 'approved') {
+            diditVerificado = true;
+            showDiditState('success');
+            updateStepUI();
+            clearInterval(pollingTimer);
+          } else if (st === 'declined') {
+            document.getElementById('diditErrorMsg').textContent =
+              'Tu verificación fue rechazada: ' + (json.verificacion.motivo_rechazo || 'Intentá de nuevo.');
+            showDiditState('error');
+            clearInterval(pollingTimer);
+          }
+        }
+      } catch {}
+    }, 5000);
   }
 
   // === Autosave draft (localStorage) ===
@@ -329,7 +408,8 @@
   function triggerAutosave() {
     clearTimeout(autosaveTimer);
     autosaveTimer = setTimeout(() => {
-      const draft = collectFormData({ includeFiles: false });
+      if (cuidadorId) return; // Ya creado, no guardar borrador
+      const draft = collectFormData();
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); } catch {}
     }, AUTOSAVE_MS);
   }
@@ -347,20 +427,10 @@
   function applyDraft(d) {
     const form = document.getElementById('wizardForm');
     const setIf = (name, val) => { if (form[name] != null && val != null) form[name].value = val; };
-    if (d.identidad) {
-      setIf('nombre', d.identidad.nombre);
-      setIf('apellido', d.identidad.apellido);
-      setIf('dni', d.identidad.dni);
-      setIf('fecha_nacimiento', d.identidad.fecha_nacimiento);
-    }
-    if (d.contacto) {
-      setIf('email', d.contacto.email);
-      setIf('telefono', d.contacto.telefono);
-    }
-    if (d.zona) {
-      setIf('provincia', d.zona.provincia);
-      setIf('localidad', d.zona.localidad);
-    }
+    setIf('nombre', d.nombre);
+    setIf('apellido', d.apellido);
+    setIf('email', d.email);
+    setIf('telefono', d.telefono);
     (d.especialidades || []).forEach(v => {
       const c = form.querySelector(`input[name="especialidades"][value="${v}"]`);
       if (c) c.checked = true;
@@ -368,27 +438,17 @@
   }
 
   // === Recolección de datos ===
-  function collectFormData({ includeFiles = true } = {}) {
+  function collectFormData() {
     const form = document.getElementById('wizardForm');
     const val = id => document.getElementById(id)?.value?.trim() || null;
     const multi = name => Array.from(form.querySelectorAll(`input[name="${name}"]:checked`)).map(i => i.value);
 
     return {
-      identidad: {
-        nombre: val('nombre'), apellido: val('apellido'),
-        dni: val('dni'), fecha_nacimiento: val('fecha_nacimiento')
-      },
-      contacto: {
-        email: val('email'), telefono: val('telefono')
-      },
-      zona: {
-        provincia: val('provincia'), localidad: val('localidad')
-      },
+      nombre: val('nombre'),
+      apellido: val('apellido'),
+      email: val('email'),
+      telefono: val('telefono'),
       especialidades: multi('especialidades'),
-      verificacion: {
-        dni_foto: includeFiles ? dniDataUrl : (dniDataUrl ? true : false),
-        selfie: includeFiles ? selfieDataUrl : (selfieDataUrl ? true : false)
-      },
       consentimientos: {
         privacidad: document.getElementById('consent_privacidad')?.checked || false,
         datos_veraces: document.getElementById('consent_datos_veraces')?.checked || false
@@ -398,26 +458,24 @@
 
   // === Resumen (paso 2) ===
   function renderResumen() {
-    const d = collectFormData({ includeFiles: false });
+    const d = collectFormData();
     const espTags = (d.especialidades || []).map(e =>
       `<span class="tag">${ESPECIALIDAD_LABEL[e] || e}</span>`
     ).join('');
 
+    const verifEstado = diditVerificado
+      ? '<span class="verify-check">&#10003;</span> Verificada'
+      : (diditSandboxMode ? '<span style="color:var(--teal)">&#9888;</span> Pendiente (sandbox)' : 'En proceso');
+
     document.getElementById('resumenRegistro').innerHTML = `
       <div class="resumen__group">
         <h4>Datos personales</h4>
-        <div class="resumen__row"><span class="k">Nombre</span><span class="v">${esc(d.identidad.nombre)} ${esc(d.identidad.apellido)}</span></div>
-        <div class="resumen__row"><span class="k">DNI</span><span class="v">${esc(d.identidad.dni)}</span></div>
-        <div class="resumen__row"><span class="k">Nacimiento</span><span class="v">${esc(d.identidad.fecha_nacimiento)}</span></div>
+        <div class="resumen__row"><span class="k">Nombre</span><span class="v">${esc(d.nombre)} ${esc(d.apellido)}</span></div>
       </div>
       <div class="resumen__group">
         <h4>Contacto</h4>
-        <div class="resumen__row"><span class="k">Email</span><span class="v">${esc(d.contacto.email)}</span></div>
-        <div class="resumen__row"><span class="k">Teléfono</span><span class="v">${esc(d.contacto.telefono)}</span></div>
-      </div>
-      <div class="resumen__group">
-        <h4>Zona</h4>
-        <div class="resumen__row"><span class="k">Ubicación</span><span class="v">${esc(d.zona.localidad)}, ${esc(d.zona.provincia)}</span></div>
+        <div class="resumen__row"><span class="k">Email</span><span class="v">${esc(d.email)}</span></div>
+        <div class="resumen__row"><span class="k">WhatsApp</span><span class="v">${esc(d.telefono)}</span></div>
       </div>
       <div class="resumen__group">
         <h4>Especialidades</h4>
@@ -426,98 +484,38 @@
       <div class="resumen__group">
         <h4>Verificación de identidad</h4>
         <div class="resumen__row">
-          <span class="k">Foto DNI</span>
-          <span class="v resumen__verify ${d.verificacion.dni_foto ? 'is-ok' : ''}">
-            ${d.verificacion.dni_foto ? '<span class="verify-check">&#10003;</span> Cargada' : 'Pendiente'}
-          </span>
-        </div>
-        <div class="resumen__row">
-          <span class="k">Selfie con DNI</span>
-          <span class="v resumen__verify ${d.verificacion.selfie ? 'is-ok' : ''}">
-            ${d.verificacion.selfie ? '<span class="verify-check">&#10003;</span> Capturada' : 'Pendiente'}
-          </span>
+          <span class="k">Estado</span>
+          <span class="v resumen__verify ${diditVerificado ? 'is-ok' : ''}">${verifEstado}</span>
         </div>
       </div>
     `;
   }
 
-  // === Submit ===
+  // === Submit (paso 2 → confirmar y redirigir) ===
   function initSubmit() {
     document.getElementById('wizardForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (!cuidadorId) {
+        alert('Hubo un error. Recargá la página e intentá de nuevo.');
+        return;
+      }
+
       const btn = document.getElementById('btnSubmit');
-      btn.disabled = true; btn.textContent = 'Enviando…';
+      btn.disabled = true; btn.textContent = 'Enviando...';
 
-      const data = collectFormData({ includeFiles: true });
-      const payload = {
-        identidad: data.identidad,
-        contacto: data.contacto,
-        zona: data.zona,
-        especialidades: data.especialidades,
-        verificacion: {
-          dni_foto: data.verificacion.dni_foto,
-          selfie: data.verificacion.selfie,
-          estado: 'pendiente'
-        },
-        consentimientos: data.consentimientos,
-        password: document.getElementById('password').value,
-        registro_simplificado: true
-      };
-
-      // Invitación por familia
-      if (invitacionValidada) {
-        payload.invitacion_codigo = invitacionValidada.codigo;
+      // GA4
+      if (window.CuidyAnalytics) {
+        CuidyAnalytics.registrationCompleted('cuidador', cuidadorId);
       }
 
-      // Tracking: referido y UTMs
-      const urlParams = new URLSearchParams(window.location.search);
-      const refCode = urlParams.get('ref') || sessionStorage.getItem('cuidy_ref_code') || null;
-      payload.utm_source = urlParams.get('utm_source') || sessionStorage.getItem('cuidy_utm_source') || null;
-      payload.utm_campaign = urlParams.get('utm_campaign') || sessionStorage.getItem('cuidy_utm_campaign') || null;
-      if (refCode) payload.ref_code = refCode;
-
-      try {
-        // Validar referido si hay código
-        if (refCode) {
-          try {
-            const refRes = await fetch(`${API_BASE}/referidos/validar?codigo=${encodeURIComponent(refCode)}`);
-            const refData = await refRes.json();
-            if (refData.ok) payload.referred_by = refData.data.id;
-          } catch {}
-        }
-
-        const res = await fetch(`${API_BASE}/cuidadores`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const json = await res.json();
-        if (!json.ok) throw new Error(json.error || (json.detalles || []).join(', ') || 'Error al enviar');
-
-        // Completar referido
-        if (refCode) {
-          fetch(`${API_BASE}/referidos/completar`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ codigo: refCode, referee_id: json.data.id, referee_tipo: 'cuidador' })
-          }).catch(() => {});
-        }
-
-        // GA4
-        if (window.CuidyAnalytics) {
-          CuidyAnalytics.registrationCompleted('cuidador', json.data.id);
-        }
-
-        localStorage.setItem('qqmc_cuidador_enviado', JSON.stringify({
-          id: json.data.id, email: data.contacto.email,
-          creado_en: json.data.creado_en, estado: json.data.estado
-        }));
-        localStorage.removeItem(DRAFT_KEY);
-        window.location.href = 'cuidador-enviado.html';
-      } catch (err) {
-        alert('No pudimos enviar tu registro: ' + err.message);
-        btn.disabled = false; btn.textContent = 'Enviar registro';
-      }
+      const d = collectFormData();
+      localStorage.setItem('qqmc_cuidador_enviado', JSON.stringify({
+        id: cuidadorId, email: d.email,
+        creado_en: new Date().toISOString(),
+        estado: diditVerificado ? 'identidad_aprobada' : 'enviado'
+      }));
+      localStorage.removeItem(DRAFT_KEY);
+      window.location.href = 'cuidador-enviado.html';
     });
   }
 

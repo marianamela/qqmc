@@ -13,8 +13,8 @@ Plataforma que conecta familias con cuidadores de confianza verificados: niñera
 ## Stack
 - Frontend: HTML/CSS/JS vanilla → carpeta `client/`
 - Backend: Node.js con Netlify Functions → carpeta `netlify/functions/`
-- Base de datos: Supabase
-- Deploy: Netlify (automático desde GitHub)
+- Base de datos: Supabase (dos proyectos: DEV y PROD)
+- Deploy: Netlify (automático desde GitHub, con variables de entorno por branch)
 - Repo: https://github.com/marianamela/qqmc
 
 ## Git y deploy
@@ -38,7 +38,7 @@ Plataforma que conecta familias con cuidadores de confianza verificados: niñera
 
 ### Service Worker (cache)
 - El archivo `client/sw.js` tiene un `CACHE_VERSION` que debe incrementarse cada vez que se hacen cambios significativos en archivos estáticos (HTML, CSS, JS). Si no se incrementa, los usuarios pueden ver versiones cacheadas viejas.
-- Versión actual: 4
+- Versión actual: 6
 
 ## Estructura
 - `client/` → frontend estático
@@ -68,7 +68,45 @@ Plataforma que conecta familias con cuidadores de confianza verificados: niñera
 - `SUPABASE_SERVICE_ROLE_KEY` → clave privada (usada por el backend; bypassea RLS)
 - `SESSION_SECRET` → random hex para firmar cookies (generar con `openssl rand -hex 32`)
 - **Ya no se usan** `ADMIN_USER` / `ADMIN_PASSWORD` → migrado a tabla `admin_usuarios` en Supabase
+- `DIDIT_API_KEY` → API key de Didit.me (business.didit.me)
+- `DIDIT_WEBHOOK_SECRET` → secret para validar firma HMAC-SHA256 de webhooks de Didit
+- `DIDIT_WORKFLOW_ID` → ID del workflow KYC configurado en Didit.me
 - `PORT` → 3000 (local)
+
+## Ambientes (DEV / PROD)
+
+### Separación de bases de datos
+- **DEV** (Supabase "Cuidadores"): `uyndeeabgikiwxbfdsmi.supabase.co` — datos de prueba, desarrollo
+- **PROD** (Supabase nuevo): `dhmpygvjrnpndivcyejg.supabase.co` — solo datos de configuración y datos reales
+
+### Esquema de producción
+- `supabase/prod_schema.sql` → esquema consolidado (todas las tablas, índices, RLS, funciones)
+- `supabase/prod_seed.sql` → datos de configuración (admin, planes, match_config, preguntas evaluación, templates diario)
+- Ejecutar en orden: primero `prod_schema.sql`, luego `prod_seed.sql` en el SQL Editor del proyecto PROD
+
+### Variables de entorno en Netlify (por branch)
+Netlify permite configurar variables de entorno con alcance por deploy context. Configurar en Netlify → Site settings → Environment variables:
+
+| Variable | Branch `dev` | Branch `main` (producción) |
+|---|---|---|
+| `SUPABASE_URL` | `https://uyndeeabgikiwxbfdsmi.supabase.co` | `https://dhmpygvjrnpndivcyejg.supabase.co` |
+| `SUPABASE_ANON_KEY` | (key del proyecto DEV) | (key del proyecto PROD) |
+| `SUPABASE_SERVICE_ROLE_KEY` | (service_role del proyecto DEV) | (service_role del proyecto PROD) |
+| `SESSION_SECRET` | (compartido o separado) | (compartido o separado) |
+| `DIDIT_API_KEY` | (sandbox/test) | (producción) |
+| `DIDIT_WEBHOOK_SECRET` | (sandbox/test) | (producción) |
+| `DIDIT_WORKFLOW_ID` | (sandbox/test) | (producción) |
+
+**Pasos para configurar en Netlify:**
+1. Ir a Site settings → Environment variables
+2. Para cada variable, hacer click en "Add a variable"
+3. En "Scopes", seleccionar el deploy context:
+   - "Branch deploys" + branch `dev` → valor de DEV
+   - "Production" → valor de PROD
+4. Si una variable tiene el mismo valor para ambos, dejarla con scope "All"
+
+### Archivo `.env` local
+El archivo `.env` local apunta a DEV por defecto (para `netlify dev`). No se sube a GitHub.
 
 ## URLs
 - Local: http://localhost:8888
@@ -77,26 +115,60 @@ Plataforma que conecta familias con cuidadores de confianza verificados: niñera
 - API local: http://localhost:8888/.netlify/functions/api
 - API producción: https://cuidy-ar.netlify.app/.netlify/functions/api
 
+## Motor de Confianza (verificación automatizada)
+
+### Principio de diseño
+"Verificar rápido, publicar rápido, enriquecer después." Solo la verificación de identidad es bloqueante. Todo lo demás (evaluación de conocimientos, antecedentes, ubicación) es opcional y otorga badges.
+
+### Proveedor de verificación
+- **Didit.me**: verificación de identidad automatizada (documento + liveness)
+- Pricing: $0.33/check, 500 gratis/mes, sandbox ilimitado
+- Integración: SDK embebido vía iframe en el registro
+- Webhook: POST /webhooks/didit con firma HMAC-SHA256 (X-Signature-V2)
+- Variables de entorno: `DIDIT_API_KEY`, `DIDIT_WEBHOOK_SECRET`, `DIDIT_WORKFLOW_ID`
+
+### Tablas nuevas (migración `011_motor_confianza.sql`)
+- `verificaciones`: registro de cada verificación (tipo, persona_id, proveedor, session_id, estado, resultado_raw)
+- `preguntas_evaluacion`: banco de preguntas por categoría (ninera, adulto_mayor, limpieza) con flag es_critica
+- `evaluaciones`: intentos de quiz por cuidador (puntaje, aprobado, respuestas)
+
+### Endpoints de verificación
+- `POST /verificacion/iniciar` → crea sesión en Didit.me, devuelve URL para iframe
+- `POST /webhooks/didit` → recibe resultado de Didit, actualiza estado
+- `GET /verificacion/estado/:id` → consulta estado de verificación
+- `GET /admin/excepciones` → lista verificaciones en estado in_review
+- `PATCH /admin/excepciones/:id` → resolver excepción manualmente
+
+### Endpoints de evaluación de conocimientos
+- `POST /evaluacion/iniciar` → genera quiz de 10 preguntas aleatorias por categoría
+- `POST /evaluacion/enviar` → calcula puntaje (aprobado: >=8/10 + no fallar críticas)
+
 ## Flujo de registro del cuidador (dos fases)
-### Fase 1 — Registro simplificado (`registro-cuidador.html`)
-1. Paso 0: Datos personales (nombre, DNI, email, teléfono, password, ubicación, especialidades)
-2. Paso 1: Verificación de identidad (foto DNI frente + selfie sosteniendo DNI)
-3. Paso 2: Confirmación y envío
-4. POST /cuidadores → fila con `estado='enviado'` y `registro_simplificado=true`
+
+### Fase 1 — Registro optimizado (`registro-cuidador.html`)
+1. Paso 0: Datos básicos (6 campos: nombre, apellido, email, WhatsApp+OTP, password, especialidades)
+2. POST /cuidadores → fila con `estado='enviado'` y `registro_simplificado=true`
+3. Paso 1: Verificación de identidad vía Didit.me embebido (~90 seg)
+4. Paso 2: Confirmación y envío
 5. Redirige a `cuidador-enviado.html` con timeline de progreso
+6. DNI y fecha_nacimiento son extraídos automáticamente por Didit (no los ingresa el usuario)
 
 ### Fase 2 — Completar perfil (`completar-perfil.html`)
-1. El equipo revisa identidad desde `/admin` y aprueba → `estado='identidad_aprobada'`
-2. Se envía email al cuidador con link a completar-perfil.html
-3. El cuidador completa: experiencia, disponibilidad, referencias, descripción
+1. Webhook de Didit aprueba identidad → `estado='identidad_aprobada'`
+2. Se envía notificación al cuidador con link a completar-perfil.html
+3. El cuidador completa: experiencia, disponibilidad, ubicación, referencias, descripción
 4. PATCH /cuidadores/:id → `estado='perfil_completo'`
-5. Se agenda entrevista virtual → `estado='entrevista_agendada'`
-6. Si aprueba → `estado='aprobado'` → perfil visible públicamente
+5. Tu perfil se publica y empezás a recibir contactos de familias
+
+### Fase 3 (opcional) — Enriquecimiento
+- Evaluación de conocimientos por categoría → badge "Evaluado"
+- Verificación de antecedentes → badge "Antecedentes"
+- Cada badge suma visibilidad en los resultados de búsqueda
 
 ### Estados del cuidador
-`enviado` → `identidad_aprobada` → `perfil_completo` → `en_revision` → `entrevista_agendada` → `aprobado`
+`enviado` → `identidad_aprobada` → `perfil_completo` → `aprobado`
 
-Otros estados posibles: `lista_espera`, `rechazado`, `suspendido`, `vencido`, `baja_solicitada`, `correcciones_pedidas`
+Otros estados posibles: `lista_espera`, `en_revision`, `entrevista_agendada`, `rechazado`, `suspendido`, `vencido`, `baja_solicitada`, `correcciones_pedidas`
 
 ## Flujo de registro de la familia
 ### Fase 1 — Registro rápido (`registro-familia.html`)
@@ -165,11 +237,13 @@ Otros estados: `rechazado`, `vencido`, `descartado`
 
 ### Migración
 - SQL: `supabase/migrations/010_matches.sql`
+- SQL: `supabase/migrations/011_motor_confianza.sql` (verificaciones, preguntas, evaluaciones + nuevos estados)
+- SQL consolidado PROD: `supabase/prod_schema.sql` + `supabase/prod_seed.sql`
 - Ejecutar en Supabase SQL Editor antes de deployar
 
 ## Funcionalidades principales
 - **Chat asistente Caro**: búsqueda guiada de cuidadores por tipo, zona, disponibilidad
-- **Verificación de identidad**: DNI + selfie para cuidadores y familias
+- **Motor de Confianza**: verificación de identidad automatizada vía Didit.me + evaluación de conocimientos opcional + badges de perfil
 - **Sistema de referidos**: códigos únicos, tracking de invitaciones entre familias y cuidadores
 - **Diario de cuidado**: registro diario con fotos/notas del cuidador, timeline para familias
 - **Matches**: familias expresan interés → cuidador acepta/rechaza → familia paga para desbloquear contacto
@@ -182,9 +256,10 @@ Otros estados: `rechazado`, `vencido`, `descartado`
 - **GA4**: tracking de eventos de conversión personalizados
 - **UTM tracking**: captura de origen y campaña en sessionStorage
 
-## Campaña de lanzamiento
-- Lema: "Que se ponga de moda cuidar bien. Porque cuidar bien merece más oportunidades."
-- Hashtag: #CuidarBien
+## Mensaje y campaña
+- Mensaje central: "Volvé a confiar" — la primera plataforma donde cuidadores y familias se verifican mutuamente
+- Diferenciales clave: verificación bilateral, match con consentimiento mutuo, evaluación de conocimientos, diario de cuidado
+- Tono: directo, empático, sin marketing vacío. Nombrar el problema real ("buscar a ciegas", "mensajes de desconocidos") y mostrar cómo Cuidy lo resuelve
 - Landing cuidadores: llegan por recomendación de una familia (`invita-cuidador.html?ref=CODIGO`)
 - Landing familias: llegan por campaña de WhatsApp (`recomendar-cuidador.html?utm_source=whatsapp`)
 - UTM defaults familias: source=whatsapp, medium=campaign, campaign=lanzamiento_familias

@@ -789,6 +789,10 @@ img { max-width: 100%; display: block; }
   max-width: 900px;
   margin: 0 auto;
 }
+.manifiesto-grid--4 {
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 1100px;
+}
 .manifiesto-card {
   text-align: center;
   padding: 32px 24px;
@@ -1133,12 +1137,15 @@ img { max-width: 100%; display: block; }
 }
 
 /* Responsive */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .manifiesto-grid--4 { grid-template-columns: repeat(2, 1fr); }
+}
 @media (max-width: 768px) {
   .hero-unified { padding: 36px 0 40px; }
   .hero-unified__title { font-size: 24px; }
   .hero-ctas { flex-direction: column; align-items: center; }
   .hero-cta-btn { width: 100%; max-width: 320px; }
-  .manifiesto-grid { grid-template-columns: 1fr; gap: 16px; }
+  .manifiesto-grid, .manifiesto-grid--4 { grid-template-columns: 1fr; gap: 16px; }
   .manifiesto-card { padding: 24px 20px; }
   .chat { max-height: 70vh; min-height: 360px; border-radius: 16px; }
   .chat-bubble { max-width: 90%; }

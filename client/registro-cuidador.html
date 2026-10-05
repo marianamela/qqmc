@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <title>Registro de cuidador/a · Cuidy</title>
-  <meta name="description" content="Registrate como cuidador/a en Cuidy. Conectá con familias que buscan personas de confianza para el cuidado del hogar." />
+  <meta name="description" content="Creá tu perfil verificado en Cuidy. Verificamos tu identidad, evaluamos tus conocimientos y te conectamos con familias que también están verificadas." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -239,11 +239,38 @@
     }
     .rc-footer__logo { height: 36px; margin-bottom: 10px; opacity: .6; display: block; margin-left: auto; margin-right: auto; }
 
+    /* === Didit verification === */
+    .didit-container { width: 100%; min-height: 500px; border-radius: 12px; overflow: hidden; }
+    .didit-iframe {
+      width: 100%; min-height: 500px; border: none; border-radius: 12px;
+      background: #fff;
+    }
+    .didit-status {
+      text-align: center; padding: 48px 24px;
+      background: rgba(0,109,119,.03); border-radius: 12px;
+      border: 1px dashed rgba(0,109,119,.15);
+    }
+    .didit-status__spinner {
+      width: 40px; height: 40px; border: 3px solid rgba(0,109,119,.15);
+      border-top-color: var(--teal, #006D77); border-radius: 50%;
+      animation: spin .8s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .didit-status__icon {
+      font-size: 48px; margin-bottom: 12px; color: #38a169;
+    }
+    .didit-status h3 {
+      font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 700;
+      margin: 0 0 8px;
+    }
+    .didit-status p { font-size: 14px; opacity: .8; margin: 0 0 16px; line-height: 1.6; }
+
     @media (max-width: 520px) {
       .rc-hero { padding: 32px 20px 36px; }
       .rc-rec-banner { flex-direction: column; gap: 8px; padding: 12px 16px; }
       .rc-form-card { padding: 24px 20px; border-radius: 16px; }
       .rc-progress__label { display: none; }
+      .didit-container, .didit-iframe { min-height: 400px; }
     }
   </style>
 </head>
@@ -358,7 +385,7 @@
         </div>
         <div class="rc-progress__step" data-step="2">
           <div class="rc-progress__dot">&#10003;</div>
-          <span class="rc-progress__label">Enviar</span>
+          <span class="rc-progress__label">Listo</span>
         </div>
       </div>
 
@@ -366,10 +393,10 @@
       <div class="rc-form-card">
         <form id="wizardForm" class="wizard__form" novalidate style="background:none;border:none;box-shadow:none;padding:0;">
 
-          <!-- ============ PASO 0 · DATOS PERSONALES + CONTACTO ============ -->
+          <!-- ============ PASO 0 · DATOS BÁSICOS (6 campos) ============ -->
           <section class="step is-active" data-step="0">
-            <h2 class="step__title">Tus datos personales</h2>
-            <p class="step__hint">Completá tus datos básicos. Deben coincidir con los de tu DNI.</p>
+            <h2 class="step__title">Creá tu cuenta en 2 minutos</h2>
+            <p class="step__hint">Solo necesitamos lo esencial. Después de verificar tu identidad, completás tu perfil profesional.</p>
 
             <div class="field-row">
               <div class="field">
@@ -379,17 +406,6 @@
               <div class="field">
                 <label for="apellido">Apellido *</label>
                 <input id="apellido" name="apellido" type="text" required autocomplete="family-name" />
-              </div>
-            </div>
-
-            <div class="field-row">
-              <div class="field">
-                <label for="dni">DNI *</label>
-                <input id="dni" name="dni" type="text" required inputmode="numeric" placeholder="Sin puntos, ej: 28345678" />
-              </div>
-              <div class="field">
-                <label for="fecha_nacimiento">Fecha de nacimiento *</label>
-                <input id="fecha_nacimiento" name="fecha_nacimiento" type="date" required />
               </div>
             </div>
 
@@ -423,29 +439,8 @@
               </div>
             </div>
 
-            <h3 class="step__subtitle">¿Dónde vivís?</h3>
-            <div class="field-row">
-              <div class="field">
-                <label for="provincia">Provincia *</label>
-                <select id="provincia" name="provincia" required>
-                  <option value="">Seleccionar…</option>
-                  <option value="caba">CABA</option>
-                  <option value="bsas">Buenos Aires</option>
-                  <option value="cordoba">Córdoba</option>
-                  <option value="santafe">Santa Fe</option>
-                  <option value="mendoza">Mendoza</option>
-                  <option value="tucuman">Tucumán</option>
-                  <option value="otra">Otra</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="localidad">Localidad *</label>
-                <input id="localidad" name="localidad" type="text" required placeholder="Ej: Palermo, San Isidro" />
-              </div>
-            </div>
-
             <h3 class="step__subtitle">¿Qué tipo de cuidado ofrecés?</h3>
-            <p class="step__hint">Seleccioná al menos una opción. Después vas a poder agregar más detalles.</p>
+            <p class="step__hint">Seleccioná al menos una opción.</p>
             <div class="choice-grid" data-name="especialidades">
               <label class="choice">
                 <input type="checkbox" name="especialidades" value="ninera" />
@@ -472,62 +467,8 @@
                 <span class="choice__sub">Cocina y preparación de comidas</span>
               </label>
             </div>
-          </section>
 
-          <!-- ============ PASO 1 · VERIFICACIÓN DE IDENTIDAD ============ -->
-          <section class="step" data-step="1">
-            <h2 class="step__title">Verificación de identidad</h2>
-            <p class="step__hint">Necesitamos validar que sos quien decís ser. Subí una foto del frente de tu DNI y sacate una selfie sosteniéndolo.</p>
-
-            <div class="verify-grid">
-              <div class="verify-card" id="dniCardCuid">
-                <div class="verify-card__icon">🪪</div>
-                <h4 class="verify-card__title">Foto del DNI (frente)</h4>
-                <p class="verify-card__desc">Sacá una foto al frente de tu DNI donde se vean bien tus datos y tu foto.</p>
-                <div class="verify-card__preview" id="dniPreviewCuid">
-                  <img id="dniImgCuid" src="" alt="DNI cargado" />
-                </div>
-                <label class="btn btn--ghost btn--sm verify-card__btn" id="dniLabelCuid">
-                  <input type="file" id="dniInputCuid" accept="image/*" capture="environment" hidden />
-                  Subir foto del DNI
-                </label>
-                <p class="verify-card__status" id="dniStatusCuid"></p>
-              </div>
-
-              <div class="verify-card" id="selfieCardCuid">
-                <div class="verify-card__icon"><span class="ci ci--xl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></svg></span></div>
-                <h4 class="verify-card__title">Selfie sosteniendo el DNI</h4>
-                <p class="verify-card__desc">Abrí la cámara y sacate una foto sosteniendo el DNI cerca de tu cara.</p>
-                <div class="verify-card__preview" id="selfiePreviewCuid">
-                  <img id="selfieImgCuid" src="" alt="Selfie capturada" />
-                </div>
-                <div class="verify-card__camera" id="cameraContainerCuid">
-                  <video id="cameraVideoCuid" autoplay playsinline muted></video>
-                  <canvas id="cameraCanvasCuid" hidden></canvas>
-                </div>
-                <button type="button" class="btn btn--ghost btn--sm verify-card__btn" id="btnStartCameraCuid">Abrir cámara</button>
-                <button type="button" class="btn btn--primary btn--sm verify-card__btn" id="btnCaptureCuid" hidden>Sacar foto</button>
-                <button type="button" class="btn btn--ghost btn--sm verify-card__btn" id="btnRetakeCuid" hidden>Sacar otra vez</button>
-                <p class="verify-card__status" id="selfieStatusCuid"></p>
-              </div>
-            </div>
-
-            <div class="verify-notice">
-              <strong><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span> Tu privacidad es importante</strong>
-              Estas fotos solo las ve nuestro equipo de verificación. No se comparten con familias ni se publican en tu perfil.
-            </div>
-
-            <div class="consent-card" style="margin-top: 20px">
-              <h3 class="consent-card__title"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span> ¿Qué pasa después?</h3>
-              <ol class="consent-list consent-list--ordered">
-                <li>Nuestro equipo revisa tu identidad (24 a 48 hs)</li>
-                <li>Si todo está bien, te pedimos que completes tu perfil profesional</li>
-                <li>Coordinamos una entrevista virtual</li>
-                <li>Tu perfil se publica y empezás a recibir contactos de familias</li>
-              </ol>
-            </div>
-
-            <div class="field field--check" style="margin-top: 16px">
+            <div class="field field--check" style="margin-top: 20px">
               <label class="check">
                 <input type="checkbox" id="consent_privacidad" required />
                 <span>Acepto la <a href="privacidad.html" target="_blank" class="link">Política de Privacidad</a> y los <a href="terminos.html" target="_blank" class="link">Términos y Condiciones</a> y doy mi consentimiento para la verificación de identidad.</span>
@@ -541,24 +482,78 @@
             </div>
           </section>
 
+          <!-- ============ PASO 1 · VERIFICACIÓN DE IDENTIDAD (Didit.me) ============ -->
+          <section class="step" data-step="1">
+            <h2 class="step__title">Verificación de identidad</h2>
+            <p class="step__hint">Verificamos tu identidad de forma automática y segura. Solo toma ~90 segundos.</p>
+
+            <!-- Estado: cargando sesión -->
+            <div id="diditLoading" class="didit-status">
+              <div class="didit-status__spinner"></div>
+              <p>Preparando verificación...</p>
+            </div>
+
+            <!-- Estado: iframe de Didit embebido -->
+            <div id="diditContainer" class="didit-container hidden">
+              <iframe id="diditFrame" class="didit-iframe" allow="camera; microphone" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals"></iframe>
+            </div>
+
+            <!-- Estado: verificación completada -->
+            <div id="diditSuccess" class="didit-status hidden">
+              <div class="didit-status__icon">&#10003;</div>
+              <h3>Identidad verificada</h3>
+              <p>Tu verificación fue procesada correctamente. Ya podés continuar.</p>
+            </div>
+
+            <!-- Estado: sandbox (sin Didit configurado) -->
+            <div id="diditSandbox" class="didit-status hidden">
+              <div class="didit-status__icon" style="color: var(--teal)">&#9888;</div>
+              <h3>Modo sandbox</h3>
+              <p>Didit.me no está configurado aún. Tu registro se guardará y la verificación de identidad se realizará cuando el servicio esté activo.</p>
+              <button type="button" class="btn btn--primary" id="btnSkipVerif">Continuar sin verificación</button>
+            </div>
+
+            <!-- Estado: error -->
+            <div id="diditError" class="didit-status hidden">
+              <div class="didit-status__icon" style="color: #e53e3e">&#10007;</div>
+              <h3>Error al iniciar la verificación</h3>
+              <p id="diditErrorMsg">Hubo un problema. Intentá de nuevo.</p>
+              <button type="button" class="btn btn--primary" id="btnRetryVerif">Reintentar</button>
+            </div>
+
+            <div class="verify-notice" style="margin-top: 20px">
+              <strong><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span> Tu privacidad es importante</strong>
+              La verificación es procesada por Didit.me, un servicio certificado de verificación de identidad. Tus datos biométricos no se almacenan en Cuidy.
+            </div>
+
+            <div class="consent-card" style="margin-top: 16px">
+              <h3 class="consent-card__title"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span> ¿Qué pasa después?</h3>
+              <ol class="consent-list consent-list--ordered">
+                <li>Tu identidad se verifica automáticamente (~90 seg)</li>
+                <li>Completás tu perfil profesional (experiencia, disponibilidad)</li>
+                <li>Tu perfil se publica y empezás a recibir contactos de familias</li>
+              </ol>
+            </div>
+          </section>
+
           <!-- ============ PASO 2 · CONFIRMACIÓN ============ -->
           <section class="step" data-step="2">
             <h2 class="step__title">Revisá tus datos antes de enviar</h2>
-            <p class="step__hint">Verificá que todo esté bien. Después de enviar, nuestro equipo revisa tu identidad.</p>
+            <p class="step__hint">Verificá que todo esté bien.</p>
 
             <div id="resumenRegistro" class="resumen"></div>
 
             <div class="consent-card consent-card--soft" style="margin-top: 20px">
-              <h3 class="consent-card__title"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></svg></span> ¿Cuánto tarda?</h3>
-              <p>La verificación de identidad suele tomar entre <strong>24 y 48 horas</strong>. Te avisamos por email cuando esté lista para que completes tu perfil profesional.</p>
+              <h3 class="consent-card__title"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></svg></span> Siguiente paso</h3>
+              <p>Al enviar, tu cuenta queda creada y la verificación de identidad se procesa. Te avisamos por WhatsApp cuando esté lista para que completes tu perfil profesional.</p>
             </div>
           </section>
 
           <!-- Acciones de navegación -->
           <div class="wizard__actions">
-            <button type="button" class="btn btn--ghost" id="btnPrev">← Atrás</button>
+            <button type="button" class="btn btn--ghost" id="btnPrev">&#8592; Atrás</button>
             <div class="wizard__actions-right">
-              <button type="button" class="btn btn--primary" id="btnNext">Siguiente →</button>
+              <button type="button" class="btn btn--primary" id="btnNext">Siguiente &#8594;</button>
               <button type="submit" class="btn btn--primary" id="btnSubmit" hidden>Enviar registro</button>
             </div>
           </div>

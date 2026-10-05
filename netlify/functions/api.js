@@ -3,7 +3,11 @@
    - Público: GET /cuidadores, GET /cuidadores/:id, POST /cuidadores, POST /familias
    - Matches: POST /matches/interes, GET /matches, PATCH /matches/:id,
               POST /matches/:id/desbloquear, POST /matches/expirar
+   - Verificación: POST /verificacion/iniciar, POST /webhooks/didit,
+              GET /verificacion/estado/:id
+   - Evaluación: POST /evaluacion/iniciar, POST /evaluacion/enviar
    - Admin:   POST /admin/login, POST /admin/logout, GET /admin/me,
+              GET /admin/excepciones, PATCH /admin/excepciones/:id,
               GET /admin/candidaturas (filtros: estado,q,especialidad,zona,min_valoracion),
               GET /admin/candidaturas/:id,
               PATCH /admin/candidaturas/:id (cambio de estado + metadata),
@@ -377,18 +381,16 @@ function validarCuidadorSimplificado(p) {
   const id = p?.identidad || {}
   if (!id.nombre) errors.push('identidad.nombre requerido')
   if (!id.apellido) errors.push('identidad.apellido requerido')
-  if (!id.dni || !/^\d{7,9}$/.test(String(id.dni).replace(/\D/g, ''))) errors.push('identidad.dni inválido')
-  if (!id.fecha_nacimiento) errors.push('identidad.fecha_nacimiento requerido')
-  else if (edadEn(id.fecha_nacimiento) < 18) errors.push('debe ser mayor de 18 años')
+  // DNI y fecha_nacimiento son opcionales en registro optimizado (Didit los extrae)
+  if (id.dni && !/^\d{7,9}$/.test(String(id.dni).replace(/\D/g, ''))) errors.push('identidad.dni inválido')
+  if (id.fecha_nacimiento && edadEn(id.fecha_nacimiento) < 18) errors.push('debe ser mayor de 18 años')
 
   const ct = p?.contacto || {}
   if (!ct.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ct.email)) errors.push('contacto.email inválido')
   if (!ct.telefono) errors.push('contacto.telefono requerido')
   if (!p?.password || p.password.length < 8) errors.push('password mínimo 8 caracteres')
 
-  const zona = p?.zona || {}
-  if (!zona.provincia) errors.push('zona.provincia requerido')
-  if (!zona.localidad) errors.push('zona.localidad requerido')
+  // Zona es opcional en registro optimizado (se completa en perfil)
 
   const esp = p?.especialidades || []
   if (!Array.isArray(esp) || esp.length === 0) errors.push('especialidades requerido (al menos una)')
@@ -1684,8 +1686,8 @@ exports.handler = async (event) => {
         estado: estadoInicial,
         nombre: payload.identidad.nombre,
         apellido: payload.identidad.apellido,
-        dni: String(payload.identidad.dni).replace(/\D/g, ''),
-        fecha_nacimiento: payload.identidad.fecha_nacimiento,
+        dni: payload.identidad.dni ? String(payload.identidad.dni).replace(/\D/g, '') : null,
+        fecha_nacimiento: payload.identidad.fecha_nacimiento || null,
         genero: payload.identidad?.genero || null,
         nacionalidad: payload.identidad?.nacionalidad || null,
         email: payload.contacto.email,
@@ -3829,6 +3831,429 @@ exports.handler = async (event) => {
       const totalVencidos = (vencidos?.length || 0) + (sinRespuesta?.length || 0)
       console.log(`[matches] ${totalVencidos} matches vencidos`)
       return json(200, { ok: true, vencidos: totalVencidos })
+    }
+
+    // ================================================================
+    //  VERIFICACIÓN DE IDENTIDAD (Didit.me)
+    // ================================================================
+
+    // POST /verificacion/iniciar → crea sesión de verificación en Didit.me
+    if (path === 'verificacion/iniciar' && event.httpMethod === 'POST') {
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+      const body = safeParse(event.body)
+      const { tipo, id } = body
+
+      if (!tipo || !id) return json(400, { ok: false, error: 'tipo e id son requeridos' })
+      if (!['cuidador', 'familia'].includes(tipo)) return json(400, { ok: false, error: 'tipo debe ser cuidador o familia' })
+
+      // Verificar que la persona existe
+      const tabla = tipo === 'cuidador' ? 'cuidadores' : 'familias'
+      const { data: persona, error: errP } = await supabaseAdmin.from(tabla).select('id,nombre,apellido').eq('id', id).maybeSingle()
+      if (!persona) return json(404, { ok: false, error: `${tipo} no encontrado` })
+
+      // Verificar que no tenga una verificación aprobada vigente
+      const { data: vigente } = await supabaseAdmin.from('verificaciones')
+        .select('id,estado,vence_at')
+        .eq('tipo', tipo).eq('persona_id', id).eq('estado', 'approved')
+        .gt('vence_at', new Date().toISOString())
+        .maybeSingle()
+      if (vigente) return json(200, { ok: true, ya_verificado: true, verificacion_id: vigente.id })
+
+      // Verificar que no tenga una sesión en progreso
+      const { data: enProgreso } = await supabaseAdmin.from('verificaciones')
+        .select('id,session_id,estado')
+        .eq('tipo', tipo).eq('persona_id', id)
+        .in('estado', ['not_started', 'in_progress'])
+        .maybeSingle()
+      if (enProgreso) {
+        return json(200, { ok: true, en_progreso: true, verificacion_id: enProgreso.id, session_id: enProgreso.session_id })
+      }
+
+      // Crear sesión en Didit.me
+      const DIDIT_API_KEY = process.env.DIDIT_API_KEY
+      const DIDIT_WORKFLOW_ID = process.env.DIDIT_WORKFLOW_ID
+      if (!DIDIT_API_KEY || !DIDIT_WORKFLOW_ID) {
+        // Modo sandbox / sin Didit configurado: crear verificación local
+        const { data: verif, error: errV } = await supabaseAdmin.from('verificaciones').insert({
+          tipo, persona_id: id, proveedor: 'didit', estado: 'not_started',
+          session_id: `sandbox_${Date.now()}`
+        }).select().single()
+        return json(200, {
+          ok: true, sandbox: true, verificacion_id: verif.id,
+          session_id: verif.session_id,
+          mensaje: 'Didit.me no configurado. Sesión de sandbox creada.'
+        })
+      }
+
+      try {
+        const CALLBACK_URL = (process.env.URL || 'https://cuidy-ar.netlify.app') + '/.netlify/functions/api/webhooks/didit'
+        const res = await fetch('https://verification.didit.me/v3/session/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': DIDIT_API_KEY
+          },
+          body: JSON.stringify({
+            workflow_id: DIDIT_WORKFLOW_ID,
+            vendor_data: JSON.stringify({ tipo, id }),
+            callback: CALLBACK_URL
+          })
+        })
+        const diditResp = await res.json()
+
+        if (!res.ok) {
+          console.error('[verificacion] Error Didit:', diditResp)
+          return json(502, { ok: false, error: 'Error al crear sesión de verificación', detalle: diditResp })
+        }
+
+        // Guardar en DB
+        const { data: verif, error: errV } = await supabaseAdmin.from('verificaciones').insert({
+          tipo, persona_id: id, proveedor: 'didit',
+          session_id: diditResp.session_id,
+          estado: 'not_started'
+        }).select().single()
+
+        return json(200, {
+          ok: true,
+          verificacion_id: verif.id,
+          session_id: diditResp.session_id,
+          url: diditResp.url,
+          session_token: diditResp.session_token
+        })
+      } catch (err) {
+        console.error('[verificacion] Error:', err)
+        return json(500, { ok: false, error: 'Error al conectar con Didit.me' })
+      }
+    }
+
+    // POST /webhooks/didit → recibe resultado de verificación de Didit.me
+    if (path === 'webhooks/didit' && event.httpMethod === 'POST') {
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      // Validar firma HMAC-SHA256
+      const WEBHOOK_SECRET = process.env.DIDIT_WEBHOOK_SECRET
+      if (WEBHOOK_SECRET) {
+        const signature = event.headers['x-signature-v2'] || event.headers['X-Signature-V2']
+        if (!signature) return json(401, { ok: false, error: 'Sin firma' })
+
+        const hmac = crypto.createHmac('sha256', WEBHOOK_SECRET)
+        hmac.update(event.body || '')
+        const expected = hmac.digest('hex')
+        if (signature !== expected) {
+          console.error('[webhook/didit] Firma inválida')
+          return json(401, { ok: false, error: 'Firma inválida' })
+        }
+      }
+
+      const payload = safeParse(event.body)
+      const { session_id, status, event_id, vendor_data } = payload
+
+      if (!session_id) return json(400, { ok: false, error: 'session_id requerido' })
+
+      // Idempotencia: si ya procesamos este event_id, ignorar
+      if (event_id) {
+        const { data: dup } = await supabaseAdmin.from('verificaciones')
+          .select('id').eq('event_id', event_id).maybeSingle()
+        if (dup) return json(200, { ok: true, duplicado: true })
+      }
+
+      // Buscar la verificación por session_id
+      const { data: verif } = await supabaseAdmin.from('verificaciones')
+        .select('*').eq('session_id', session_id).maybeSingle()
+      if (!verif) {
+        console.error('[webhook/didit] Sesión no encontrada:', session_id)
+        return json(404, { ok: false, error: 'Sesión no encontrada' })
+      }
+
+      // Mapear estado de Didit a nuestro estado
+      const statusMap = {
+        'Approved': 'approved',
+        'Declined': 'declined',
+        'In Review': 'in_review',
+        'In Progress': 'in_progress',
+        'Expired': 'expired',
+        'Abandoned': 'expired',
+        'Not Started': 'not_started'
+      }
+      const nuevoEstado = statusMap[status] || verif.estado
+
+      // Extraer motivo de rechazo si declined
+      let motivoRechazo = null
+      if (nuevoEstado === 'declined' && payload.decision) {
+        const reasons = []
+        if (payload.decision.id_verifications) {
+          payload.decision.id_verifications.forEach(v => {
+            if (v.status === 'Declined' && v.reason) reasons.push(v.reason)
+          })
+        }
+        if (payload.decision.liveness_checks) {
+          payload.decision.liveness_checks.forEach(v => {
+            if (v.status === 'Declined' && v.reason) reasons.push(v.reason)
+          })
+        }
+        motivoRechazo = reasons.join('; ') || 'Verificación rechazada'
+      }
+
+      // Actualizar verificación
+      const updateData = {
+        estado: nuevoEstado,
+        resultado_raw: payload,
+        event_id: event_id || null
+      }
+      if (motivoRechazo) updateData.motivo_rechazo = motivoRechazo
+      if (nuevoEstado === 'approved') updateData.vence_at = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+
+      await supabaseAdmin.from('verificaciones').update(updateData).eq('id', verif.id)
+
+      // Si approved → actualizar estado de la persona
+      if (nuevoEstado === 'approved') {
+        const tabla = verif.tipo === 'cuidador' ? 'cuidadores' : 'familias'
+        if (verif.tipo === 'cuidador') {
+          await supabaseAdmin.from('cuidadores')
+            .update({ estado: 'identidad_aprobada', verificado: true })
+            .eq('id', verif.persona_id)
+            .in('estado', ['enviado', 'borrador'])
+        } else {
+          await supabaseAdmin.from('familias')
+            .update({ estado: 'aprobada' })
+            .eq('id', verif.persona_id)
+        }
+        console.log(`[webhook/didit] ${verif.tipo} ${verif.persona_id} aprobado`)
+      }
+
+      return json(200, { ok: true, estado: nuevoEstado })
+    }
+
+    // GET /verificacion/estado/:id → consulta estado de verificación
+    const mVerifEstado = path.match(/^verificacion\/estado\/([a-f0-9-]+)$/)
+    if (mVerifEstado && event.httpMethod === 'GET') {
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+      const personaId = mVerifEstado[1]
+      const params = event.queryStringParameters || {}
+      const tipo = params.tipo || 'cuidador'
+
+      const { data: verif } = await supabaseAdmin.from('verificaciones')
+        .select('id,estado,proveedor,created_at,vence_at,motivo_rechazo')
+        .eq('tipo', tipo).eq('persona_id', personaId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      return json(200, { ok: true, verificacion: verif || null })
+    }
+
+    // GET /admin/excepciones → lista verificaciones en estado in_review
+    if (path === 'admin/excepciones' && event.httpMethod === 'GET') {
+      const admin = requireAdmin(event)
+      if (!admin) return json(401, { ok: false, error: 'No autorizado' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      const { data, error } = await supabaseAdmin.from('verificaciones')
+        .select('*')
+        .eq('estado', 'in_review')
+        .order('created_at', { ascending: true })
+
+      // Enriquecer con datos de la persona
+      const enriched = []
+      for (const v of (data || [])) {
+        const tabla = v.tipo === 'cuidador' ? 'cuidadores' : 'familias'
+        const { data: persona } = await supabaseAdmin.from(tabla)
+          .select('nombre,apellido,email,telefono').eq('id', v.persona_id).maybeSingle()
+        enriched.push({ ...v, persona })
+      }
+
+      return json(200, { ok: true, excepciones: enriched })
+    }
+
+    // PATCH /admin/excepciones/:id → resolver excepción manualmente
+    const mExcepcion = path.match(/^admin\/excepciones\/([a-f0-9-]+)$/)
+    if (mExcepcion && event.httpMethod === 'PATCH') {
+      const admin = requireAdmin(event)
+      if (!admin) return json(401, { ok: false, error: 'No autorizado' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      const verifId = mExcepcion[1]
+      const body = safeParse(event.body)
+      const { decision, motivo } = body  // decision: 'approved' o 'declined'
+
+      if (!['approved', 'declined'].includes(decision)) {
+        return json(400, { ok: false, error: 'decision debe ser approved o declined' })
+      }
+
+      const { data: verif } = await supabaseAdmin.from('verificaciones')
+        .select('*').eq('id', verifId).eq('estado', 'in_review').maybeSingle()
+      if (!verif) return json(404, { ok: false, error: 'Excepción no encontrada' })
+
+      const updateData = {
+        estado: decision,
+        resuelto_por: admin.user,
+        resuelto_at: new Date().toISOString()
+      }
+      if (decision === 'declined') updateData.motivo_rechazo = motivo || 'Rechazado manualmente'
+      if (decision === 'approved') updateData.vence_at = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+
+      await supabaseAdmin.from('verificaciones').update(updateData).eq('id', verifId)
+
+      // Actualizar estado de la persona
+      if (decision === 'approved') {
+        if (verif.tipo === 'cuidador') {
+          await supabaseAdmin.from('cuidadores')
+            .update({ estado: 'identidad_aprobada', verificado: true })
+            .eq('id', verif.persona_id)
+        } else {
+          await supabaseAdmin.from('familias')
+            .update({ estado: 'aprobada' })
+            .eq('id', verif.persona_id)
+        }
+      }
+
+      return json(200, { ok: true, estado: decision })
+    }
+
+    // ================================================================
+    //  EVALUACIÓN DE CONOCIMIENTOS
+    // ================================================================
+
+    // POST /evaluacion/iniciar → genera quiz aleatorio para una categoría
+    if (path === 'evaluacion/iniciar' && event.httpMethod === 'POST') {
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+      const body = safeParse(event.body)
+      const { cuidador_id, categoria } = body
+
+      if (!cuidador_id || !categoria) return json(400, { ok: false, error: 'cuidador_id y categoria requeridos' })
+      if (!['ninera', 'adulto_mayor', 'limpieza'].includes(categoria)) {
+        return json(400, { ok: false, error: 'Categoría inválida' })
+      }
+
+      // Verificar que el cuidador existe
+      const { data: cuid } = await supabaseAdmin.from('cuidadores')
+        .select('id').eq('id', cuidador_id).maybeSingle()
+      if (!cuid) return json(404, { ok: false, error: 'Cuidador no encontrado' })
+
+      // Verificar si ya aprobó esta categoría
+      const { data: yaAprobo } = await supabaseAdmin.from('evaluaciones')
+        .select('id').eq('cuidador_id', cuidador_id).eq('categoria', categoria).eq('aprobado', true).maybeSingle()
+      if (yaAprobo) return json(200, { ok: true, ya_aprobado: true })
+
+      // Verificar límite de intentos (max 3 en 7 días)
+      const hace7dias = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+      const { data: intentos } = await supabaseAdmin.from('evaluaciones')
+        .select('id,created_at')
+        .eq('cuidador_id', cuidador_id).eq('categoria', categoria)
+        .gte('created_at', hace7dias)
+        .order('created_at', { ascending: false })
+
+      if (intentos && intentos.length >= 3) {
+        // Verificar si pasaron 48hs desde el último intento
+        const ultimo = new Date(intentos[0].created_at)
+        const hace48h = Date.now() - 48 * 60 * 60 * 1000
+        if (ultimo.getTime() > hace48h) {
+          const disponible = new Date(ultimo.getTime() + 48 * 60 * 60 * 1000)
+          return json(429, {
+            ok: false,
+            error: 'Límite de intentos alcanzado',
+            disponible_en: disponible.toISOString(),
+            intentos_usados: intentos.length
+          })
+        }
+      }
+
+      // Obtener preguntas activas de la categoría
+      const { data: preguntas } = await supabaseAdmin.from('preguntas_evaluacion')
+        .select('id,pregunta,opciones,es_critica,version')
+        .eq('categoria', categoria).eq('activa', true)
+
+      if (!preguntas || preguntas.length < 10) {
+        return json(500, { ok: false, error: 'Banco de preguntas insuficiente para esta categoría' })
+      }
+
+      // Seleccionar 10 al azar
+      const shuffled = preguntas.sort(() => Math.random() - 0.5).slice(0, 10)
+      const quiz = shuffled.map(p => ({
+        id: p.id,
+        pregunta: p.pregunta,
+        opciones: typeof p.opciones === 'string' ? JSON.parse(p.opciones) : p.opciones,
+        es_critica: p.es_critica
+      }))
+
+      return json(200, {
+        ok: true,
+        categoria,
+        preguntas: quiz,
+        intento_num: (intentos?.length || 0) + 1,
+        version_banco: preguntas[0]?.version || 'v1'
+      })
+    }
+
+    // POST /evaluacion/enviar → recibe respuestas y calcula puntaje
+    if (path === 'evaluacion/enviar' && event.httpMethod === 'POST') {
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+      const body = safeParse(event.body)
+      const { cuidador_id, categoria, respuestas } = body
+
+      if (!cuidador_id || !categoria || !respuestas) {
+        return json(400, { ok: false, error: 'cuidador_id, categoria y respuestas requeridos' })
+      }
+      if (!Array.isArray(respuestas) || respuestas.length !== 10) {
+        return json(400, { ok: false, error: 'Se requieren exactamente 10 respuestas' })
+      }
+
+      // Obtener respuestas correctas
+      const preguntaIds = respuestas.map(r => r.pregunta_id)
+      const { data: correctas } = await supabaseAdmin.from('preguntas_evaluacion')
+        .select('id,respuesta_correcta,es_critica')
+        .in('id', preguntaIds)
+
+      if (!correctas || correctas.length !== 10) {
+        return json(400, { ok: false, error: 'Preguntas inválidas' })
+      }
+
+      // Calcular puntaje
+      const correctasMap = {}
+      correctas.forEach(c => { correctasMap[c.id] = c })
+
+      let puntaje = 0
+      let criticaFallida = false
+      const detalle = respuestas.map(r => {
+        const correcta = correctasMap[r.pregunta_id]
+        const acerto = correcta && r.respuesta === correcta.respuesta_correcta
+        if (acerto) puntaje++
+        if (!acerto && correcta?.es_critica) criticaFallida = true
+        return {
+          pregunta_id: r.pregunta_id,
+          respuesta: r.respuesta,
+          correcta: correcta?.respuesta_correcta,
+          acerto,
+          es_critica: correcta?.es_critica || false
+        }
+      })
+
+      // Aprobado si puntaje >= 8 Y no falló ninguna crítica
+      const aprobado = puntaje >= 8 && !criticaFallida
+
+      // Contar intento
+      const hace7dias = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+      const { count } = await supabaseAdmin.from('evaluaciones')
+        .select('id', { count: 'exact', head: true })
+        .eq('cuidador_id', cuidador_id).eq('categoria', categoria)
+        .gte('created_at', hace7dias)
+
+      // Guardar resultado
+      const { data: eval_, error: errE } = await supabaseAdmin.from('evaluaciones').insert({
+        cuidador_id, categoria, puntaje, aprobado,
+        respuestas: detalle,
+        intento_num: (count || 0) + 1,
+        version_banco: correctas[0]?.version || 'v1'
+      }).select().single()
+
+      return json(200, {
+        ok: true,
+        aprobado,
+        puntaje,
+        total: 10,
+        critica_fallida: criticaFallida,
+        detalle
+      })
     }
 
     return json(404, { ok: false, error: 'Ruta no encontrada' })
