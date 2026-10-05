@@ -5,7 +5,7 @@
 
 const { schedule } = require('@netlify/functions');
 
-const handler = schedule('@hourly', async (event) => {
+exports.handler = schedule('@hourly', async (event) => {
   const API_URL = process.env.URL || 'https://cuidy-ar.netlify.app';
 
   try {
@@ -26,5 +26,3 @@ const handler = schedule('@hourly', async (event) => {
     return { statusCode: 500 };
   }
 });
-
-module.exports = { handler };
