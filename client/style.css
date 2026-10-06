@@ -579,15 +579,29 @@ img { max-width: 100%; display: block; }
 .steps-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: 32px;
 }
 .step-card {
   background: var(--bg);
   border-radius: 16px;
-  padding: 32px 24px;
+  padding: 40px 28px 36px;
   text-align: center;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+.step-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: rgba(0, 109, 119, .08);
+  color: var(--teal);
+  margin-bottom: 20px;
+}
+.step-card__icon .ci { display: flex; }
 .step-card__number {
   display: inline-flex;
   align-items: center;
@@ -603,16 +617,17 @@ img { max-width: 100%; display: block; }
 }
 .step-card__title {
   font-family: 'Montserrat', sans-serif;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 18px;
   color: var(--ink);
-  margin: 0 0 8px;
+  margin: 0 0 10px;
 }
 .step-card__desc {
-  color: var(--noche);
-  font-size: 14px;
+  color: #3A4149;
+  font-size: 15px;
   line-height: 1.6;
-  margin: 0;
+  margin: 0 0 20px;
+  flex-grow: 1;
 }
 
 /* Diferenciales */
@@ -817,7 +832,7 @@ img { max-width: 100%; display: block; }
 }
 .manifiesto-card__desc {
   font-size: 15px;
-  color: var(--muted);
+  color: #3A4149;
   line-height: 1.55;
   margin: 0;
 }
