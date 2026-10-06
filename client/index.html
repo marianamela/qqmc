@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
-  <title>Cuidy · Cuidadores de confianza para tu familia</title>
-  <meta name="description" content="Cuidy te ayuda a encontrar a la persona ideal para cuidar a quienes más querés. Cuidadores recomendados por otras familias, con identidad verificada y vocación de verdad. Porque confiar en alguien es un acto de amor." />
+  <title>Cuidy · Volver a confiar</title>
+  <meta name="description" content="Cuidy conecta a familias que necesitan ayuda con personas que trabajan cuidando. Una comunidad donde las recomendaciones importan y la confianza se construye de los dos lados." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -28,9 +28,11 @@
         <img class="brand__logo" src="assets/logo.svg" alt="Cuidy" />
       </a>
       <nav class="topbar__nav">
-        <a href="#como-funciona">Cómo funciona</a>
-        <a href="sumate-cuidador.html" id="navSoyCuidador">Soy cuidador/a</a>
+        <a href="#asistente">Buscar cuidado</a>
+        <a href="sumate-cuidador.html" id="navSoyCuidador">Trabajar cuidando</a>
         <script>try{if(JSON.parse(localStorage.getItem('qqmc_cuidador')||'null')?.id){var l=document.getElementById('navSoyCuidador');l.href='panel-cuidador.html';l.textContent='Mi panel';}}catch(e){}</script>
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#confianza">Cómo construimos confianza</a>
         <!-- Guest -->
         <a href="login.html" class="btn btn--ghost" id="navIngresar">Ingresar</a>
         <a href="registro-familia.html" class="btn btn--primary" id="navRegistrarme">Registrarme</a>
@@ -66,39 +68,65 @@
   <section class="hero-unified" data-visitor-only>
     <div class="hero-unified__bg"></div>
     <div class="container hero-unified__inner">
-      <h1 class="hero-unified__title">Que quienes más querés estén en las mejores manos</h1>
-      <p class="hero-unified__sub">Elegir a la persona que va a cuidar a tus hijos o a tus padres es una de las decisiones más importantes que tomás.<br>Cuidy te acompaña para que esa elección se haga con tranquilidad, confianza y calidez humana.</p>
+      <h1 class="hero-unified__title">Volver a confiar.</h1>
+      <p class="hero-unified__sub">Familias y cuidadores que se conocen y se eligen con confianza.<br><br>Cuidy conecta a familias que necesitan ayuda con personas que trabajan cuidando. Una comunidad donde las recomendaciones importan y la confianza se construye de los dos lados.<br><br>Familias y cuidadores validan su identidad antes de conectarse.</p>
       <div class="hero-ctas">
-        <a href="#asistente" class="btn btn--primary btn--lg hero-cta-btn">Busco un cuidador/a</a>
-        <a href="sumate-cuidador.html" class="btn btn--ghost-light btn--lg hero-cta-btn">Soy cuidador/a</a>
+        <a href="#asistente" class="btn btn--primary btn--lg hero-cta-btn">Necesito cuidado</a>
+        <a href="sumate-cuidador.html" class="btn btn--ghost-light btn--lg hero-cta-btn">Quiero trabajar cuidando</a>
       </div>
     </div>
   </section>
 
-  <!-- Qué hace diferente a Cuidy (solo visitantes) -->
-  <section class="landing-section manifiesto-section" data-visitor-only>
+  <!-- H02 · La confianza se construye de los dos lados (solo visitantes) -->
+  <section class="landing-section manifiesto-section" id="confianza" data-visitor-only>
     <div class="container">
-      <p class="manifiesto-label">Así construimos confianza</p>
-      <div class="manifiesto-grid manifiesto-grid--4">
+      <h2 class="landing-section__title">La confianza se construye de los dos lados</h2>
+      <p class="landing-section__sub">Durante mucho tiempo elegimos a quien cuidaba a nuestros hijos, nuestros padres o nuestra casa porque alguien de confianza nos decía: "Conozco a una persona".<br><br>Cuidy recupera el valor de esa recomendación y lo acompaña con información clara para que sepas con quién te estás encontrando.</p>
+      <div class="manifiesto-grid">
+        <!-- H03 · Personas reales -->
         <div class="manifiesto-card">
           <span class="manifiesto-card__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span></span>
-          <h3 class="manifiesto-card__title">Personas reales, cara a cara</h3>
-          <p class="manifiesto-card__desc">Tanto el cuidador como la familia verifican su identidad con documento y reconocimiento facial. Porque la confianza empieza por saber quién es la otra persona.</p>
+          <h3 class="manifiesto-card__title">Personas reales</h3>
+          <p class="manifiesto-card__desc">Saber quién está del otro lado es el primer paso. Por eso, familias y cuidadores validan su identidad antes de conectarse.</p>
         </div>
+        <!-- H04 · La recomendación vuelve a importar -->
         <div class="manifiesto-card">
           <span class="manifiesto-card__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span></span>
-          <h3 class="manifiesto-card__title">Llegan con la confianza de otra familia</h3>
-          <p class="manifiesto-card__desc">Cada cuidador ingresa recomendado por una familia que lo conoce. Quien aún no tiene esa recomendación, pasa por una capacitación inicial que demuestra su preparación y compromiso.</p>
+          <h3 class="manifiesto-card__title">La recomendación vuelve a importar</h3>
+          <p class="manifiesto-card__desc">La experiencia de quienes ya conocen a un cuidador ayuda a otras familias a elegir. En cada perfil podés ver qué referencias fueron revisadas.</p>
         </div>
+        <!-- H05 · Los dos eligen -->
         <div class="manifiesto-card">
           <span class="manifiesto-card__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg></span></span>
-          <h3 class="manifiesto-card__title">Ambos eligen, ambos se cuidan</h3>
-          <p class="manifiesto-card__desc">Vos elegís un perfil que te transmita confianza. El cuidador conoce tus datos y decide si es un buen match. Así se construye una relación desde el respeto.</p>
+          <h3 class="manifiesto-card__title">Los dos eligen</h3>
+          <p class="manifiesto-card__desc">La familia conoce al cuidador. El cuidador conoce la propuesta de la familia. Y cada uno decide si quiere avanzar. Si los dos aceptan, los conectamos.</p>
         </div>
-        <div class="manifiesto-card">
-          <span class="manifiesto-card__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span></span>
-          <h3 class="manifiesto-card__title">Cerca tuyo, aunque no estés</h3>
-          <p class="manifiesto-card__desc">El cuidador comparte un diario con fotos y notas de cada jornada. Vos lo recibís en tu celular, como si estuvieras ahí. Esa tranquilidad no tiene precio.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- H06 · Tipos de cuidado (solo visitantes) -->
+  <section class="landing-section landing-section--alt" id="tipos-cuidado" data-visitor-only>
+    <div class="container">
+      <h2 class="landing-section__title">¿Qué ayuda necesitás?</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <span class="step-card__number">👶</span>
+          <h3 class="step-card__title">Cuidado infantil</h3>
+          <p class="step-card__desc">Compañía y cuidado para los más chicos.</p>
+          <a href="#asistente" class="btn btn--ghost btn--sm">Buscar cuidado infantil</a>
+        </div>
+        <div class="step-card">
+          <span class="step-card__number">🤝</span>
+          <h3 class="step-card__title">Acompañamiento de personas mayores</h3>
+          <p class="step-card__desc">Apoyo en la vida cotidiana y compañía en casa.</p>
+          <a href="#asistente" class="btn btn--ghost btn--sm">Buscar acompañamiento</a>
+        </div>
+        <div class="step-card">
+          <span class="step-card__number">🏠</span>
+          <h3 class="step-card__title">Ayuda en el hogar</h3>
+          <p class="step-card__desc">Personas que te ayudan a sostener el día a día.</p>
+          <a href="#asistente" class="btn btn--ghost btn--sm">Buscar ayuda en el hogar</a>
         </div>
       </div>
     </div>
@@ -143,8 +171,8 @@
   <!-- Asistente de búsqueda -->
   <section class="landing-section landing-section--alt asistente-section" id="asistente">
     <div class="container">
-      <h2 class="landing-section__title" id="asistenteTitulo">Encontrá a la persona indicada</h2>
-      <p class="landing-section__sub" id="asistenteSubtitulo">Contale a Caro qué necesitás y en minutos te muestra personas verificadas cerca tuyo. Así de simple, así de humano.</p>
+      <h2 class="landing-section__title" id="asistenteTitulo">Contanos qué necesitás</h2>
+      <p class="landing-section__sub" id="asistenteSubtitulo">Hablá con Caro, nuestra asistente virtual. Contale a quién necesitás cuidar, en qué zona, en qué horarios y qué es importante para vos. Te ayudará a explorar opciones compatibles.</p>
 
       <div class="asistente-chat-wrap">
         <div class="caro-intro">
@@ -177,68 +205,76 @@
     </div>
   </main>
 
-  <!-- Cómo funciona (solo visitantes) -->
+  <!-- H08-H10 · Cómo funciona (solo visitantes) -->
   <section class="landing-section" id="como-funciona" data-visitor-only>
     <div class="container">
-      <h2 class="landing-section__title">Así encontrás a la persona indicada</h2>
-      <p class="landing-section__sub">Simple, humano, y pensado para acompañarte en cada paso.</p>
+      <h2 class="landing-section__title">Cómo funciona</h2>
       <div class="steps-grid">
         <div class="step-card">
           <span class="step-card__number">1</span>
-          <h3 class="step-card__title">Contale a Caro qué necesitás</h3>
-          <p class="step-card__desc">Caro, nuestra asistente, te escucha: qué tipo de cuidado buscás, en qué zona, qué horarios. En minutos te muestra personas verificadas cerca tuyo, elegidas para tu familia.</p>
+          <h3 class="step-card__title">Contanos qué necesitás</h3>
+          <p class="step-card__desc">A quién necesitás cuidar, en qué zona, en qué horarios y qué es importante para vos.</p>
         </div>
         <div class="step-card">
           <span class="step-card__number">2</span>
-          <h3 class="step-card__title">Conócanse antes de decidir</h3>
-          <p class="step-card__desc">Cuando un perfil te genera confianza, tocá "Me interesa". El cuidador recibe tus datos verificados y decide si es un buen match. Si ambos quieren avanzar, los conectamos.</p>
+          <h3 class="step-card__title">Conocé mucho más que un nombre</h3>
+          <p class="step-card__desc">Explorá la experiencia, las referencias y las validaciones que muestra cada perfil.</p>
         </div>
         <div class="step-card">
           <span class="step-card__number">3</span>
-          <h3 class="step-card__title">Tranquilidad, estés donde estés</h3>
-          <p class="step-card__desc">Con el match confirmado se comunican por WhatsApp. Y con el Diario de Cuidado, seguís el día a día con fotos y notas. Sabés que están bien, y eso cambia todo.</p>
+          <h3 class="step-card__title">Elegirse es cosa de dos</h3>
+          <p class="step-card__desc">Cuando alguien te interesa, enviás una solicitud. Esa persona conoce tu propuesta y decide si quiere avanzar. Si los dos aceptan, los conectamos.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- El problema (solo visitantes) -->
-  <section class="landing-section landing-section--alt" id="diferencial" data-visitor-only>
+  <!-- H07 · Para las familias (solo visitantes) -->
+  <section class="landing-section landing-section--alt" id="para-familias" data-visitor-only>
     <div class="container">
-      <h2 class="landing-section__title">Queremos que sientas lo que se siente confiar de verdad</h2>
-      <p class="landing-section__sub">Encontrar a alguien para cuidar a tus hijos o a tus padres no es buscar un servicio: es abrir la puerta de tu casa y de tu corazón. Por eso en Cuidy cada detalle está pensado para darte tranquilidad.</p>
-      <div class="diff-grid">
-        <div class="diff-card">
-          <div class="diff-card__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg></span></div>
-          <h3 class="diff-card__title">La confianza empieza por la identidad</h3>
-          <p class="diff-card__desc">Cuidadores y familias verifican quiénes son con documento y reconocimiento facial. Sabés quién va a entrar a tu casa, y el cuidador sabe a qué familia va. Los dos se cuidan.</p>
-        </div>
-        <div class="diff-card">
-          <div class="diff-card__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span></div>
-          <h3 class="diff-card__title">Llegan con la confianza de otra familia</h3>
-          <p class="diff-card__desc">Cada cuidador ingresa recomendado por una familia que lo conoce y confía en él. Quien todavía no tiene esa recomendación, pasa por una capacitación inicial que certifica su preparación y su compromiso.</p>
-        </div>
-        <div class="diff-card">
-          <div class="diff-card__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg></span></div>
-          <h3 class="diff-card__title">Preparados de verdad, no solo de palabra</h3>
-          <p class="diff-card__desc">Cada cuidador rinde una evaluación según su especialidad. Si cuida a tus hijos, sabés que sabe actuar en una emergencia. No es un currículum: es una prueba real de lo que sabe hacer.</p>
-        </div>
-        <div class="diff-card">
-          <div class="diff-card__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span></div>
-          <h3 class="diff-card__title">Cerca tuyo, aunque no estés</h3>
-          <p class="diff-card__desc">El Diario de Cuidado te llega al celular con fotos y notas de cada jornada. Esa sensación de saber que están bien, incluso cuando no podés estar… eso es lo que queremos darte.</p>
-        </div>
+      <h2 class="landing-section__title">Para las familias</h2>
+      <p class="landing-section__sub">Cuando se trata de alguien que querés, elegir no debería sentirse como una apuesta.<br><br>Buscar a alguien para cuidar a un hijo, acompañar a mamá o papá o ayudar en casa trae preguntas: ¿quién es?, ¿qué experiencia tiene?, ¿alguien lo conoce?<br><br>En Cuidy podés conocer la experiencia, las referencias y el estado de las validaciones de cada persona antes de decidir con quién conversar. Queremos ayudarte a elegir con más información y tranquilidad.</p>
+      <div style="text-align:center; margin-top: 2rem;">
+        <a href="#asistente" class="btn btn--primary btn--lg">Encontrar a alguien para cuidar</a>
       </div>
     </div>
   </section>
 
-  <!-- CTA Cuidadores (solo visitantes) -->
+  <!-- H11 · Diario de Cuidado (solo visitantes) -->
+  <section class="landing-section" data-visitor-only>
+    <div class="container" style="text-align:center; max-width: 680px;">
+      <h2 class="landing-section__title">Seguí cerca, incluso cuando no estés</h2>
+      <p class="landing-section__sub">El Diario de Cuidado permite compartir notas y, cuando corresponde y hay autorización, fotos del día. Una forma de acompañar esos pequeños momentos que también importan.</p>
+    </div>
+  </section>
+
+  <!-- H12 · Para quienes cuidan (solo visitantes) -->
   <section class="landing-section landing-section--cuidador" data-visitor-only>
     <div class="container cuidador-cta">
       <div class="cuidador-cta__text">
-        <h2 class="landing-section__title">Si cuidar es lo tuyo, merecés que alguien también te cuide a vos</h2>
-        <p class="cuidador-cta__desc">En Cuidy las familias verifican su identidad antes de escribirte. Vos conocés quién te contacta, revisás sus datos y decidís si querés avanzar. Tu trabajo merece respeto, y vos merecés que te valoren.</p>
-        <a href="sumate-cuidador.html" class="btn btn--primary btn--lg">Quiero ser parte</a>
+        <h2 class="landing-section__title">Para quienes cuidan</h2>
+        <p class="cuidador-cta__desc">Cuidar a otros es un trabajo enorme. Y merece ser valorado como tal.<br><br>Tu tiempo, tu paciencia y tu experiencia hacen una diferencia en la vida de otras personas. Cuidy también fue pensado para vos: para que puedas mostrar tu trayectoria, conocer quién busca tu ayuda y decidir si una propuesta es adecuada para vos.<br><br>Las familias también validan su identidad. Vos también elegís.</p>
+        <a href="sumate-cuidador.html" class="btn btn--primary btn--lg">Quiero formar parte de Cuidy</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- H13 · Nuestra idea de cuidado (solo visitantes) -->
+  <section class="landing-section landing-section--alt" data-visitor-only>
+    <div class="container" style="text-align:center; max-width: 720px;">
+      <h2 class="landing-section__title">Cuidar es estar para alguien</h2>
+      <p class="landing-section__sub">Acompañar una caminata. Preparar una comida. Jugar. Escuchar. Ayudar a que una casa siga funcionando. Estar cuando otra persona no puede estar.<br><br>Son horas de una vida puestas al servicio de otra. Por eso, quienes cuidan merecen reconocimiento y oportunidades. Y quienes buscan ayuda merecen información para elegir con tranquilidad.<br><br>Eso es Cuidy: una comunidad construida alrededor del cuidado.</p>
+    </div>
+  </section>
+
+  <!-- H14 · Cierre (solo visitantes) -->
+  <section class="landing-section" data-visitor-only>
+    <div class="container" style="text-align:center; max-width: 680px;">
+      <h2 class="landing-section__title">Volver a confiar</h2>
+      <p class="landing-section__sub">Tal vez no podamos conocer de toda la vida a quien va a cuidar a nuestra familia.<br>Pero podemos volver a construir confianza.<br><br>Persona a persona. Recomendación a recomendación.<br><br><strong>Cuidy. Volver a confiar.</strong></p>
+      <div class="hero-ctas" style="margin-top: 2rem;">
+        <a href="#asistente" class="btn btn--primary btn--lg hero-cta-btn">Necesito cuidado</a>
+        <a href="sumate-cuidador.html" class="btn btn--ghost btn--lg hero-cta-btn">Quiero trabajar cuidando</a>
       </div>
     </div>
   </section>
@@ -417,9 +453,10 @@
 
   <footer class="footer">
     <div class="container footer__row">
-      <span>© <span id="year"></span> Cuidy</span>
-      <em class="footer__tagline">"Cuidamos a quien cuida y a quien necesita cuidado"</em>
-      <br><a href="terminos.html" style="color:inherit;opacity:.7;text-decoration:underline;">Términos y Condiciones</a> · <a href="privacidad.html" style="color:inherit;opacity:.7;text-decoration:underline;">Política de Privacidad</a>
+      <strong style="font-size:1.1em;">Cuidy. Volver a confiar.</strong>
+      <em class="footer__tagline">Cuidamos a quien cuida y a quien necesita cuidado.</em>
+      <br><a href="terminos.html" style="color:inherit;opacity:.7;text-decoration:underline;">Términos y condiciones</a> · <a href="privacidad.html" style="color:inherit;opacity:.7;text-decoration:underline;">Privacidad</a> · <a href="mailto:hola@cuidy.com.ar" style="color:inherit;opacity:.7;text-decoration:underline;">Contacto</a>
+      <br><span style="opacity:.5;">© <span id="year"></span> Cuidy</span>
     </div>
   </footer>
 
