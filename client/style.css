@@ -570,8 +570,9 @@ img { max-width: 100%; display: block; }
   color: var(--noche);
   text-align: center;
   font-size: 16px;
-  max-width: 560px;
+  max-width: 800px;
   margin: 0 auto 40px;
+  line-height: 1.8;
 }
 
 /* Pasos */
@@ -656,7 +657,7 @@ img { max-width: 100%; display: block; }
 }
 .cuidador-cta {
   text-align: center;
-  max-width: 600px;
+  max-width: 800px;
   margin: 0 auto;
 }
 .cuidador-cta__text .landing-section__title {
@@ -745,8 +746,8 @@ img { max-width: 100%; display: block; }
   color: rgba(255,255,255,.85);
   font-size: 17px;
   margin: 0 auto 28px;
-  max-width: 580px;
-  line-height: 1.6;
+  max-width: 780px;
+  line-height: 1.8;
 }
 .hero-ctas {
   display: flex;
