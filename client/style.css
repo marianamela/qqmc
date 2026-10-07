@@ -827,6 +827,26 @@ img { max-width: 100%; display: block; }
 .landing-section--cuidador .btn--primary {
   box-shadow: 0 4px 16px rgba(255,107,107,0.3);
 }
+/* CTA Familias */
+.landing-section--familias {
+  background: linear-gradient(135deg, #FF8E8E, #FF6B6B 60%, #E85D5D);
+  border-top: none;
+  border-bottom: none;
+  color: #fff;
+}
+.landing-section--familias .landing-section__title { color: #fff; }
+.landing-section--familias .landing-section__sub,
+.landing-section--familias .split-layout__right .landing-section__sub {
+  color: rgba(255,255,255,0.9);
+}
+.landing-section--familias .btn--primary {
+  background: #fff;
+  color: #FF6B6B;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+.landing-section--familias .btn--primary:hover {
+  background: #F8F7F3;
+}
 .cuidador-cta {
   text-align: center;
   max-width: 800px;
