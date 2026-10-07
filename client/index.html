@@ -90,7 +90,7 @@
     <div class="container hero-unified__inner">
       <p style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.45);margin:0 0 16px;font-weight:600;">Cuidy</p>
       <h1 class="hero-unified__title">Volver a confiar.</h1>
-      <p class="hero-unified__sub">Conectamos familias y cuidadores que se eligen con confianza.</p>
+      <p class="hero-unified__sub">Conectamos familias y cuidadores<br>que se eligen con confianza.</p>
       <div class="hero-ctas">
         <a href="#asistente" class="btn btn--primary btn--lg hero-cta-btn">Necesito cuidado</a>
         <a href="sumate-cuidador.html" class="btn btn--ghost-light btn--lg hero-cta-btn" style="backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.25);">Quiero trabajar cuidando</a>
@@ -301,32 +301,27 @@
     </div>
   </section>
 
-  <!-- H07 · Para las familias (solo visitantes) -->
-  <section class="landing-section landing-section--alt cuidy-decorated cuidy-dots" id="para-familias" data-visitor-only>
-    <div class="container">
-      <div class="split-layout">
-        <div class="split-layout__left">
-          <h2 class="landing-section__title">Para las familias</h2>
-          <a href="#asistente" class="btn btn--primary btn--lg">Encontrar a alguien para cuidar</a>
-        </div>
-        <div class="split-layout__right">
-          <p class="landing-section__sub">Cuando se trata de alguien que querés, elegir no debería sentirse como una apuesta.<br><br>Buscar a alguien para cuidar a un hijo, acompañar a mamá o papá o ayudar en casa trae preguntas: ¿quién es?, ¿qué experiencia tiene?, ¿alguien lo conoce?<br><br>En Cuidy podés conocer la experiencia, las referencias y el estado de las validaciones de cada persona antes de decidir con quién conversar.<br>Queremos ayudarte a elegir con más información y tranquilidad.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- H11 · Diario de Cuidado (solo visitantes) -->
-  <section class="landing-section cuidy-decorated cuidy-grain--subtle" data-visitor-only>
+  <!-- H07 + H11 · Para las familias (solo visitantes) -->
+  <section class="landing-section landing-section--alt cuidy-decorated cuidy-dots cuidy-grain--subtle" id="para-familias" data-visitor-only>
     <!-- Arco decorativo -->
-    <svg class="cuidy-deco" style="top:20px;left:-20px;width:140px;height:95px;opacity:.04" viewBox="0 0 200 160" aria-hidden="true">
+    <svg class="cuidy-deco" style="top:20px;right:-30px;width:180px;height:120px;opacity:.04" viewBox="0 0 200 160" aria-hidden="true">
       <path d="M150 20A80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="10" stroke-linecap="round"/>
       <path d="M20 80A80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="10" stroke-linecap="round"/>
     </svg>
     <div class="container">
       <div class="split-layout">
         <div class="split-layout__left">
-          <h2 class="landing-section__title">Seguí cerca, incluso cuando no estés</h2>
+          <h2 class="landing-section__title">Para las familias</h2>
+          <a href="#asistente" class="btn btn--primary btn--lg">Necesito un cuidador</a>
+        </div>
+        <div class="split-layout__right">
+          <p class="landing-section__sub">Cuando se trata de alguien que querés, elegir no debería sentirse como una apuesta.<br><br>Buscar a alguien para cuidar a un hijo, acompañar a mamá o papá o ayudar en casa trae preguntas: ¿quién es?, ¿qué experiencia tiene?, ¿alguien lo conoce?<br><br>En Cuidy podés conocer la experiencia, las referencias y el estado de las validaciones de cada persona antes de decidir con quién conversar.<br>Queremos ayudarte a elegir con más información y tranquilidad.</p>
+        </div>
+      </div>
+      <hr style="border:none;border-top:1px solid rgba(0,0,0,0.06);margin:48px 0;">
+      <div class="split-layout">
+        <div class="split-layout__left">
+          <h3 class="landing-section__title" style="font-size:24px;">Seguí cerca, incluso cuando no estés</h3>
         </div>
         <div class="split-layout__right">
           <p class="landing-section__sub">El Diario de Cuidado permite compartir notas y, cuando corresponde y hay autorización, fotos del día.<br>Una forma de acompañar esos pequeños momentos que también importan.</p>
@@ -386,7 +381,7 @@
   </section>
 
   <!-- H14 · Cierre (solo visitantes) -->
-  <section class="landing-section cuidy-decorated cuidy-dots cuidy-grain--subtle" data-visitor-only style="background:var(--bg);">
+  <section class="landing-section cuidy-decorated cuidy-dots cuidy-grain--subtle" data-visitor-only style="background:var(--bg);border-top:1px solid var(--line);">
     <!-- Large arc behind content -->
     <svg class="cuidy-deco" style="top:50%;left:50%;transform:translate(-50%,-50%);width:300px;height:200px;opacity:.05" viewBox="0 0 300 200" aria-hidden="true">
       <path d="M200 30A100 100 0 0 0 30 100" fill="none" stroke="#006D77" stroke-width="10" stroke-linecap="round"/>
@@ -396,15 +391,14 @@
     </svg>
     <div class="container" style="text-align:center;">
       <!-- Isotipo como firma -->
-      <svg width="48" height="40" viewBox="0 0 200 160" style="margin-bottom:20px" aria-hidden="true">
+      <svg width="48" height="40" viewBox="0 0 200 160" style="margin-bottom:24px" aria-hidden="true">
         <path d="M150 20A80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="14" stroke-linecap="round"/>
         <path d="M20 80A80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="14" stroke-linecap="round"/>
         <circle cx="115" cy="80" r="12" fill="#FF6B6B"/>
         <circle cx="160" cy="80" r="6" fill="#006D77"/>
       </svg>
-      <h2 class="landing-section__title">Volver a confiar</h2>
-      <p class="landing-section__sub">Tal vez no podamos conocer de toda la vida a quien va a cuidar a nuestra familia.<br>Pero podemos volver a construir confianza.</p>
-      <p style="font-family:'Montserrat',sans-serif;font-size:12px;color:var(--aqua);font-weight:600;letter-spacing:.08em;margin:0 0 28px;">CUIDY. VOLVER A CONFIAR.</p>
+      <p class="landing-section__sub" style="max-width:520px;">Quizás todavía no conozcas bien a quien va a cuidar de tu familia.<br>Te acompañamos a construir esa confianza.</p>
+      <p style="font-family:'Montserrat',sans-serif;font-size:12px;color:var(--aqua);font-weight:600;letter-spacing:.08em;margin:0 0 32px;">CUIDY. VOLVER A CONFIAR.</p>
       <div class="hero-ctas">
         <a href="#asistente" class="btn btn--primary btn--lg hero-cta-btn">Necesito cuidado</a>
         <a href="sumate-cuidador.html" class="btn btn--ghost btn--lg hero-cta-btn">Quiero trabajar cuidando</a>
