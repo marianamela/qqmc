@@ -189,7 +189,7 @@
 }
 .solicitud-card {
   background: #fff;
-  border: 1px solid var(--line);
+  border: 1px solid var(--gris, #E6E8EB);
   border-radius: 12px;
   padding: 18px 20px;
   transition: box-shadow .2s;
@@ -330,12 +330,13 @@
   display: block;
   width: 100%;
   margin-top: 4px;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
+  padding: 10px 14px;
+  border: 1px solid var(--gris, #E6E8EB);
   border-radius: 8px;
   font-family: inherit;
-  font-size: 0.9rem;
-  color: var(--ink);
+  font-size: 14px;
+  color: var(--noche, #1F2933);
+  background: var(--marfil, #F8F7F3);
   transition: border-color .2s;
 }
 .panel-form__input:focus {
@@ -345,7 +346,7 @@
 }
 .panel-form__input:disabled {
   background: #f3f4f6;
-  color: var(--muted);
+  color: var(--gris-medio, #B4BAC2);
 }
 .panel-form__textarea {
   resize: vertical;
@@ -396,38 +397,31 @@
 
 /* === Dashboard (C01) === */
 .dash-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  display: flex;
+  justify-content: space-between;
+  background: linear-gradient(135deg, var(--teal, #006D77), #005A63);
+  border-radius: 14px;
+  padding: 20px 16px;
   margin-bottom: 24px;
+  color: #fff;
 }
 .dash-stat {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 20px 16px;
+  flex: 1;
   text-align: center;
-  transition: box-shadow .2s;
-}
-.dash-stat:hover {
-  box-shadow: 0 4px 16px rgba(0,0,0,.06);
 }
 .dash-stat__num {
   font-family: 'Montserrat', sans-serif;
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 800;
   line-height: 1;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
+  color: #fff;
 }
-.dash-stat__num--teal { color: var(--teal, #006D77); }
-.dash-stat__num--coral { color: var(--coral, #FF6B6B); }
-.dash-stat__num--aqua { color: var(--aqua, #00B4B8); }
+.dash-stat__num--teal, .dash-stat__num--coral, .dash-stat__num--aqua { color: #fff; }
 .dash-stat__label {
-  font-size: 0.78rem;
-  color: var(--muted);
+  font-size: 11px;
+  color: rgba(255,255,255,.8);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .3px;
 }
 .dash-badge {
   display: inline-flex;
@@ -461,7 +455,7 @@
   align-items: flex-start;
   gap: 12px;
   background: #fff;
-  border: 1px solid var(--line);
+  border: 1px solid var(--gris, #E6E8EB);
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 10px;
@@ -501,7 +495,7 @@
   align-items: center;
   gap: 12px;
   background: #fff;
-  border: 1px solid var(--line);
+  border: 1px solid var(--gris, #E6E8EB);
   border-left: 4px solid var(--aqua, #00B4B8);
   border-radius: 12px;
   padding: 14px 16px;
@@ -553,7 +547,7 @@
 /* === Capacitaciones (C03) === */
 .cap-progress {
   background: #fff;
-  border: 1px solid var(--line);
+  border: 1px solid var(--gris, #E6E8EB);
   border-radius: 12px;
   padding: 20px;
   margin-bottom: 24px;
@@ -603,7 +597,7 @@
 }
 .cap-card {
   background: #fff;
-  border: 1px solid var(--line);
+  border: 1px solid var(--gris, #E6E8EB);
   border-radius: 12px;
   padding: 20px;
   transition: box-shadow .2s;
@@ -678,7 +672,7 @@
 /* === Perfil Preview === */
 .perfil-preview {
   background: #fff;
-  border: 1px solid var(--line);
+  border: 1px solid var(--gris, #E6E8EB);
   border-radius: 16px;
   padding: 28px 24px;
   max-width: 500px;
@@ -768,17 +762,13 @@
     font-size: 11px;
   }
   .dash-stats {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-  .dash-stat {
-    padding: 14px 10px;
+    padding: 16px 12px;
   }
   .dash-stat__num {
-    font-size: 1.5rem;
+    font-size: 18px;
   }
   .dash-stat__label {
-    font-size: 0.68rem;
+    font-size: 10px;
   }
   .dash-nuevo-card {
     flex-wrap: wrap;

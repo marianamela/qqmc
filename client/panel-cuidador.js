@@ -211,7 +211,7 @@
                   <strong>${esc(nombre)}</strong>
                   <span class="dash-nuevo-card__label">Nuevo contacto</span>
                 </div>
-                <button class="btn btn--primary btn--sm dash-nuevo-card__action" onclick="window.open('https://wa.me/${(fam.telefono || '').replace(/\D/g,'')}','_blank')">
+                <button class="m-btn m-btn--primary dash-nuevo-card__action" style="padding:6px 14px;font-size:12px" onclick="window.open('https://wa.me/${(fam.telefono || '').replace(/\D/g,'')}','_blank')">
                   ${icon('messageCircle')} Contactar
                 </button>
               </div>`;
@@ -273,7 +273,7 @@
           <p class="cap-card__desc">${esc(cap.descripcion)}</p>
           ${isDone
             ? ''
-            : '<button class="btn btn--primary btn--sm cap-card__btn">Empezar</button>'}
+            : '<button class="m-btn m-btn--teal cap-card__btn" style="padding:6px 14px;font-size:12px">Empezar</button>'}
         </div>`;
     }).join('');
 

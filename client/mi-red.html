@@ -42,32 +42,32 @@
     </div>
   </header>
 
-  <main class="mi-red-page">
+  <main class="mi-red-page" style="padding-bottom:70px">
     <div class="container">
       <!-- Header -->
-      <div class="mi-red-header">
-        <h1 class="mi-red-header__title">Mi Red</h1>
-        <p class="mi-red-header__sub" id="redCount">Cargando…</p>
+      <div style="padding:12px 0;border-bottom:1px solid var(--gris);margin-bottom:16px">
+        <h1 style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:18px;margin:0">Mi Red</h1>
+        <p style="font-size:12px;color:#888;margin:4px 0 0" id="redCount">Cargando…</p>
       </div>
 
       <!-- Action buttons -->
-      <div class="mi-red-actions">
-        <button class="btn btn--primary" id="btnInvitarWA">Invitar por WhatsApp</button>
-        <button class="btn btn--ghost" id="btnBuscarFam">Buscar familia</button>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="m-btn m-btn--primary" id="btnInvitarWA" style="flex:1;font-size:13px">Invitar por WhatsApp</button>
+        <button class="m-btn m-btn--secondary" id="btnBuscarFam" style="flex:1;font-size:13px">Buscar familia</button>
       </div>
 
       <!-- Search -->
-      <input type="text" class="form-input mi-red-search" id="searchInput" placeholder="Buscar en mi red…" />
+      <input type="text" class="m-input" id="searchInput" placeholder="Buscar en mi red…" />
 
       <!-- Pending requests -->
       <div id="pendingSection" class="hidden">
-        <h3 class="mi-red-section-title" style="color:var(--coral)">Solicitudes pendientes</h3>
+        <p class="m-section-label m-section-label--coral">Solicitudes pendientes</p>
         <div id="pendingList"></div>
       </div>
 
       <!-- Connected families -->
       <div id="connectedSection">
-        <h3 class="mi-red-section-title" style="color:var(--teal)">Familias conectadas</h3>
+        <p class="m-section-label m-section-label--teal">Familias conectadas</p>
         <div id="connectedList">
           <p style="color:#999;font-size:13px;text-align:center;padding:20px 0">Cargando…</p>
         </div>
@@ -75,23 +75,23 @@
     </div>
   </main>
 
-  <!-- Mobile tab bar -->
-  <nav class="tab-bar">
-    <a href="feed-familia.html" class="tab-bar__item">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 L12 4 L21 12 V20 H3 Z"/></svg>
-      <span>Inicio</span>
+  <!-- Mobile tab bar (mockup) -->
+  <nav class="m-tab-bar">
+    <a href="feed-familia.html" class="m-tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 L12 4 L21 12 V20 H3 Z"/></svg>
+      Inicio
     </a>
-    <a href="#" class="tab-bar__item" id="tabBuscar">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <span>Buscar</span>
+    <a href="#" class="m-tab" id="tabBuscar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      Buscar
     </a>
-    <a href="mi-red.html" class="tab-bar__item tab-bar__item--active">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>
-      <span>Mi Red</span>
+    <a href="mi-red.html" class="m-tab active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>
+      Mi Red
     </a>
-    <a href="#" class="tab-bar__item" id="tabDiario">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>
-      <span>Diario</span>
+    <a href="#" class="m-tab" id="tabDiario">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>
+      Diario
     </a>
   </nav>
 
@@ -103,8 +103,8 @@
       <h2 style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:20px;margin-bottom:4px">Invitá familias a tu red</h2>
       <p style="font-size:13px;color:#888;margin-bottom:20px">Compartí tu enlace de invitación.</p>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <button class="btn btn--primary" id="btnInvitarWAModal">Enviar por WhatsApp</button>
-        <button class="btn btn--ghost" id="btnCopiarLink">Copiar enlace</button>
+        <button class="m-btn m-btn--primary m-btn--full" id="btnInvitarWAModal">Enviar por WhatsApp</button>
+        <button class="m-btn m-btn--secondary m-btn--full" id="btnCopiarLink">Copiar enlace</button>
       </div>
       <p id="invitarStatus" style="font-size:12px;color:var(--teal);text-align:center;margin-top:12px"></p>
     </div>
@@ -118,8 +118,8 @@
       <h2 style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:20px;margin-bottom:4px">Buscar familias</h2>
       <p style="font-size:13px;color:#888;margin-bottom:16px">Buscá por nombre o email para conectar.</p>
       <div style="display:flex;gap:8px;margin-bottom:16px">
-        <input type="text" id="buscarFamInput" class="form-input" placeholder="Nombre o email…" style="flex:1" />
-        <button class="btn btn--primary" id="btnBuscarFamSubmit">Buscar</button>
+        <input type="text" id="buscarFamInput" class="m-input" placeholder="Nombre o email…" style="flex:1;margin:0" />
+        <button class="m-btn m-btn--teal" id="btnBuscarFamSubmit">Buscar</button>
       </div>
       <div id="buscarFamResults"></div>
     </div>
@@ -207,15 +207,17 @@
       container.innerHTML = pendientes.map(p => {
         const init = (p.nombre || '?').charAt(0).toUpperCase();
         return `
-          <div class="pending-card" data-id="${p.conexion_id}">
-            <p style="font-size:11px;color:#888;margin-bottom:6px">Solicitud pendiente</p>
+          <div class="m-card pending-card" data-id="${p.conexion_id}" style="border-color:var(--coral)">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-              <div style="width:36px;height:36px;border-radius:50%;background:var(--gris);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600">${init}</div>
-              <span style="font-size:14px;font-weight:500">${esc(p.nombre || '')} ${esc(p.apellido || '')}</span>
+              <div class="m-profile-avatar" style="background:var(--coral);width:36px;height:36px;font-size:14px">${init}</div>
+              <div>
+                <div class="m-profile-name">${esc(p.nombre || '')} ${esc(p.apellido || '')}</div>
+                <span class="m-badge m-badge--coral">Solicitud pendiente</span>
+              </div>
             </div>
             <div style="display:flex;gap:8px">
-              <button class="btn btn--sm btn--primary btn-aceptar" data-id="${p.conexion_id}">Aceptar</button>
-              <button class="btn btn--sm btn--ghost btn-rechazar" data-id="${p.conexion_id}">Rechazar</button>
+              <button class="m-btn m-btn--teal btn-aceptar" style="flex:1;font-size:12px;padding:6px" data-id="${p.conexion_id}">Aceptar</button>
+              <button class="m-btn m-btn--secondary btn-rechazar" style="font-size:12px;padding:6px 12px" data-id="${p.conexion_id}">Rechazar</button>
             </div>
           </div>`;
       }).join('');
@@ -251,7 +253,7 @@
     function renderConectadas(conexiones) {
       const container = document.getElementById('connectedList');
       if (!conexiones.length) {
-        container.innerHTML = '<div class="empty-state" style="padding:32px 0"><p style="color:#888;font-size:13px">Todavía no tenés familias conectadas. Invitá a familias que conocés para empezar a construir tu red.</p></div>';
+        container.innerHTML = '<div class="m-empty-state"><h3>Sin conexiones aún</h3><p>Invitá a familias que conocés para empezar a construir tu red.</p></div>';
         return;
       }
       container.innerHTML = conexiones.map(c => {
@@ -260,11 +262,11 @@
         const color = colors[init.charCodeAt(0) % colors.length];
         const meta = [c.localidad, c.recomendaciones_count ? `${c.recomendaciones_count} cuidadores recomendados` : null].filter(Boolean).join(' · ');
         return `
-          <div class="profile-card" data-nombre="${esc((c.nombre || '').toLowerCase())}">
-            <div class="profile-card__avatar" style="background:${color}">${init}</div>
-            <div class="profile-card__info">
-              <div class="profile-card__name">${esc(c.nombre || '')} ${esc(c.apellido || '')}</div>
-              <div class="profile-card__meta">${esc(meta)}</div>
+          <div class="m-profile-card" data-nombre="${esc((c.nombre || '').toLowerCase())}">
+            <div class="m-profile-avatar" style="background:${color}">${init}</div>
+            <div class="m-profile-info">
+              <div class="m-profile-name">${esc(c.nombre || '')} ${esc(c.apellido || '')}</div>
+              <div class="m-profile-meta">${esc(meta)}</div>
             </div>
           </div>`;
       }).join('');
@@ -273,7 +275,7 @@
     // Search filter
     document.getElementById('searchInput').addEventListener('input', (e) => {
       const q = e.target.value.toLowerCase();
-      document.querySelectorAll('#connectedList .profile-card').forEach(card => {
+      document.querySelectorAll('#connectedList .m-profile-card').forEach(card => {
         const name = card.dataset.nombre || '';
         card.style.display = name.includes(q) ? '' : 'none';
       });
@@ -344,7 +346,7 @@
                 <div class="profile-card__name">${esc(f.nombre)} ${esc(f.apellido || '')}</div>
                 <div class="profile-card__meta">${esc(f.localidad || '')}</div>
               </div>
-              <button class="btn btn--sm btn--primary btn-conectar" data-id="${f.id}">Conectar</button>
+              <button class="m-btn m-btn--primary btn-conectar" style="padding:6px 14px;font-size:12px" data-id="${f.id}">Conectar</button>
             </div>`;
         }).join('');
         results.querySelectorAll('.btn-conectar').forEach(btn => {

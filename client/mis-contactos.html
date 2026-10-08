@@ -63,23 +63,23 @@
     </div>
   </div>
 
-  <!-- Mobile tab bar -->
-  <nav class="tab-bar">
-    <a href="feed-familia.html" class="tab-bar__item">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 L12 4 L21 12 V20 H3 Z"/></svg>
-      <span>Inicio</span>
+  <!-- Mobile tab bar (mockup) -->
+  <nav class="m-tab-bar">
+    <a href="feed-familia.html" class="m-tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 L12 4 L21 12 V20 H3 Z"/></svg>
+      Inicio
     </a>
-    <a href="/#asistente" class="tab-bar__item">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <span>Buscar</span>
+    <a href="/#asistente" class="m-tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      Buscar
     </a>
-    <a href="mi-red.html" class="tab-bar__item">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>
-      <span>Mi Red</span>
+    <a href="mi-red.html" class="m-tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>
+      Mi Red
     </a>
-    <a href="mis-contactos.html" class="tab-bar__item tab-bar__item--active">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      <span>Contactos</span>
+    <a href="mis-contactos.html" class="m-tab active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Contactos
     </a>
   </nav>
 
@@ -154,7 +154,7 @@
             <div class="mc-empty" style="grid-column:1/-1">
               <svg viewBox="0 0 24 24" width="48" fill="none" stroke="var(--gris-medio)" stroke-width="1.5" style="margin-bottom:12px"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>
               <p style="color:#888;font-size:14px;margin-bottom:16px;line-height:1.6">Cuando desbloquees el perfil de un cuidador, aparecerá acá con acceso permanente.</p>
-              <a href="/#asistente" class="btn btn--primary">Buscar cuidadores</a>
+              <a href="/#asistente" class="m-btn m-btn--primary">Buscar cuidadores</a>
             </div>`;
           return;
         }
@@ -204,28 +204,28 @@
 
       // Badges
       let badges = '';
-      if (isDiario) badges += '<span class="mc-badge mc-badge--aqua">Diario activo</span>';
-      if (isContratado) badges += '<span class="mc-badge mc-badge--teal">Contratado/a</span>';
-      if (isActivo) badges += '<span class="mc-badge mc-badge--coral">Pendiente confirmar</span>';
-      if (isNoDisp) badges += '<span class="mc-badge mc-badge--gris">No disponible</span>';
+      if (isDiario) badges += '<span class="m-badge m-badge--aqua">Diario activo</span>';
+      if (isContratado) badges += '<span class="m-badge m-badge--teal">Contratado/a</span>';
+      if (isActivo) badges += '<span class="m-badge m-badge--coral">Pendiente confirmar</span>';
+      if (isNoDisp) badges += '<span class="m-badge" style="background:rgba(180,186,194,0.2);color:var(--gris-medio)">No disponible</span>';
 
       // Contact buttons
       let contactBtns = '';
       if (!isNoDisp && tel) {
         contactBtns = `
           <div class="mc-card__actions">
-            <a href="https://wa.me/${tel.replace(/[^0-9]/g,'')}" target="_blank" class="btn btn--sm btn--primary mc-card__btn">
+            <a href="https://wa.me/${tel.replace(/[^0-9]/g,'')}" target="_blank" class="m-btn m-btn--primary mc-card__btn">
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
               Mensaje
             </a>
-            <a href="tel:${tel}" class="btn btn--sm btn--ghost mc-card__btn">Llamar</a>
+            <a href="tel:${tel}" class="m-btn m-btn--secondary mc-card__btn">Llamar</a>
           </div>`;
       }
 
       // Confirmar contratación CTA
       let confirmarCta = '';
       if (isActivo) {
-        confirmarCta = `<button class="btn btn--sm btn--teal mc-card__confirmar" data-cuidador-id="${c.cuidador_id}" data-nombre="${esc(nombre)}">Confirmar contratación</button>`;
+        confirmarCta = `<button class="m-btn m-btn--teal mc-card__confirmar" data-cuidador-id="${c.cuidador_id}" data-nombre="${esc(nombre)}">Confirmar contratación</button>`;
       }
 
       // No disponible note
@@ -284,8 +284,8 @@
             ¿Contrataste a <strong>${esc(nombre)}</strong>?<br>
             Al confirmar, se activa el <strong>Diario de Cuidado</strong> para registrar actividades y notas del día a día.
           </p>
-          <button class="btn btn--primary btn--full" id="btnConfirmarSi" style="margin-bottom:8px">Sí, confirmar contratación</button>
-          <button class="btn btn--ghost btn--full" id="btnConfirmarNo">Todavía no</button>
+          <button class="m-btn m-btn--primary m-btn--full" id="btnConfirmarSi" style="margin-bottom:8px">Sí, confirmar contratación</button>
+          <button class="m-btn m-btn--secondary m-btn--full" id="btnConfirmarNo">Todavía no</button>
         </div>
       `;
       modalConfirmar.classList.remove('hidden');
@@ -368,14 +368,7 @@
     .mc-card__meta { font-size: 11px; color: #999; margin-top: 1px; }
     .mc-card__badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
 
-    .mc-badge {
-      display: inline-block; padding: 2px 8px; border-radius: 6px;
-      font-size: 10px; font-weight: 600;
-    }
-    .mc-badge--aqua { background: rgba(0,180,184,0.12); color: var(--aqua, #00B4B8); }
-    .mc-badge--teal { background: rgba(0,109,119,0.1); color: var(--teal); }
-    .mc-badge--coral { background: rgba(255,107,107,0.1); color: var(--coral); }
-    .mc-badge--gris { background: rgba(180,186,194,0.2); color: var(--gris-medio); }
+    /* badges now use global m-badge classes */
 
     .mc-card__actions {
       display: flex; gap: 6px; margin-top: 4px;
@@ -414,20 +407,8 @@
       cursor: pointer; line-height: 1;
     }
 
-    /* Tab bar */
-    .tab-bar {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: #fff; border-top: 1px solid var(--gris);
-      display: flex; justify-content: space-around;
-      padding: 8px 0 env(safe-area-inset-bottom, 8px);
-      z-index: 100;
-    }
-    .tab-bar__item {
-      display: flex; flex-direction: column; align-items: center; gap: 2px;
-      font-size: 10px; color: #999; text-decoration: none; padding: 4px 12px;
-    }
+    /* Tab bar uses global m-tab-bar */
     @media (min-width: 768px) {
-      .tab-bar { display: none; }
       .dashboard { padding-bottom: 40px; }
     }
     @media (max-width: 767px) {

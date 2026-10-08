@@ -42,47 +42,44 @@
     </div>
   </header>
 
-  <main class="dashboard" id="feedMain">
+  <main class="dashboard" id="feedMain" style="padding-bottom:70px">
     <div class="container">
 
       <!-- ==================== F01 · FEED VACÍO ==================== -->
       <div id="feedVacio" class="hidden">
-        <div class="empty-state" style="padding:48px 24px">
-          <svg viewBox="0 0 200 200" width="64" style="margin-bottom:16px"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>
-          <h2 style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:22px;margin-bottom:8px">Tu red está vacía</h2>
-          <p style="color:#888;margin-bottom:24px;max-width:400px;line-height:1.6">Conectá con familias que conocés para ver cuidadores recomendados por tu comunidad.</p>
+        <div class="m-empty-state">
+          <svg viewBox="0 0 200 200" width="64"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>
+          <h3>Tu red está vacía</h3>
+          <p>Conectá con familias que conocés para ver cuidadores recomendados por tu comunidad.</p>
           <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
-            <button class="btn btn--primary" id="btnInvitarVacio" style="min-width:220px">Invitar familias</button>
-            <button class="btn btn--ghost" id="btnBuscarFamVacio" style="min-width:220px;font-size:13px">Buscar familias por nombre</button>
+            <button class="m-btn m-btn--primary" id="btnInvitarVacio" style="min-width:220px">Invitar familias</button>
+            <button class="m-btn m-btn--secondary" id="btnBuscarFamVacio" style="min-width:220px;font-size:13px">Buscar familias por nombre</button>
           </div>
         </div>
 
-        <div style="background:var(--marfil);border-radius:16px;padding:20px;margin-top:16px;text-align:center;max-width:480px;margin-left:auto;margin-right:auto">
-          <p style="font-size:12px;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">¿Conocés a un buen cuidador?</p>
+        <div class="m-card" style="text-align:center;max-width:480px;margin:16px auto">
+          <p class="m-section-label m-section-label--teal">¿Conocés a un buen cuidador?</p>
           <p style="font-size:13px;color:#666;margin-bottom:12px">Recomendalo para que otras familias de tu red lo encuentren.</p>
-          <a href="recomendar.html" class="btn btn--teal" style="font-size:13px">Recomendar cuidador</a>
+          <a href="recomendar.html" class="m-btn m-btn--teal" style="font-size:13px">Recomendar cuidador</a>
         </div>
       </div>
 
       <!-- ==================== F02 · FEED ACTIVO ==================== -->
       <div id="feedActivo" class="hidden">
-        <!-- Stats card -->
-        <div class="stats-row" id="statsRow">
-          <div class="stat-card stat-card--gradient">
-            <span class="stat-card__label">Tu red</span>
-            <div style="display:flex;justify-content:space-around;margin-top:10px;text-align:center">
-              <div>
-                <span class="stat-card__number" id="statFamilias">0</span><br>
-                <span class="stat-card__sub">familias</span>
-              </div>
-              <div>
-                <span class="stat-card__number" id="statCuidadores">0</span><br>
-                <span class="stat-card__sub">cuidadores</span>
-              </div>
-              <div>
-                <span class="stat-card__number" id="statNuevos">0</span><br>
-                <span class="stat-card__sub">nuevos</span>
-              </div>
+        <!-- Stats card (mockup: teal gradient) -->
+        <div class="m-stats-card" id="statsRow">
+          <div class="m-stats-row">
+            <div>
+              <div class="stat-num" id="statFamilias">0</div>
+              <div class="stat-label">familias</div>
+            </div>
+            <div>
+              <div class="stat-num" id="statCuidadores">0</div>
+              <div class="stat-label">cuidadores</div>
+            </div>
+            <div>
+              <div class="stat-num" id="statNuevos">0</div>
+              <div class="stat-label">nuevos</div>
             </div>
           </div>
         </div>
@@ -98,40 +95,40 @@
         </div>
 
         <!-- CTA recomendar -->
-        <div style="background:var(--marfil);border-radius:16px;padding:20px;margin-top:16px;text-align:center">
-          <p style="font-size:12px;color:var(--teal);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">¿Conocés a un buen cuidador?</p>
+        <div class="m-card" style="text-align:center;margin-top:16px">
+          <p class="m-section-label m-section-label--teal">¿Conocés a un buen cuidador?</p>
           <p style="font-size:13px;color:#666;margin-bottom:12px">Recomendalo para que otras familias de tu red lo encuentren.</p>
-          <a href="recomendar.html" class="btn btn--teal" style="font-size:13px">Recomendar cuidador</a>
+          <a href="recomendar.html" class="m-btn m-btn--teal" style="font-size:13px">Recomendar cuidador</a>
         </div>
 
         <!-- Shortcut buttons -->
         <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;justify-content:center">
-          <a href="mi-red.html" class="btn btn--ghost" style="font-size:13px">Ver mi red</a>
-          <button class="btn btn--ghost" id="btnBuscarFeedActivo" style="font-size:13px">Buscar cuidadores</button>
-          <button class="btn btn--ghost" id="btnInvitarActivo" style="font-size:13px">Invitar familias</button>
+          <a href="mi-red.html" class="m-btn m-btn--secondary" style="font-size:13px">Ver mi red</a>
+          <button class="m-btn m-btn--secondary" id="btnBuscarFeedActivo" style="font-size:13px">Buscar cuidadores</button>
+          <button class="m-btn m-btn--secondary" id="btnInvitarActivo" style="font-size:13px">Invitar familias</button>
         </div>
       </div>
 
     </div>
   </main>
 
-  <!-- Mobile tab bar -->
-  <nav class="tab-bar" id="tabBar">
-    <a href="feed-familia.html" class="tab-bar__item tab-bar__item--active">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 L12 4 L21 12 V20 H3 Z"/></svg>
-      <span>Inicio</span>
+  <!-- Mobile tab bar (mockup) -->
+  <nav class="m-tab-bar" id="tabBar">
+    <a href="feed-familia.html" class="m-tab active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 L12 4 L21 12 V20 H3 Z"/></svg>
+      Inicio
     </a>
-    <a href="#" class="tab-bar__item" id="tabBuscar">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <span>Buscar</span>
+    <a href="#" class="m-tab" id="tabBuscar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      Buscar
     </a>
-    <a href="mi-red.html" class="tab-bar__item">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>
-      <span>Mi Red</span>
+    <a href="mi-red.html" class="m-tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>
+      Mi Red
     </a>
-    <a href="#" class="tab-bar__item" id="tabDiario">
-      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>
-      <span>Diario</span>
+    <a href="#" class="m-tab" id="tabDiario">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>
+      Diario
     </a>
   </nav>
 
@@ -143,8 +140,8 @@
       <h2 style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:20px;margin-bottom:4px">Invitá familias a tu red</h2>
       <p style="font-size:13px;color:#888;margin-bottom:20px">Compartí tu enlace de invitación por WhatsApp o copialo para enviarlo por el medio que prefieras.</p>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <button class="btn btn--primary" id="btnInvitarWA" style="width:100%">Invitar por WhatsApp</button>
-        <button class="btn btn--ghost" id="btnCopiarLink" style="width:100%">Copiar enlace de invitación</button>
+        <button class="m-btn m-btn--primary m-btn--full" id="btnInvitarWA">Invitar por WhatsApp</button>
+        <button class="m-btn m-btn--secondary m-btn--full" id="btnCopiarLink">Copiar enlace de invitación</button>
       </div>
       <p id="invitarStatus" style="font-size:12px;color:var(--teal);text-align:center;margin-top:12px"></p>
     </div>
@@ -158,8 +155,8 @@
       <h2 style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:20px;margin-bottom:4px">Buscar familias</h2>
       <p style="font-size:13px;color:#888;margin-bottom:16px">Buscá por nombre o email para conectar con familias que conocés.</p>
       <div style="display:flex;gap:8px;margin-bottom:16px">
-        <input type="text" id="buscarFamInput" class="form-input" placeholder="Nombre o email…" style="flex:1" />
-        <button class="btn btn--primary" id="btnBuscarFamSubmit">Buscar</button>
+        <input type="text" id="buscarFamInput" class="m-input" placeholder="Nombre o email…" style="flex:1;margin:0" />
+        <button class="m-btn m-btn--teal" id="btnBuscarFamSubmit">Buscar</button>
       </div>
       <div id="buscarFamResults"></div>
     </div>
@@ -267,13 +264,11 @@
         const colors = ['var(--coral)', 'var(--aqua)', 'var(--teal)', '#f59e0b', '#8b5cf6'];
         const color = colors[initial.charCodeAt(0) % colors.length];
         return `
-          <div class="feed-item">
-            <div style="display:flex;gap:10px;align-items:center">
-              <div style="width:36px;height:36px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:600;flex-shrink:0">${initial}</div>
-              <div style="flex:1">
-                <p style="font-size:13px">${esc(item.texto || item.descripcion || '')}</p>
-                <p style="font-size:11px;color:#999">${timeAgo(item.fecha || item.created_at)}</p>
-              </div>
+          <div class="m-profile-card">
+            <div class="m-profile-avatar" style="background:${color};width:36px;height:36px;font-size:14px">${initial}</div>
+            <div class="m-profile-info">
+              <p style="font-size:13px;margin:0">${esc(item.texto || item.descripcion || '')}</p>
+              <p class="m-profile-meta">${timeAgo(item.fecha || item.created_at)}</p>
             </div>
           </div>`;
       }).join('');
@@ -369,13 +364,13 @@
         results.innerHTML = familias.slice(0, 5).map(f => {
           const init = (f.nombre || '?').charAt(0).toUpperCase();
           return `
-            <div class="profile-card" style="margin-bottom:8px">
-              <div class="profile-card__avatar" style="background:var(--teal)">${init}</div>
-              <div class="profile-card__info" style="flex:1">
-                <div class="profile-card__name">${esc(f.nombre)} ${esc(f.apellido || '')}</div>
-                <div class="profile-card__meta">${esc(f.localidad || f.zona || '')}</div>
+            <div class="m-profile-card">
+              <div class="m-profile-avatar" style="background:var(--teal)">${init}</div>
+              <div class="m-profile-info">
+                <div class="m-profile-name">${esc(f.nombre)} ${esc(f.apellido || '')}</div>
+                <div class="m-profile-meta">${esc(f.localidad || f.zona || '')}</div>
               </div>
-              <button class="btn btn--sm btn--primary btn-conectar" data-id="${f.id}">Conectar</button>
+              <button class="m-btn m-btn--teal btn-conectar" style="font-size:12px;padding:6px 14px" data-id="${f.id}">Conectar</button>
             </div>`;
         }).join('');
 

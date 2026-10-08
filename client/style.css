@@ -28,6 +28,9 @@
   --gold: #f59e0b;
   --coral: #FF6B6B;
   --noche: #1F2933;
+  --marfil: #F8F7F3;
+  --gris: #E6E8EB;
+  --gris-medio: #B4BAC2;
   --shadow: 0 10px 30px rgba(0, 109, 119, .12);
 }
 
@@ -2979,4 +2982,282 @@ textarea.form-input { resize: vertical; min-height: 80px; }
   .dashboard-sidebar {
     border-left: 1px solid var(--line); padding-left: 24px;
   }
+}
+
+/* ============================================================
+   MOCKUP UI COMPONENTS — Sistema de diseño Red de Confianza
+   ============================================================ */
+
+/* --- Navbar móvil --- */
+.m-navbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px; border-bottom: 1px solid var(--gris);
+  background: white;
+}
+.m-navbar-logo {
+  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 16px;
+  color: var(--noche); display: flex; align-items: center; gap: 6px;
+}
+.m-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--teal); display: flex; align-items: center;
+  justify-content: center; color: white; font-size: 13px; font-weight: 600;
+}
+
+/* --- Tab bar inferior --- */
+.m-tab-bar {
+  display: flex; justify-content: space-around; padding: 10px 0;
+  border-top: 1px solid var(--gris); background: white;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+}
+.m-tab {
+  text-align: center; font-size: 10px; color: var(--gris-medio);
+  cursor: pointer; padding: 4px 0; text-decoration: none;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.m-tab.active { color: var(--teal); font-weight: 600; }
+.m-tab svg { display: block; width: 20px; height: 20px; }
+
+/* --- Cards --- */
+.m-card {
+  background: white; border: 1px solid var(--gris); border-radius: 12px;
+  padding: 14px; margin-bottom: 10px;
+}
+
+/* --- Botones --- */
+.m-btn {
+  display: inline-block; padding: 10px 20px; border-radius: 8px;
+  font-size: 14px; font-weight: 600; text-align: center; cursor: pointer;
+  border: none; font-family: 'Inter', sans-serif;
+  transition: opacity .15s;
+}
+.m-btn:hover { opacity: 0.9; }
+.m-btn--primary { background: var(--coral); color: white; }
+.m-btn--secondary { background: white; border: 1.5px solid var(--teal); color: var(--teal); }
+.m-btn--teal { background: var(--teal); color: white; }
+.m-btn--full { display: block; width: 100%; }
+
+/* --- Inputs --- */
+.m-input {
+  width: 100%; padding: 10px 14px; border: 1px solid var(--gris);
+  border-radius: 8px; font-size: 14px; background: var(--marfil);
+  font-family: 'Inter', sans-serif; margin-bottom: 10px;
+  outline: none;
+}
+.m-input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,109,119,.15); }
+
+/* --- Badges --- */
+.m-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+}
+.m-badge--teal { background: rgba(0,109,119,0.1); color: var(--teal); }
+.m-badge--coral { background: rgba(255,107,107,0.1); color: var(--coral); }
+.m-badge--aqua { background: rgba(0,180,184,0.1); color: var(--aqua); }
+
+/* --- Trust chain --- */
+.trust-chain {
+  display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--teal);
+}
+.trust-chain .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--coral); flex-shrink: 0; }
+.trust-chain .line { width: 16px; height: 1px; background: var(--teal); flex-shrink: 0; }
+
+/* --- Profile card --- */
+.m-profile-card {
+  display: flex; gap: 12px; align-items: center; padding: 12px;
+  border: 1px solid var(--gris); border-radius: 12px; margin-bottom: 8px;
+  background: white;
+}
+.m-profile-avatar {
+  width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: white; font-size: 18px;
+}
+.m-profile-info { flex: 1; min-width: 0; }
+.m-profile-name { font-weight: 600; font-size: 14px; color: var(--noche); }
+.m-profile-meta { font-size: 12px; color: #888; margin-top: 2px; }
+
+/* --- Empty state --- */
+.m-empty-state {
+  text-align: center; padding: 40px 20px;
+}
+.m-empty-state svg { opacity: 0.3; margin-bottom: 16px; }
+.m-empty-state h3 { font-family: 'Montserrat', sans-serif; font-size: 16px; color: var(--noche); margin-bottom: 8px; }
+.m-empty-state p { font-size: 13px; color: #888; margin-bottom: 16px; }
+
+/* --- Hero section --- */
+.m-hero-section {
+  background: linear-gradient(135deg, var(--marfil), #EDF5F5);
+  padding: 48px 32px;
+}
+.m-hero-section h1 {
+  font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 32px;
+  color: var(--noche); line-height: 1.1; margin-bottom: 12px;
+}
+.m-hero-section h1 span { color: var(--teal); }
+.m-hero-section p { font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 20px; max-width: 480px; }
+.m-hero-buttons { display: flex; gap: 10px; }
+
+/* --- Steps --- */
+.m-steps-row { display: flex; gap: 16px; margin: 16px 0; }
+.m-step-card {
+  flex: 1; background: var(--marfil); border-radius: 12px; padding: 16px;
+  text-align: center;
+}
+.m-step-num {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--teal);
+  color: white; font-weight: 700; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 8px;
+}
+.m-step-card h4 { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.m-step-card p { font-size: 11px; color: #666; line-height: 1.4; margin: 0; }
+
+/* --- Diario entries --- */
+.m-diario-entry {
+  border-left: 3px solid var(--aqua); padding: 10px 14px;
+  margin-bottom: 10px; background: rgba(0,180,184,0.04); border-radius: 0 8px 8px 0;
+}
+.m-diario-entry .time { font-size: 11px; color: var(--aqua); font-weight: 600; }
+.m-diario-entry .text { font-size: 13px; color: var(--noche); margin-top: 4px; }
+
+/* --- Price box --- */
+.m-price-box {
+  text-align: center; background: linear-gradient(135deg, var(--teal), #005A63);
+  color: white; border-radius: 16px; padding: 24px; margin: 16px 0;
+}
+.m-price-box .amount { font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: 800; }
+.m-price-box .desc { font-size: 13px; opacity: 0.85; margin-top: 6px; }
+
+/* --- Notification card --- */
+.m-notif-card {
+  background: white; border: 2px solid var(--aqua); border-radius: 12px;
+  padding: 16px; margin-bottom: 12px;
+}
+.m-notif-card h4 { font-size: 14px; color: var(--noche); margin-bottom: 6px; }
+.m-notif-card p { font-size: 13px; color: #555; line-height: 1.5; }
+
+/* --- Desktop navbar --- */
+.m-d-navbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 32px; border-bottom: 1px solid var(--gris); background: white;
+}
+.m-d-navbar-logo {
+  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 20px;
+  color: var(--noche); display: flex; align-items: center; gap: 8px;
+}
+.m-d-navbar-links { display: flex; gap: 24px; align-items: center; font-size: 14px; }
+.m-d-navbar-links a { color: var(--noche); text-decoration: none; font-weight: 500; }
+.m-d-navbar-links a.active { color: var(--teal); font-weight: 600; }
+
+/* --- Feed stats card --- */
+.m-stats-card {
+  background: linear-gradient(135deg, var(--teal), #005A63);
+  border-radius: 14px; padding: 20px; color: white; margin-bottom: 16px;
+}
+.m-stats-row {
+  display: flex; justify-content: space-around; text-align: center;
+}
+.m-stats-row .stat-num {
+  font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 20px;
+}
+.m-stats-row .stat-label { font-size: 10px; opacity: 0.85; margin-top: 2px; }
+
+/* --- Section label --- */
+.m-section-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+  font-weight: 600; margin-bottom: 8px;
+}
+.m-section-label--teal { color: var(--teal); }
+.m-section-label--coral { color: var(--coral); }
+
+/* --- Page content with bottom tab bar padding --- */
+.m-page-content {
+  padding: 0 16px 80px 16px;
+}
+
+/* --- Profile header (perfil cuidador) --- */
+.m-profile-header {
+  background: linear-gradient(135deg, var(--teal), #005A63);
+  padding: 20px 16px; color: white; text-align: center;
+}
+.m-profile-header .avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: rgba(255,255,255,0.2); margin: 0 auto 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 700;
+}
+.m-profile-header h3 {
+  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 18px;
+  color: white; margin: 0 0 4px;
+}
+.m-profile-header .subtitle { font-size: 12px; opacity: 0.85; }
+
+/* --- Locked section --- */
+.m-locked-section {
+  background: var(--marfil); border-radius: 12px; padding: 14px;
+  text-align: center; margin-top: 12px;
+}
+.m-locked-section .lock-title {
+  font-size: 13px; font-weight: 600; color: var(--noche); margin-bottom: 4px;
+}
+.m-locked-section .lock-desc {
+  font-size: 11px; color: #888; margin-bottom: 10px;
+}
+.m-locked-section .lock-note {
+  font-size: 10px; color: #999; margin-top: 6px;
+}
+
+/* --- Dashboard cuidador stats --- */
+.m-dash-stats {
+  display: flex; gap: 8px; margin-bottom: 14px;
+}
+.m-dash-stat {
+  flex: 1; background: var(--marfil); border-radius: 10px;
+  padding: 12px; text-align: center;
+}
+.m-dash-stat__num {
+  font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 22px;
+}
+.m-dash-stat__num--teal { color: var(--teal); }
+.m-dash-stat__num--coral { color: var(--coral); }
+.m-dash-stat__num--aqua { color: var(--aqua); }
+.m-dash-stat__label { font-size: 10px; color: #888; }
+
+/* --- Capacitaciones progress --- */
+.m-cap-progress {
+  background: var(--marfil); border-radius: 12px; padding: 14px;
+  margin-bottom: 14px;
+}
+.m-cap-progress__label {
+  font-size: 11px; color: var(--teal); font-weight: 600; margin-bottom: 6px;
+}
+.m-cap-progress__bar-wrap {
+  display: flex; gap: 8px; align-items: center;
+}
+.m-cap-progress__bar {
+  flex: 1; height: 8px; background: var(--gris); border-radius: 4px; overflow: hidden;
+}
+.m-cap-progress__fill {
+  height: 100%; background: var(--teal); border-radius: 4px;
+  transition: width .3s;
+}
+.m-cap-progress__count {
+  font-size: 12px; font-weight: 600; color: var(--teal);
+}
+.m-cap-progress__hint {
+  font-size: 11px; color: #888; margin-top: 6px;
+}
+
+/* --- Responsive: mobile-first adjustments --- */
+@media (max-width: 768px) {
+  .m-steps-row { flex-direction: column; }
+  .m-hero-section { padding: 32px 16px; }
+  .m-hero-section h1 { font-size: 24px; }
+  .m-d-navbar { display: none; }
+  .m-dash-stats { flex-wrap: wrap; }
+}
+
+@media (min-width: 769px) {
+  .m-tab-bar { display: none; }
 }
