@@ -15,191 +15,224 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <script src="js/analytics.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    .sc { min-height: 100vh; background: var(--bg, #F8F7F3); font-family: 'Inter', sans-serif; color: var(--noche, #1F2933); overflow-x: hidden; }
 
-    /* === Topbar === */
+    .sc {
+      min-height: 100vh;
+      background: var(--marfil, #F8F7F3);
+      font-family: 'Inter', sans-serif;
+      color: var(--noche, #1F2933);
+      overflow-x: hidden;
+    }
+
+    /* === Topbar — d-navbar style === */
     .sc-topbar {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(255,255,255,.92); backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(0,109,119,.08);
-      padding: 12px 20px;
       display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 32px;
+      background: #fff;
+      border-bottom: 1px solid var(--gris, #E6E8EB);
     }
-    .sc-topbar__logo { height: 42px; }
+    .sc-topbar__logo { height: 36px; }
     .sc-topbar__link {
-      font-size: 14px; font-weight: 600; color: var(--teal, #006D77);
+      font-size: 14px; font-weight: 600; color: #fff;
       text-decoration: none;
+      background: var(--teal, #006D77);
+      padding: 8px 18px; border-radius: 8px;
+      transition: opacity .2s;
     }
+    .sc-topbar__link:hover { opacity: .9; }
 
-    /* === Hero === */
+    /* === Hero — marfil gradient like P01 === */
     .sc-hero {
-      position: relative; min-height: 420px;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
+      background: linear-gradient(135deg, var(--marfil, #F8F7F3), #EDF5F5);
+      padding: 48px 24px 40px;
     }
-    .sc-hero__bg {
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, #006D77 0%, #004E56 100%);
+    .sc-hero__inner {
+      max-width: 800px; margin: 0 auto;
+      display: flex; gap: 40px; align-items: center; flex-wrap: wrap;
     }
-    .sc-hero__content {
-      position: relative; z-index: 2;
-      text-align: center; color: #fff;
-      padding: 56px 24px 64px; max-width: 800px;
-    }
+    .sc-hero__content { flex: 1; min-width: 300px; }
     .sc-hero__badge {
       display: inline-block;
-      background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25);
-      border-radius: 24px; padding: 6px 18px;
-      font-size: 13px; font-weight: 700; letter-spacing: .06em;
-      margin-bottom: 20px;
-      font-family: 'Montserrat', sans-serif;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.5px; color: var(--coral, #FF6B6B);
+      margin-bottom: 10px;
     }
     .sc-hero__title {
       font-family: 'Montserrat', sans-serif;
-      font-size: clamp(26px, 6vw, 42px); font-weight: 900;
-      line-height: 1.15; margin-bottom: 18px;
+      font-size: clamp(26px, 5vw, 36px); font-weight: 800;
+      line-height: 1.1; margin-bottom: 14px;
+      color: var(--noche, #1F2933);
     }
     .sc-hero__title em {
-      font-style: normal;
-      background: linear-gradient(90deg, #FF6B6B, #ffb347);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-style: normal; color: var(--teal, #006D77);
     }
     .sc-hero__sub {
-      font-size: 17px; line-height: 1.8; opacity: .9;
-      max-width: 720px; margin: 0 auto;
+      font-size: 15px; line-height: 1.6; color: #555;
+      max-width: 480px; margin-bottom: 8px;
+    }
+    .sc-hero__note {
+      font-size: 13px; color: var(--teal, #006D77);
+      font-weight: 600; margin-bottom: 20px;
+    }
+    .sc-hero__cta { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* === Illustration box (desktop) === */
+    .sc-hero__illustration {
+      width: 220px; height: 220px;
+      background: linear-gradient(135deg, var(--teal, #006D77), #005A63);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden; flex-shrink: 0;
+    }
+    .sc-hero__illustration::before {
+      content: ''; position: absolute; top: 16px; right: 16px;
+      width: 60px; height: 60px; border-radius: 50%;
+      background: rgba(255,107,107,0.2);
+    }
+    .sc-hero__illustration::after {
+      content: ''; position: absolute; bottom: -16px; left: -16px;
+      width: 90px; height: 90px; border-radius: 50%;
+      background: rgba(0,180,184,0.15);
     }
 
-    /* === Modelo de acceso === */
-    .sc-modelo {
-      padding: 64px 24px;
-      background: #fff; text-align: center;
+    /* === Value sections === */
+    .sc-value {
+      padding: 40px 24px;
     }
-    .sc-modelo__inner { max-width: 800px; margin: 0 auto; }
-    .sc-modelo__title {
+    .sc-value--white { background: #fff; }
+    .sc-value--marfil { background: var(--marfil, #F8F7F3); }
+    .sc-value__inner {
+      max-width: 700px; margin: 0 auto;
+    }
+    .sc-value__card {
+      background: #fff; border: 1px solid var(--gris, #E6E8EB);
+      border-radius: 12px; padding: 28px 24px;
+    }
+    .sc-value__title {
       font-family: 'Montserrat', sans-serif;
-      font-size: 24px; font-weight: 800; color: var(--teal, #006D77);
-      margin-bottom: 14px;
+      font-size: 20px; font-weight: 700; color: var(--teal, #006D77);
+      margin-bottom: 12px;
     }
-    .sc-modelo__text {
-      font-size: 16px; line-height: 1.9; opacity: .8;
+    .sc-value__text {
+      font-size: 14px; line-height: 1.8; color: #555;
+    }
+    .sc-value__text strong {
+      color: var(--noche, #1F2933); font-weight: 600;
     }
 
-    /* === Caminos === */
+    /* === Paths section === */
     .sc-paths {
-      padding: 48px 24px 72px;
-      background: var(--bg, #F8F7F3);
+      padding: 48px 24px;
+      background: var(--marfil, #F8F7F3);
+    }
+    .sc-paths__title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 22px; font-weight: 700; color: var(--noche, #1F2933);
+      text-align: center; margin-bottom: 28px;
     }
     .sc-paths__inner {
-      max-width: 960px; margin: 0 auto;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
+      max-width: 800px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
     }
     .sc-path {
-      background: #fff; border-radius: 20px; padding: 36px 28px;
-      border: 2px solid rgba(0,109,119,.06);
-      transition: border-color .2s, box-shadow .2s;
+      background: #fff; border-radius: 12px; padding: 24px 20px;
+      border: 1px solid var(--gris, #E6E8EB);
       display: flex; flex-direction: column;
     }
-    .sc-path:hover {
-      border-color: rgba(0,109,119,.15);
-      box-shadow: 0 12px 36px rgba(0,109,119,.08);
-    }
-    .sc-path--recommended { border-color: var(--teal, #006D77); }
+    .sc-path--recommended { border: 2px solid var(--teal, #006D77); }
+
     .sc-path__badge {
       display: inline-block; width: fit-content;
-      background: var(--teal, #006D77); color: #fff;
-      font-size: 11px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: .08em; padding: 4px 12px; border-radius: 10px;
-      margin-bottom: 16px;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+      margin-bottom: 14px;
     }
-    .sc-path__badge--alt {
-      background: rgba(0,109,119,.08); color: var(--teal, #006D77);
+    .sc-path__badge--teal {
+      background: rgba(0,109,119,0.1); color: var(--teal, #006D77);
     }
-    .sc-path__icon {
-      font-size: 36px; margin-bottom: 16px;
+    .sc-path__badge--coral {
+      background: rgba(255,107,107,0.1); color: var(--coral, #FF6B6B);
     }
     .sc-path__title {
       font-family: 'Montserrat', sans-serif;
-      font-size: 20px; font-weight: 800; color: var(--noche, #1F2933);
-      margin-bottom: 10px; line-height: 1.3;
+      font-size: 16px; font-weight: 700; color: var(--noche, #1F2933);
+      margin-bottom: 8px; line-height: 1.3;
     }
     .sc-path__desc {
-      font-size: 14px; line-height: 1.7; color: var(--noche, #1F2933); opacity: .7;
-      margin-bottom: 20px; flex: 1;
+      font-size: 13px; line-height: 1.6; color: #555;
+      margin-bottom: 16px; flex: 1;
     }
     .sc-path__steps {
-      list-style: none; margin-bottom: 24px;
+      list-style: none; margin-bottom: 20px;
     }
     .sc-path__step {
       display: flex; gap: 10px; align-items: flex-start;
-      padding: 8px 0; font-size: 14px; line-height: 1.5;
+      padding: 6px 0; font-size: 13px; line-height: 1.5;
       color: var(--noche, #1F2933);
     }
     .sc-path__step-num {
       width: 24px; height: 24px; border-radius: 50%;
-      background: var(--teal, #006D77); color: #fff;
       display: flex; align-items: center; justify-content: center;
       font-size: 12px; font-weight: 700; flex-shrink: 0;
-    }
-    .sc-path__step-num--alt { background: rgba(0,109,119,.1); color: var(--teal, #006D77); }
-    .sc-path__toggle {
-      display: block; width: 100%;
-      padding: 16px; border: none; cursor: pointer;
-      font-size: 16px; font-weight: 700; border-radius: 14px;
       font-family: 'Montserrat', sans-serif;
-      transition: transform .15s, box-shadow .15s;
     }
-    .sc-path__toggle:hover { transform: translateY(-2px); }
-    .sc-path__toggle--primary {
-      background: var(--coral, #FF6B6B); color: #fff;
-      box-shadow: 0 6px 24px rgba(255,107,107,.3);
-    }
-    .sc-path__toggle--secondary {
-      background: var(--teal, #006D77); color: #fff;
-      box-shadow: 0 6px 24px rgba(0,109,119,.2);
-    }
+    .sc-path__step-num--teal { background: var(--teal, #006D77); color: #fff; }
+    .sc-path__step-num--muted { background: rgba(0,109,119,0.1); color: var(--teal, #006D77); }
 
-    /* === Formularios === */
+    /* === m-btn (mockup button system) === */
+    .m-btn {
+      display: inline-block; text-decoration: none; cursor: pointer;
+      padding: 10px 20px; border-radius: 8px;
+      font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif;
+      border: none; transition: opacity .2s;
+      text-align: center;
+    }
+    .m-btn:hover { opacity: .9; }
+    .m-btn--primary { background: var(--coral, #FF6B6B); color: #fff; }
+    .m-btn--teal { background: var(--teal, #006D77); color: #fff; }
+    .m-btn--secondary { background: #fff; border: 1.5px solid var(--teal, #006D77); color: var(--teal, #006D77); }
+    .m-btn--full { display: block; width: 100%; }
+
+    /* === Form sections === */
     .sc-form {
       display: none;
-      padding: 48px 24px 72px;
-      background: linear-gradient(180deg, #fff 0%, #e8f4f5 100%);
+      padding: 48px 24px;
+      background: #fff;
     }
     .sc-form.is-visible { display: block; }
-    .sc-form__inner { max-width: 560px; margin: 0 auto; }
+    .sc-form__inner { max-width: 520px; margin: 0 auto; }
     .sc-form__title {
       font-family: 'Montserrat', sans-serif;
-      font-size: 24px; font-weight: 800; color: var(--noche, #1F2933);
-      margin-bottom: 8px; text-align: center;
+      font-size: 20px; font-weight: 700; color: var(--noche, #1F2933);
+      margin-bottom: 6px; text-align: center;
     }
     .sc-form__sub {
-      font-size: 15px; color: var(--noche, #1F2933); opacity: .65;
-      text-align: center; margin-bottom: 28px; line-height: 1.6;
+      font-size: 14px; color: #555; line-height: 1.6;
+      text-align: center; margin-bottom: 24px;
     }
     .sc-form__card {
-      background: #fff; border-radius: 20px; padding: 32px 28px;
-      box-shadow: 0 8px 32px rgba(0,109,119,.08);
-      border: 1px solid rgba(0,109,119,.06);
+      background: var(--marfil, #F8F7F3); border-radius: 12px; padding: 24px 20px;
+      border: 1px solid var(--gris, #E6E8EB);
     }
     .sc-form__section-label {
       font-family: 'Montserrat', sans-serif;
-      font-size: 13px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: .08em; margin-bottom: 16px;
-      padding-bottom: 8px; border-bottom: 2px solid;
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; margin-bottom: 14px;
+      padding-bottom: 6px; border-bottom: 2px solid;
     }
     .sc-form__section-label--teal { color: var(--teal, #006D77); border-color: var(--teal, #006D77); }
     .sc-form__section-label--coral { color: var(--coral, #FF6B6B); border-color: var(--coral, #FF6B6B); }
-    .sc-form__divider { height: 1px; background: rgba(0,109,119,.08); margin: 24px 0; }
+    .sc-form__divider { height: 1px; background: var(--gris, #E6E8EB); margin: 20px 0; }
     .sc-form__row {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;
     }
     .sc-form__field {
-      display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px;
+      display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px;
     }
     .sc-form__field label {
       font-size: 13px; font-weight: 600; color: var(--noche, #1F2933);
@@ -207,10 +240,13 @@
     .sc-form__field input,
     .sc-form__field select,
     .sc-form__field textarea {
-      padding: 12px 14px; border: 1px solid rgba(0,109,119,.15);
-      border-radius: 10px; font-size: 15px; font-family: 'Inter', sans-serif;
-      color: var(--noche, #1F2933); background: #fff;
-      transition: border-color .2s, box-shadow .2s;
+      padding: 10px 14px;
+      border: 1.5px solid var(--gris, #E6E8EB);
+      border-radius: 8px;
+      font-size: 14px; font-family: 'Inter', sans-serif;
+      color: var(--noche, #1F2933);
+      background: #fff;
+      transition: border-color .2s;
     }
     .sc-form__field input:focus,
     .sc-form__field select:focus,
@@ -220,45 +256,35 @@
     }
     .sc-form__field textarea { resize: vertical; min-height: 80px; }
     .sc-form__field select { appearance: auto; }
-    .sc-form__submit {
-      display: block; width: 100%;
-      background: var(--coral, #FF6B6B); color: #fff; border: none; cursor: pointer;
-      font-size: 17px; font-weight: 700; padding: 16px;
-      border-radius: 14px; margin-top: 24px;
-      font-family: 'Montserrat', sans-serif;
-      box-shadow: 0 6px 24px rgba(255,107,107,.3);
-      transition: transform .2s, box-shadow .2s;
-    }
-    .sc-form__submit:hover:not(:disabled) { transform: translateY(-2px); }
-    .sc-form__submit:disabled { opacity: .6; cursor: not-allowed; }
-    .sc-form__submit--teal {
-      background: var(--teal, #006D77);
-      box-shadow: 0 6px 24px rgba(0,109,119,.25);
-    }
+
     .sc-form__note {
-      text-align: center; font-size: 12px; opacity: .45; margin-top: 12px; line-height: 1.5;
+      text-align: center; font-size: 12px; color: #999; margin-top: 10px; line-height: 1.5;
     }
     .sc-form__msg {
-      padding: 14px 18px; border-radius: 10px; margin-top: 16px;
-      font-size: 14px; line-height: 1.6; text-align: center; display: none;
+      padding: 12px 16px; border-radius: 8px; margin-top: 14px;
+      font-size: 13px; line-height: 1.6; text-align: center; display: none;
     }
     .sc-form__msg--ok { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; display: block; }
     .sc-form__msg--error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; display: block; }
 
-    /* OTP reutilizado */
+    /* OTP */
     .sc-otp { margin-top: 8px; }
     .sc-otp__row { display: flex; gap: 8px; align-items: center; }
     .sc-otp__input {
-      flex: 1; padding: 10px 12px; border: 1px solid rgba(0,109,119,.15);
-      border-radius: 10px; font-size: 15px; font-family: 'Inter', sans-serif;
-      text-align: center; letter-spacing: .25em; max-width: 160px;
+      flex: 1; padding: 10px 12px;
+      border: 1.5px solid var(--gris, #E6E8EB);
+      border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif;
+      text-align: center; letter-spacing: .25em; max-width: 140px;
+      background: #fff;
     }
     .sc-otp__input:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,109,119,.1); }
     .sc-otp__btn {
-      padding: 10px 18px; border: 1px solid rgba(0,109,119,.2);
-      border-radius: 10px; font-size: 13px; font-weight: 600;
-      background: #fff; color: var(--teal, #006D77); cursor: pointer;
+      padding: 10px 16px; border-radius: 8px;
+      font-size: 13px; font-weight: 600;
       font-family: 'Inter', sans-serif; white-space: nowrap;
+      cursor: pointer;
+      background: #fff; color: var(--teal, #006D77);
+      border: 1.5px solid var(--gris, #E6E8EB);
     }
     .sc-otp__btn:disabled { opacity: .5; cursor: not-allowed; }
     .sc-otp__btn--verify { background: var(--teal); color: #fff; border-color: var(--teal); }
@@ -271,34 +297,48 @@
 
     /* Success views */
     .sc-success { text-align: center; padding: 20px 0; }
-    .sc-success__icon { font-size: 48px; margin-bottom: 12px; }
+    .sc-success__icon { font-size: 40px; margin-bottom: 12px; }
     .sc-success__title {
       font-family: 'Montserrat', sans-serif;
-      font-size: 22px; font-weight: 800; color: var(--teal); margin-bottom: 10px;
+      font-size: 20px; font-weight: 700; color: var(--teal); margin-bottom: 10px;
     }
     .sc-success__text {
-      font-size: 15px; line-height: 1.7; opacity: .75; margin-bottom: 24px;
+      font-size: 14px; line-height: 1.7; color: #555; margin-bottom: 20px;
     }
-    .sc-success__btn {
-      display: inline-block;
-      background: var(--teal); color: #fff;
-      font-size: 15px; font-weight: 700; padding: 14px 32px;
-      border-radius: 28px; text-decoration: none;
+
+    /* === Closing === */
+    .sc-closing {
+      text-align: center; padding: 48px 24px;
+      background: var(--marfil, #F8F7F3);
+    }
+    .sc-closing__text {
+      font-size: 15px; line-height: 1.8; color: #555;
+      max-width: 600px; margin: 0 auto 12px;
+    }
+    .sc-closing__brand {
       font-family: 'Montserrat', sans-serif;
+      font-size: 16px; font-weight: 700;
+      color: var(--teal, #006D77);
+      letter-spacing: .5px;
+      margin-bottom: 20px;
     }
 
     /* === Footer === */
     .sc-footer {
-      text-align: center; padding: 32px 20px; font-size: 13px; opacity: .45;
-      border-top: 1px solid rgba(0,109,119,.08);
+      text-align: center; padding: 24px 20px; font-size: 12px; color: #999;
+      border-top: 1px solid var(--gris, #E6E8EB);
+      background: #fff;
     }
-    .sc-footer__logo { height: 36px; margin-bottom: 10px; opacity: .6; display: block; margin: 0 auto 10px; }
+    .sc-footer__logo { height: 28px; display: block; margin: 0 auto 8px; opacity: .5; }
     .sc-footer a { color: var(--teal); text-decoration: none; }
 
     @media (max-width: 768px) {
+      .sc-topbar { padding: 12px 16px; }
+      .sc-hero__inner { gap: 24px; }
+      .sc-hero__illustration { display: none; }
       .sc-paths__inner { grid-template-columns: 1fr; }
       .sc-form__row { grid-template-columns: 1fr; }
-      .sc-form__card { padding: 24px 20px; }
+      .sc-form__card { padding: 20px 16px; }
     }
   </style>
 </head>
@@ -310,102 +350,115 @@
       <a href="login.html" class="sc-topbar__link">Ya tengo cuenta</a>
     </header>
 
-    <!-- C01 · Hero -->
+    <!-- Hero — marfil gradient, P01 style -->
     <section class="sc-hero">
-      <div class="sc-hero__bg"></div>
-      <div class="sc-hero__content">
-        <h1 class="sc-hero__title">Tu experiencia tiene valor.<br><em>Dejá que hable por vos.</em></h1>
-        <p class="sc-hero__sub">
-          En Cuidy no hay perfiles abiertos ni listados públicos.<br>Solo llegás a las familias a través de la recomendación de alguien que ya conoce tu trabajo.<br><br>Eso te protege: las familias que te contactan ya saben que alguien de su confianza confía en vos.<br><br>Registrarte es gratis. Tu perfil es visible solo dentro de la red que te recomienda.
-        </p>
-        <div style="margin-top: 24px;">
-          <a href="#ingreso" class="sc-path__toggle sc-path__toggle--primary" style="display:inline-block; text-decoration:none; padding: 14px 32px;">Quiero ser parte de Cuidy</a>
+      <div class="sc-hero__inner">
+        <div class="sc-hero__content">
+          <p class="sc-hero__badge">Para cuidadores</p>
+          <h1 class="sc-hero__title">Tu experiencia tiene valor.<br><em>Dejá que hable por vos.</em></h1>
+          <p class="sc-hero__sub">En Cuidy no hay perfiles abiertos ni listados públicos. <strong style="color:var(--noche)">Solo llegás a las familias a través de la recomendación de alguien que ya conoce tu trabajo.</strong></p>
+          <p class="sc-hero__note">Tu perfil es visible solo dentro de la red que te recomienda.</p>
+          <div class="sc-hero__cta">
+            <a href="#ingreso" class="m-btn m-btn--primary" style="padding:12px 24px;font-size:15px">Quiero ser parte de Cuidy</a>
+          </div>
+        </div>
+        <div class="sc-hero__illustration">
+          <svg viewBox="0 0 200 200" width="100" style="position:relative;z-index:1"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="white" stroke-width="22" stroke-linecap="round" opacity="0.9"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="white" stroke-width="22" stroke-linecap="round" opacity="0.9"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="white"/></g></svg>
         </div>
       </div>
     </section>
 
-    <!-- C02 · Tu trabajo importa -->
-    <section class="sc-modelo">
-      <div class="sc-modelo__inner">
-        <h2 class="sc-modelo__title">Tu trabajo importa</h2>
-        <p class="sc-modelo__text">
-          Cuidar no es "solamente estar".<br><br>Es acompañar, observar, tener paciencia y asumir una gran responsabilidad.<br>Sabemos el valor que tiene lo que hacés.<br><br>Queremos que tu experiencia y las referencias de quienes conocen tu trabajo te acompañen hacia tu próxima oportunidad.
-        </p>
+    <!-- Value 1: Tu trabajo importa -->
+    <section class="sc-value sc-value--white">
+      <div class="sc-value__inner">
+        <div class="sc-value__card">
+          <h2 class="sc-value__title">Tu trabajo importa</h2>
+          <p class="sc-value__text">
+            Cuidar no es "solamente estar". Es acompañar, observar, tener paciencia y asumir una gran responsabilidad.<br><br>
+            <strong>Sabemos el valor que tiene lo que hacés.</strong> Queremos que tu experiencia y las referencias de quienes conocen tu trabajo te acompañen hacia tu próxima oportunidad.
+          </p>
+        </div>
       </div>
     </section>
 
-    <!-- C03 · Tu reputación te acompaña -->
-    <section class="sc-modelo" style="background: var(--bg, #F8F7F3);">
-      <div class="sc-modelo__inner">
-        <h2 class="sc-modelo__title">Tu red es tu mejor carta de presentación</h2>
-        <p class="sc-modelo__text">
-          Si hiciste bien tu trabajo, que alguien pueda decirlo.<br><br>Cuando una familia te recomienda, tu perfil se vuelve visible dentro de su red de confianza.<br>Cada recomendación te conecta con más familias que buscan a alguien como vos.<br><br>Tu trayectoria no empieza de cero cada vez que buscás trabajo.
-        </p>
+    <!-- Value 2: Tu red es tu mejor carta -->
+    <section class="sc-value sc-value--marfil">
+      <div class="sc-value__inner">
+        <div class="sc-value__card">
+          <h2 class="sc-value__title">Tu red es tu mejor carta de presentación</h2>
+          <p class="sc-value__text">
+            Si hiciste bien tu trabajo, que alguien pueda decirlo.<br><br>
+            Cuando una familia te recomienda, tu perfil se vuelve visible dentro de su red de confianza. <strong>Cada recomendación te conecta con más familias que buscan a alguien como vos.</strong><br><br>
+            Tu trayectoria no empieza de cero cada vez que buscás trabajo.
+          </p>
+        </div>
       </div>
     </section>
 
-    <!-- C04 · La confianza es de los dos lados -->
-    <section class="sc-modelo">
-      <div class="sc-modelo__inner">
-        <h2 class="sc-modelo__title">La confianza es de los dos lados</h2>
-        <p class="sc-modelo__text">
-          Vos también tenés información para elegir.<br><br>Antes de avanzar, podés conocer la propuesta de la familia: qué necesita, en qué zona, en qué horarios y qué tareas espera.<br>También podés ver el estado de su identidad.<br><br>Nadie debería pedirte confianza sin ofrecerte confianza a cambio.
-        </p>
+    <!-- Value 3: La confianza es de los dos lados -->
+    <section class="sc-value sc-value--white">
+      <div class="sc-value__inner">
+        <div class="sc-value__card">
+          <h2 class="sc-value__title">La confianza es de los dos lados</h2>
+          <p class="sc-value__text">
+            Vos también tenés información para elegir.<br><br>
+            Antes de avanzar, podés conocer la propuesta de la familia: qué necesita, en qué zona, en qué horarios y qué tareas espera. También podés ver el estado de su identidad.<br><br>
+            <strong>Nadie debería pedirte confianza sin ofrecerte confianza a cambio.</strong>
+          </p>
+        </div>
       </div>
     </section>
 
-    <!-- C05-C06 · ¿Cómo podés sumarte? -->
+    <!-- ¿Cómo podés sumarte? -->
     <section class="sc-paths" id="ingreso">
-      <div style="text-align:center; max-width:800px; margin: 0 auto 32px;">
-        <h2 class="sc-modelo__title">¿Cómo podés sumarte?</h2>
-      </div>
+      <h2 class="sc-paths__title">¿Cómo podés sumarte?</h2>
       <div class="sc-paths__inner">
-        <!-- C05 · Ingreso por recomendación -->
+        <!-- Camino A: Ingreso por recomendación -->
         <div class="sc-path sc-path--recommended">
-          <span class="sc-path__badge">Recomendado</span>
+          <span class="sc-path__badge sc-path__badge--teal">Recomendado</span>
           <h3 class="sc-path__title">Si una familia puede recomendarte</h3>
           <p class="sc-path__desc">
-            Si trabajás o trabajaste con una familia que conoce tu forma de cuidar, pedile que te recomiende en Cuidy.<br>Tu perfil se vuelve visible dentro de su red de confianza y empezás a recibir consultas.
+            Si trabajás o trabajaste con una familia que conoce tu forma de cuidar, pedile que te recomiende en Cuidy. Tu perfil se vuelve visible dentro de su red de confianza.
           </p>
           <ol class="sc-path__steps">
             <li class="sc-path__step">
-              <span class="sc-path__step-num">1</span>
+              <span class="sc-path__step-num sc-path__step-num--teal">1</span>
               <span>Dejanos tu nombre y el WhatsApp de la familia</span>
             </li>
             <li class="sc-path__step">
-              <span class="sc-path__step-num">2</span>
+              <span class="sc-path__step-num sc-path__step-num--teal">2</span>
               <span>Le enviamos un mensaje pidiéndole que complete tu recomendación</span>
             </li>
             <li class="sc-path__step">
-              <span class="sc-path__step-num">3</span>
+              <span class="sc-path__step-num sc-path__step-num--teal">3</span>
               <span>Revisamos la información y te indicamos cómo continuar</span>
             </li>
           </ol>
-          <button class="sc-path__toggle sc-path__toggle--primary" id="btnShowA">Pedir una recomendación →</button>
+          <button class="m-btn m-btn--primary m-btn--full" id="btnShowA">Pedir una recomendación</button>
         </div>
 
-        <!-- C06 · Ingreso sin recomendación -->
+        <!-- Camino B: Sin recomendación -->
         <div class="sc-path">
-          <span class="sc-path__badge sc-path__badge--alt">Alternativa</span>
+          <span class="sc-path__badge sc-path__badge--coral">Alternativa</span>
           <h3 class="sc-path__title">Si todavía no tenés quién te recomiende</h3>
           <p class="sc-path__desc">
-            Contanos quién sos, qué experiencia tenés y en qué tipo de cuidado trabajás.<br>Nuestro equipo revisará tu solicitud y te informará los pasos para continuar.
+            Contanos quién sos, qué experiencia tenés y en qué tipo de cuidado trabajás. Nuestro equipo revisará tu solicitud.
           </p>
           <ol class="sc-path__steps">
             <li class="sc-path__step">
-              <span class="sc-path__step-num sc-path__step-num--alt">1</span>
+              <span class="sc-path__step-num sc-path__step-num--muted">1</span>
               <span>Completá tus datos y verificá tu WhatsApp</span>
             </li>
             <li class="sc-path__step">
-              <span class="sc-path__step-num sc-path__step-num--alt">2</span>
+              <span class="sc-path__step-num sc-path__step-num--muted">2</span>
               <span>Nuestro equipo revisa tu solicitud</span>
             </li>
             <li class="sc-path__step">
-              <span class="sc-path__step-num sc-path__step-num--alt">3</span>
+              <span class="sc-path__step-num sc-path__step-num--muted">3</span>
               <span>Te informamos los pasos para continuar</span>
             </li>
           </ol>
-          <button class="sc-path__toggle sc-path__toggle--secondary" id="btnShowB">Quiero postularme →</button>
+          <button class="m-btn m-btn--teal m-btn--full" id="btnShowB">Quiero postularme</button>
         </div>
       </div>
     </section>
@@ -446,7 +499,7 @@
             <div class="sc-form__field">
               <label for="a_tipo_servicio">¿Qué tipo de servicio le prestás o prestaste? *</label>
               <select id="a_tipo_servicio" required>
-                <option value="">Seleccionar…</option>
+                <option value="">Seleccionar...</option>
                 <option value="ninera">Niñera / Cuidado de niños</option>
                 <option value="adulto_mayor">Cuidado lúdico de adulto mayor</option>
                 <option value="domestica">Empleada doméstica / Limpieza</option>
@@ -455,7 +508,7 @@
               </select>
             </div>
 
-            <button type="submit" class="sc-form__submit">Enviar recomendación →</button>
+            <button type="submit" class="m-btn m-btn--primary m-btn--full" style="padding:14px;font-size:15px;margin-top:20px">Enviar recomendación</button>
             <p class="sc-form__note">A la familia le va a llegar un WhatsApp con un enlace para completar tu recomendación.</p>
             <div class="sc-form__msg" id="formAMsg"></div>
           </form>
@@ -470,7 +523,7 @@
               Le enviamos un WhatsApp a <strong id="successFamNombre"></strong> para que complete tu recomendación.
               Recibimos tu solicitud y revisaremos la información.
             </p>
-            <a href="/" class="sc-success__btn">Volver al inicio</a>
+            <a href="/" class="m-btn m-btn--teal">Volver al inicio</a>
           </div>
         </div>
       </div>
@@ -518,7 +571,7 @@
               <div class="sc-form__field">
                 <label for="b_tipo_servicio">¿En qué te especializás? *</label>
                 <select id="b_tipo_servicio" required>
-                  <option value="">Seleccionar…</option>
+                  <option value="">Seleccionar...</option>
                   <option value="ninera">Niñera / Cuidado de niños</option>
                   <option value="adulto_mayor">Cuidado lúdico de adulto mayor</option>
                   <option value="domestica">Empleada doméstica / Limpieza</option>
@@ -529,7 +582,7 @@
               <div class="sc-form__field">
                 <label for="b_experiencia">Años de experiencia *</label>
                 <select id="b_experiencia" required>
-                  <option value="">Seleccionar…</option>
+                  <option value="">Seleccionar...</option>
                   <option value="menos_1">Menos de 1 año</option>
                   <option value="1_3">Entre 1 y 3 años</option>
                   <option value="3_5">Entre 3 y 5 años</option>
@@ -541,7 +594,7 @@
               <div class="sc-form__field">
                 <label for="b_provincia">Provincia *</label>
                 <select id="b_provincia" required>
-                  <option value="">Seleccionar…</option>
+                  <option value="">Seleccionar...</option>
                   <option value="caba">CABA</option>
                   <option value="bsas">Buenos Aires</option>
                   <option value="cordoba">Córdoba</option>
@@ -561,7 +614,7 @@
               <textarea id="b_referencias" placeholder="Nombre y teléfono de una o más familias con las que trabajaste. Nuestro equipo puede contactarlas para validar tu experiencia."></textarea>
             </div>
 
-            <button type="submit" class="sc-form__submit sc-form__submit--teal">Enviar mi solicitud →</button>
+            <button type="submit" class="m-btn m-btn--teal m-btn--full" style="padding:14px;font-size:15px;margin-top:20px">Enviar mi solicitud</button>
             <p class="sc-form__note">Recibimos tu solicitud. Te informaremos los próximos pasos por el medio de contacto que elegiste. Enviar una solicitud no significa que tu perfil ya esté publicado.</p>
             <div class="sc-form__msg" id="formBMsg"></div>
           </form>
@@ -575,32 +628,29 @@
             <p class="sc-success__text">
               Te informaremos los próximos pasos por el medio de contacto que elegiste. Enviar una solicitud no significa que tu perfil ya esté publicado.
             </p>
-            <p class="sc-success__text" style="font-size:13px; opacity:.5;">
+            <p class="sc-success__text" style="font-size:12px;color:#999;">
               Si en algún momento una familia te recomienda en Cuidy, tu solicitud se prioriza automáticamente.
             </p>
-            <a href="/" class="sc-success__btn">Volver al inicio</a>
+            <a href="/" class="m-btn m-btn--teal">Volver al inicio</a>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- C07 · Cierre -->
-    <section class="sc-modelo" style="background: var(--bg, #F8F7F3); padding: 72px 24px; text-align: center;">
-      <div class="sc-modelo__inner">
-        <p class="sc-modelo__text" style="font-size: 18px; line-height: 1.8;">
-          Tu trabajo puede cambiar el día —y muchas veces la vida— de otra persona.<br><br>Queremos que tu experiencia y las recomendaciones de quienes te conocen sean tu puerta de entrada a nuevas oportunidades.<br><br><strong style="font-family: 'Montserrat', sans-serif; font-size: 20px; color: var(--teal, #006D77);">Cuidy. Tu red de confianza para el cuidado.</strong>
-        </p>
-        <div style="margin-top: 24px;">
-          <a href="#ingreso" class="sc-path__toggle sc-path__toggle--primary" style="display:inline-block; text-decoration:none; padding: 14px 32px;">Quiero ser parte de Cuidy</a>
-        </div>
+    <!-- Cierre -->
+    <section class="sc-closing">
+      <div style="max-width:600px;margin:0 auto;">
+        <svg viewBox="0 0 200 200" width="56" style="margin-bottom:16px;opacity:.7"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>
+        <p class="sc-closing__text">Tu trabajo puede cambiar el día de otra persona. Queremos que tu experiencia y las recomendaciones de quienes te conocen sean tu puerta de entrada a nuevas oportunidades.</p>
+        <p class="sc-closing__brand">CUIDY. TU RED DE CONFIANZA.</p>
+        <a href="#ingreso" class="m-btn m-btn--primary" style="padding:12px 28px;font-size:15px">Quiero ser parte de Cuidy</a>
       </div>
     </section>
 
     <!-- Footer -->
     <footer class="sc-footer">
       <img src="assets/logo.svg" alt="Cuidy" class="sc-footer__logo" />
-      <strong>Cuidy. Tu red de confianza para el cuidado.</strong><br>
-      Cuidadores recomendados por familias como la tuya.
+      Cuidy. Tu red de confianza para el cuidado.
       <br><a href="terminos.html">Términos y condiciones</a> · <a href="privacidad.html">Privacidad</a> · <a href="mailto:hola@cuidy.com.ar">Contacto</a>
     </footer>
   </div>
@@ -639,8 +689,8 @@
         showMsg(formAMsg, 'Completá todos los campos obligatorios.', 'error'); return;
       }
 
-      const btn = formA.querySelector('.sc-form__submit');
-      btn.disabled = true; btn.textContent = 'Enviando…';
+      const btn = formA.querySelector('.m-btn');
+      btn.disabled = true; btn.textContent = 'Enviando...';
 
       try {
         const res = await fetch(API + '/recomendaciones/solicitar', {
@@ -657,7 +707,7 @@
         const json = await res.json();
         if (!json.ok) {
           showMsg(formAMsg, json.error || 'No pudimos enviar la solicitud.', 'error');
-          btn.disabled = false; btn.textContent = 'Enviar recomendación →';
+          btn.disabled = false; btn.textContent = 'Enviar recomendación';
           return;
         }
         document.getElementById('formACard').style.display = 'none';
@@ -667,7 +717,7 @@
         if (typeof gtag === 'function') gtag('event', 'solicitar_recomendacion', { landing_page: 'sumate-cuidador' });
       } catch {
         showMsg(formAMsg, 'Error de conexión. Intentá de nuevo.', 'error');
-        btn.disabled = false; btn.textContent = 'Enviar solicitud de recomendación →';
+        btn.disabled = false; btn.textContent = 'Enviar recomendación';
       }
     });
 
@@ -684,7 +734,7 @@
     btnBSend.addEventListener('click', async () => {
       const tel = telB.value.trim();
       if (!tel || tel.length < 10) { telB.focus(); return; }
-      btnBSend.disabled = true; btnBSend.textContent = 'Enviando…';
+      btnBSend.disabled = true; btnBSend.textContent = 'Enviando...';
       bStatus.textContent = ''; bStatus.className = 'sc-otp__status';
       try {
         const res = await fetch(`${API}/auth/otp-send`, {
@@ -712,7 +762,7 @@
     btnBVerify.addEventListener('click', async () => {
       const code = bCode.value.trim();
       if (code.length !== 6) { bCode.focus(); return; }
-      btnBVerify.disabled = true; btnBVerify.textContent = 'Verificando…';
+      btnBVerify.disabled = true; btnBVerify.textContent = 'Verificando...';
       try {
         const res = await fetch(`${API}/auth/otp-verify`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -778,8 +828,8 @@
         btnBSend.focus(); return;
       }
 
-      const btn = formB.querySelector('.sc-form__submit');
-      btn.disabled = true; btn.textContent = 'Enviando…';
+      const btn = formB.querySelector('.m-btn');
+      btn.disabled = true; btn.textContent = 'Enviando...';
 
       try {
         const res = await fetch(API + '/cuidadores/lista-espera', {
@@ -794,7 +844,7 @@
         const json = await res.json();
         if (!json.ok) {
           showMsg(formBMsg, json.error || 'No pudimos registrar tu solicitud.', 'error');
-          btn.disabled = false; btn.textContent = 'Enviar mi solicitud →';
+          btn.disabled = false; btn.textContent = 'Enviar mi solicitud';
           return;
         }
         document.getElementById('formBCard').style.display = 'none';
@@ -803,7 +853,7 @@
         if (typeof gtag === 'function') gtag('event', 'lista_espera_cuidador', { landing_page: 'sumate-cuidador' });
       } catch {
         showMsg(formBMsg, 'Error de conexión. Intentá de nuevo.', 'error');
-        btn.disabled = false; btn.textContent = 'Enviar solicitud →';
+        btn.disabled = false; btn.textContent = 'Enviar solicitud';
       }
     });
 

@@ -1,19 +1,13 @@
 #!/bin/bash
 cd "$(dirname "$0")"
 git add -A
-git commit -m "feat: rediseño estructural completo — HTML igualado a mockups P01/P02
+git commit -m "feat: sumate-cuidador rediseñado al lenguaje visual P01
 
-- index.html: hero reescrito (gradient marfil, illustration box), secciones extras eliminadas,
-  'Cómo funciona' con step-num circles, cierre simplificado al mockup P01
-- login.html: botones migrados a m-btn m-btn--teal
-- registro-familia.html: botón nav y modal a m-btn mockup
-- completar-perfil.html: todos los botones a m-btn
-- verificar-identidad.html: botones a m-btn mockup
-- cuidador-enviado.html: botones a m-btn
-- app.js: todas las clases btn migradas a m-btn
-- auth.css: inputs alineados al design system (marfil bg, gris border)
-- style.css: hero-illustration-box hidden on mobile
-- sw.js: cache version 8
+- sumate-cuidador.html: hero teal gradient → marfil gradient P01,
+  secciones value en cards con border gris y radius 12,
+  botones migrados a m-btn, inputs al design system,
+  cierre con isotipo + brand, footer limpio
+- sw.js: cache version 9
 "
 git push origin dev
 echo "✅ Push completado. Verificá en https://dev--cuidy-ar.netlify.app"
