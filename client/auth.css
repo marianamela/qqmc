@@ -122,12 +122,13 @@
 
 .auth-input {
   width: 100%;
-  padding: 12px 14px;
-  border: 1px solid var(--line);
+  padding: 10px 14px;
+  border: 1.5px solid var(--gris, #E6E8EB);
   border-radius: 8px;
-  font-family: inherit;
-  font-size: 0.95rem;
-  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--noche, #1F2933);
+  background: var(--marfil, #F8F7F3);
   transition: border-color .2s;
 }
 .auth-input:focus {

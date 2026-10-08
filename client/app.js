@@ -708,7 +708,7 @@
         <div class="locked">
           <div class="locked__title">${estadoTitle}</div>
           <div class="locked__text">${estadoMsg}</div>
-          ${familiaEstado === 'pendiente' ? `<a href="verificar-identidad.html" class="btn btn--primary btn--sm" style="margin-top:8px">Verificar mi identidad</a>` : ''}
+          ${familiaEstado === 'pendiente' ? `<a href="verificar-identidad.html" class="m-btn m-btn--teal" style="margin-top:8px;font-size:12px;padding:8px 16px">Verificar mi identidad</a>` : ''}
           <p style="font-size:0.82rem;color:var(--muted);margin-top:8px">Podés navegar y conocer los perfiles mientras tanto.</p>
         </div>`;
     } else if (matchData && matchData.estado === 'desbloqueado' && matchData.cuidador) {
@@ -743,7 +743,7 @@
           <p style="font-size:0.82rem;color:var(--muted);margin-bottom:12px">
             ${icon('hourglass', 'warning')} Tenés <strong>${horasRestantes}h</strong> para desbloquear antes de que el match venza.
           </p>
-          <button class="btn btn--primary btn--full" id="btnDesbloquear" data-match-id="${matchData.id}" type="button">
+          <button class="m-btn m-btn--primary m-btn--full" id="btnDesbloquear" data-match-id="${matchData.id}" type="button">
             Desbloquear contacto
           </button>
         </div>`;
@@ -773,7 +773,7 @@
           <p class="contactar__info" style="margin-bottom:12px">
             Tu match anterior con ${primerNombre} venció. Podés expresar interés nuevamente.
           </p>
-          <button class="btn btn--primary btn--full" id="btnMeInteresa" type="button">
+          <button class="m-btn m-btn--teal m-btn--full" id="btnMeInteresa" type="button">
             💙 Me interesa
           </button>
         </div>`;
@@ -799,7 +799,7 @@
             Le vamos a avisar y si acepta, vas a poder desbloquear sus datos de contacto.
           </p>
           <textarea class="contactar__msg" id="msgInteres" rows="2" placeholder="Ej: Busco cuidado para mi mamá, 3 veces por semana… (opcional)"></textarea>
-          <button class="btn btn--primary btn--full" id="btnMeInteresa" type="button">
+          <button class="m-btn m-btn--teal m-btn--full" id="btnMeInteresa" type="button">
             💙 Me interesa
           </button>
           <p style="font-size:0.82rem;color:var(--muted);margin-top:8px;text-align:center">
@@ -1301,7 +1301,7 @@
       accionHtml = `
         <div style="margin-top:10px;text-align:center">
           <p style="font-size:0.82rem;color:#d97706;margin-bottom:8px">${icon('hourglass', 'warning')} ${horas}h para desbloquear</p>
-          <button class="btn btn--primary btn--sm match-desbloquear" data-match-id="${m.id}" data-cuidador-id="${c.id}">Desbloquear contacto</button>
+          <button class="m-btn m-btn--primary match-desbloquear" style="font-size:12px;padding:8px 16px" data-match-id="${m.id}" data-cuidador-id="${c.id}">Desbloquear contacto</button>
         </div>`;
     }
 
@@ -1328,7 +1328,7 @@
       ${accionHtml}
       <div class="contacto-card__footer">
         <span class="contacto-card__fecha">${fecha}</span>
-        ${c.id ? `<button class="contacto-card__ver-perfil btn btn--ghost btn--sm">Ver perfil</button>` : ''}
+        ${c.id ? `<button class="contacto-card__ver-perfil m-btn m-btn--secondary" style="font-size:11px;padding:6px 12px">Ver perfil</button>` : ''}
       </div>`;
 
     // Click en "Ver perfil"
@@ -1428,7 +1428,7 @@
       ${contactInfo}
       <div class="contacto-card__footer">
         <span class="contacto-card__fecha">${fecha}</span>
-        <button class="contacto-card__ver-perfil btn btn--ghost btn--sm">Ver perfil</button>
+        <button class="contacto-card__ver-perfil m-btn m-btn--secondary" style="font-size:11px;padding:6px 12px">Ver perfil</button>
       </div>`;
 
     // Click en "Ver perfil" → abrir ficha del cuidador

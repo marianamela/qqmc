@@ -1,16 +1,19 @@
 #!/bin/bash
 cd "$(dirname "$0")"
 git add -A
-git commit -m "feat: rediseño visual completo — todas las pantallas con clases del mockup
+git commit -m "feat: rediseño estructural completo — HTML igualado a mockups P01/P02
 
-- feed-familia.html: m-tab-bar, m-stats-card, m-profile-card, m-btn, m-empty-state
-- mi-red.html: m-tab-bar, m-section-label, m-card, m-profile-card, m-badge, m-btn
-- perfil-cuidador.html: m-tab-bar, m-btn, m-badge, m-profile-card, m-price-box
-- mis-contactos.html: m-tab-bar, m-btn, m-badge mockup classes
-- panel-cuidador.html/css/js: dash-stats gradient teal, m-btn, inputs marfil bg
-- recomendar.html: m-tab-bar, m-btn, inputs marfil bg
-- index.html: todos los botones migrados a m-btn
-- sw.js: cache version 7
+- index.html: hero reescrito (gradient marfil, illustration box), secciones extras eliminadas,
+  'Cómo funciona' con step-num circles, cierre simplificado al mockup P01
+- login.html: botones migrados a m-btn m-btn--teal
+- registro-familia.html: botón nav y modal a m-btn mockup
+- completar-perfil.html: todos los botones a m-btn
+- verificar-identidad.html: botones a m-btn mockup
+- cuidador-enviado.html: botones a m-btn
+- app.js: todas las clases btn migradas a m-btn
+- auth.css: inputs alineados al design system (marfil bg, gris border)
+- style.css: hero-illustration-box hidden on mobile
+- sw.js: cache version 8
 "
 git push origin dev
 echo "✅ Push completado. Verificá en https://dev--cuidy-ar.netlify.app"

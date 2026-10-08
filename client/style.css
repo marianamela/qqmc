@@ -3256,6 +3256,7 @@ textarea.form-input { resize: vertical; min-height: 80px; }
   .m-hero-section h1 { font-size: 24px; }
   .m-d-navbar { display: none; }
   .m-dash-stats { flex-wrap: wrap; }
+  .hero-illustration-box { display: none !important; }
 }
 
 @media (min-width: 769px) {

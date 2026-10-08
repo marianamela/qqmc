@@ -38,14 +38,14 @@
       <!-- Not logged in message -->
       <div id="notLoggedIn" class="consent-card consent-card--soft hidden" style="text-align:center;margin-bottom:24px">
         <p>Necesitás estar logueada para completar la verificación.</p>
-        <a href="login.html" class="btn btn--primary" style="margin-top:12px">Ingresar</a>
+        <a href="login.html" class="m-btn m-btn--teal" style="margin-top:12px;padding:10px 24px">Ingresar</a>
       </div>
 
       <!-- Already verified message -->
       <div id="alreadyVerified" class="consent-card hidden" style="text-align:center;margin-bottom:24px;background:#d1fae5;border-color:#10b981">
         <div style="font-size:32px;margin-bottom:8px"><span class="ci ci--success"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></span></div>
         <p style="color:#065f46;font-weight:600">Tu identidad ya fue verificada. Ya podés contactar cuidadores.</p>
-        <a href="/" class="btn btn--primary" style="margin-top:12px">Ir al inicio</a>
+        <a href="/" class="m-btn m-btn--teal" style="margin-top:12px;padding:10px 24px">Ir al inicio</a>
       </div>
 
       <!-- Pending review message -->
@@ -53,7 +53,7 @@
         <div style="font-size:32px;margin-bottom:8px"><span class="ci ci--xl ci--warning"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg></span></div>
         <p style="color:#92400e;font-weight:600">Ya enviaste tu verificación. Nuestro equipo la está revisando.</p>
         <p style="color:#78350f;font-size:13px;margin-top:4px">Te avisamos por WhatsApp cuando esté aprobada.</p>
-        <a href="/" class="btn btn--ghost" style="margin-top:12px">Volver al inicio</a>
+        <a href="/" class="m-btn m-btn--secondary" style="margin-top:12px;padding:10px 24px">Volver al inicio</a>
       </div>
 
       <!-- Verification form -->
@@ -68,7 +68,7 @@
               <div class="verify-card__preview" id="dniPreview">
                 <img id="dniImg" src="" alt="DNI cargado" />
               </div>
-              <label class="btn btn--ghost btn--sm verify-card__btn" id="dniLabel">
+              <label class="m-btn m-btn--secondary verify-card__btn" id="dniLabel" style="cursor:pointer">
                 <input type="file" id="dniInput" accept="image/*" capture="environment" hidden />
                 Subir foto del DNI
               </label>
@@ -87,9 +87,9 @@
                 <video id="cameraVideo" autoplay playsinline muted></video>
                 <canvas id="cameraCanvas" hidden></canvas>
               </div>
-              <button type="button" class="btn btn--ghost btn--sm verify-card__btn" id="btnStartCamera">Abrir cámara</button>
-              <button type="button" class="btn btn--primary btn--sm verify-card__btn" id="btnCapture" hidden>Sacar foto</button>
-              <button type="button" class="btn btn--ghost btn--sm verify-card__btn" id="btnRetake" hidden>Sacar otra vez</button>
+              <button type="button" class="m-btn m-btn--secondary verify-card__btn" id="btnStartCamera">Abrir cámara</button>
+              <button type="button" class="m-btn m-btn--teal verify-card__btn" id="btnCapture" hidden>Sacar foto</button>
+              <button type="button" class="m-btn m-btn--secondary verify-card__btn" id="btnRetake" hidden>Sacar otra vez</button>
               <p class="verify-card__status" id="selfieStatus"></p>
             </div>
           </div>
@@ -115,7 +115,7 @@
 
         <div class="wizard__actions">
           <div></div>
-          <button type="submit" class="btn btn--primary btn--lg" id="btnSubmitVerify">Enviar verificación</button>
+          <button type="submit" class="m-btn m-btn--primary" id="btnSubmitVerify" style="padding:14px 28px;font-size:15px">Enviar verificación</button>
         </div>
       </form>
     </div>
@@ -129,7 +129,7 @@
       <h3 class="ok-modal__title">¡Verificación enviada!</h3>
       <p class="ok-modal__text">Nuestro equipo va a revisar tu identidad y te avisamos por WhatsApp en las próximas 24 a 48 horas.</p>
       <p class="ok-modal__text" style="font-size:13px;color:#6b7280;margin-top:8px">Mientras tanto, podés seguir buscando cuidadores y recomendando personas de confianza.</p>
-      <a href="/" class="btn btn--primary btn--lg">Volver al inicio</a>
+      <a href="/" class="m-btn m-btn--teal m-btn--full" style="margin-top:12px">Volver al inicio</a>
     </div>
   </div>
 

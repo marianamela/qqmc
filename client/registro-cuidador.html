@@ -419,14 +419,14 @@
                 <label for="telefono">WhatsApp *</label>
                 <div class="otp-field">
                   <input id="telefono" name="telefono" type="tel" required autocomplete="tel" value="+549" placeholder="+549 11 12345678" />
-                  <button type="button" class="btn btn--sm btn--ghost otp-send" id="btnOtpSend">Verificar</button>
+                  <button type="button" class="m-btn m-btn--secondary otp-send" id="btnOtpSend" style="font-size:12px;padding:8px 14px">Verificar</button>
                 </div>
                 <p class="field__hint">+549 + prefijo de área + número (sin 0 ni 15)</p>
                 <div class="otp-verify hidden" id="otpVerify">
                   <p class="otp-verify__msg">Ingresá el código de 6 dígitos que te enviamos por WhatsApp</p>
                   <div class="otp-verify__row">
                     <input type="text" id="otpCode" maxlength="6" pattern="[0-9]{6}" placeholder="000000" class="otp-verify__input" />
-                    <button type="button" class="btn btn--sm btn--primary" id="btnOtpVerify">Confirmar</button>
+                    <button type="button" class="m-btn m-btn--teal" id="btnOtpVerify" style="font-size:12px;padding:8px 14px">Confirmar</button>
                   </div>
                   <p class="otp-verify__status" id="otpStatus"></p>
                 </div>
@@ -510,7 +510,7 @@
               <div class="didit-status__icon" style="color: var(--teal)">&#9888;</div>
               <h3>Modo sandbox</h3>
               <p>Didit.me no está configurado aún. Tu registro se guardará y la verificación de identidad se realizará cuando el servicio esté activo.</p>
-              <button type="button" class="btn btn--primary" id="btnSkipVerif">Continuar sin verificación</button>
+              <button type="button" class="m-btn m-btn--teal" id="btnSkipVerif">Continuar sin verificación</button>
             </div>
 
             <!-- Estado: error -->
@@ -518,7 +518,7 @@
               <div class="didit-status__icon" style="color: #e53e3e">&#10007;</div>
               <h3>Error al iniciar la verificación</h3>
               <p id="diditErrorMsg">Hubo un problema. Intentá de nuevo.</p>
-              <button type="button" class="btn btn--primary" id="btnRetryVerif">Reintentar</button>
+              <button type="button" class="m-btn m-btn--teal" id="btnRetryVerif">Reintentar</button>
             </div>
 
             <div class="verify-notice" style="margin-top: 20px">
@@ -551,10 +551,10 @@
 
           <!-- Acciones de navegación -->
           <div class="wizard__actions">
-            <button type="button" class="btn btn--ghost" id="btnPrev">&#8592; Atrás</button>
+            <button type="button" class="m-btn m-btn--secondary" id="btnPrev">&#8592; Atrás</button>
             <div class="wizard__actions-right">
-              <button type="button" class="btn btn--primary" id="btnNext">Siguiente &#8594;</button>
-              <button type="submit" class="btn btn--primary" id="btnSubmit" hidden>Enviar registro</button>
+              <button type="button" class="m-btn m-btn--teal" id="btnNext">Siguiente &#8594;</button>
+              <button type="submit" class="m-btn m-btn--primary" id="btnSubmit" hidden>Enviar registro</button>
             </div>
           </div>
         </form>
@@ -576,7 +576,7 @@
       <div class="ok-modal__emoji"><span class="ci ci--xl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.8 11.3 2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12v0c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11v0c-.11.7-.72 1.22-1.43 1.22H17"/><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98v0C9.52 4.9 9 5.52 9 6.23V7"/><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z"/></svg></span></div>
       <h3 class="ok-modal__title">¡Registro enviado!</h3>
       <p class="ok-modal__text">Recibimos tu información. Nuestro equipo va a revisar tu identidad y te avisamos por WhatsApp cuando esté todo listo.</p>
-      <a href="/" class="btn btn--primary btn--lg">Volver al inicio</a>
+      <a href="/" class="m-btn m-btn--teal m-btn--full" style="margin-top:12px">Volver al inicio</a>
     </div>
   </div>
 
