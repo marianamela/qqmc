@@ -394,10 +394,285 @@
 .panel-form__msg--ok { background: #d1fae5; color: #065f46; }
 .panel-form__msg--err { background: #fee2e2; color: #991b1b; }
 
-/* === Diario link === */
-.panel-diario-link {
+/* === Dashboard (C01) === */
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.dash-stat {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 16px;
   text-align: center;
-  padding: 40px 20px;
+  transition: box-shadow .2s;
+}
+.dash-stat:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+.dash-stat__num {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.dash-stat__num--teal { color: var(--teal, #006D77); }
+.dash-stat__num--coral { color: var(--coral, #FF6B6B); }
+.dash-stat__num--aqua { color: var(--aqua, #00B4B8); }
+.dash-stat__label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.dash-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.dash-badge--active {
+  background: rgba(0, 109, 119, .1);
+  color: var(--teal, #006D77);
+}
+.dash-badge--inactive {
+  background: #f3f4f6;
+  color: var(--muted);
+}
+.dash-subtitle {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 28px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dash-rec-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 10px;
+  transition: box-shadow .2s;
+}
+.dash-rec-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+.dash-rec-card__icon {
+  color: var(--coral, #FF6B6B);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.dash-rec-card__body {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.dash-rec-card__body strong {
+  color: var(--teal, #006D77);
+}
+.dash-rec-card__quote {
+  margin: 6px 0 0;
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.dash-rec-card__date {
+  font-size: 0.78rem;
+  color: var(--muted);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.dash-nuevo-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--aqua, #00B4B8);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.dash-nuevo-card__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--aqua, #00B4B8);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.dash-nuevo-card__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.dash-nuevo-card__label {
+  font-size: 0.78rem;
+  color: var(--aqua, #00B4B8);
+  font-weight: 600;
+}
+.dash-nuevo-card__action {
+  flex-shrink: 0;
+}
+.dash-empty {
+  text-align: center;
+  padding: 32px 20px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  background: #f9fafb;
+  border-radius: 12px;
+  margin-top: 16px;
+}
+.dash-empty p {
+  margin: 8px 0 0;
+  line-height: 1.5;
+}
+
+/* === Capacitaciones (C03) === */
+.cap-progress {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.cap-progress__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.cap-progress__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--muted);
+}
+.cap-progress__count {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--teal, #006D77);
+}
+.cap-progress__bar {
+  width: 100%;
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.cap-progress__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal, #006D77), var(--aqua, #00B4B8));
+  border-radius: 5px;
+  transition: width .5s ease;
+}
+.cap-progress__hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 10px 0 0;
+  line-height: 1.5;
+}
+.cap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.cap-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+  transition: box-shadow .2s;
+}
+.cap-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+.cap-card--done {
+  border-color: #a7f3d0;
+  background: #f0fdf4;
+}
+.cap-card__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.cap-card__icon {
+  flex-shrink: 0;
+  color: var(--teal, #006D77);
+}
+.cap-card--done .cap-card__icon {
+  color: #059669;
+}
+.cap-card__info {
+  flex: 1;
+}
+.cap-card__name {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 2px;
+}
+.cap-card__duracion {
+  font-size: 0.78rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cap-card__badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  flex-shrink: 0;
+}
+.cap-card__badge--done {
+  background: #d1fae5;
+  color: #065f46;
+}
+.cap-card__badge--pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+.cap-card__desc {
+  font-size: 0.88rem;
+  color: var(--noche);
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+.cap-card--done .cap-card__desc {
+  margin-bottom: 0;
+}
+.cap-card__btn {
+  width: auto;
 }
 
 /* === Perfil Preview === */
@@ -491,5 +766,25 @@
   }
   .panel-nav__label {
     font-size: 11px;
+  }
+  .dash-stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .dash-stat {
+    padding: 14px 10px;
+  }
+  .dash-stat__num {
+    font-size: 1.5rem;
+  }
+  .dash-stat__label {
+    font-size: 0.68rem;
+  }
+  .dash-nuevo-card {
+    flex-wrap: wrap;
+  }
+  .dash-nuevo-card__action {
+    width: 100%;
+    text-align: center;
   }
 }

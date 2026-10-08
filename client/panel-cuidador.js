@@ -1,6 +1,6 @@
 /* =============================================================
    Cuidy · Panel del Cuidador
-   Secciones: Solicitudes, Mis datos, Mi diario, Mi perfil público
+   Secciones: Dashboard, Mis datos, Capacitaciones, Mi perfil público
    ============================================================= */
 (() => {
   const API = '/.netlify/functions/api';
@@ -43,8 +43,7 @@
     renderEstadoBanner();
 
     // Cargar sección inicial
-    loadMatches();
-    loadSolicitudes();
+    loadDashboard();
     loadMisDatos();
   });
 
@@ -53,7 +52,6 @@
     const banner = document.getElementById('bannerEstado');
     const estado = cuidador.estado;
     if (!estado || estado === 'aprobado') {
-      // Si ya está aprobado, mostrar banner verde breve
       if (estado === 'aprobado') {
         banner.className = 'panel-estado panel-estado--aprobado';
         document.getElementById('estadoIcon').innerHTML = icon('checkCircle', 'success');
@@ -122,282 +120,164 @@
         document.getElementById('sec' + sec.charAt(0).toUpperCase() + sec.slice(1)).classList.add('is-active');
 
         if (sec === 'perfil') loadPerfilPreview();
+        if (sec === 'capacitaciones') loadCapacitaciones();
       });
     });
   }
 
-  // === Matches (nuevo flujo) ===
-  async function loadMatches() {
-    const list = document.getElementById('matchesList');
-    if (!list) return;
+  // === Dashboard (C01) ===
+  async function loadDashboard() {
+    // Greeting
+    const nombre = cuidador.nombre || 'Cuidador';
+    document.getElementById('dashGreeting').textContent = `Hola, ${nombre}`;
+
+    // Fetch stats
     try {
-      const res = await fetch(`${API}/matches?cuidador_id=${cuidador.id}`);
-      const json = await res.json();
-      if (!json.ok || !json.data?.length) {
-        list.innerHTML = '<p class="solicitudes-empty">Todavía no recibiste intereses de familias. Cuando una familia se interese en tu perfil, vas a verlo acá.</p>';
-        return;
-      }
-
-      // Badge: matches pendientes de respuesta
-      const pendientes = json.data.filter(m => m.estado === 'pendiente_cuidador').length;
-      const badge = document.getElementById('badgeSolicitudes');
-      if (pendientes > 0) {
-        badge.textContent = pendientes;
-        badge.classList.remove('hidden');
-      }
-
-      list.innerHTML = json.data.map(m => renderMatch(m)).join('');
-
-      // Event listeners para aceptar/rechazar matches
-      list.querySelectorAll('[data-match-accion]').forEach(btn => {
-        btn.addEventListener('click', () => responderMatch(btn.dataset.matchId, btn.dataset.matchAccion));
-      });
-    } catch {
-      list.innerHTML = '<p class="solicitudes-empty">Error al cargar. Intentá recargar la página.</p>';
-    }
-  }
-
-  function renderMatch(m) {
-    const fam = m.familia || {};
-    const fecha = m.created_at ? new Date(m.created_at).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
-    const estadoLabels = {
-      pendiente_cuidador: 'Esperando tu respuesta',
-      match: 'Match confirmado',
-      desbloqueado: 'Contacto desbloqueado',
-      rechazado: 'Rechazado',
-      vencido: 'Vencido',
-      descartado: 'Descartado'
-    };
-    const estadoColors = {
-      pendiente_cuidador: '#d97706',
-      match: '#059669',
-      desbloqueado: '#006D77',
-      rechazado: '#dc2626',
-      vencido: '#6b7280',
-      descartado: '#6b7280'
-    };
-    const estadoLabel = estadoLabels[m.estado] || m.estado;
-    const estadoColor = estadoColors[m.estado] || '#6b7280';
-
-    const zona = fam.zona || m.familia_zona || '';
-    const servicio = fam.servicio || m.familia_servicio || '';
-    const horarios = fam.horarios || m.familia_horarios || '';
-    const detalle = fam.detalle || m.familia_detalle || '';
-
-    let contactoInfo = '';
-    if (m.estado === 'desbloqueado' && fam.nombre) {
-      const datos = [];
-      if (fam.telefono) datos.push(`${icon('phone')} ${esc(fam.telefono)}`);
-      if (fam.email) datos.push(`${icon('mail')} ${esc(fam.email)}`);
-      contactoInfo = `
-        <div class="solicitud-card__contacto-info" style="background:#e0f7fa;border-radius:8px;padding:12px;margin-top:8px">
-          <strong>${esc(fam.nombre)} ${esc(fam.apellido || '')}</strong><br>${datos.join('<br>')}
-        </div>`;
-    }
-
-    let acciones = '';
-    if (m.estado === 'pendiente_cuidador') {
-      acciones = `
-        <div class="solicitud-card__acciones">
-          <button class="btn btn--primary btn--sm" data-match-id="${m.id}" data-match-accion="aceptar">Aceptar</button>
-          <button class="btn btn--ghost btn--sm" data-match-id="${m.id}" data-match-accion="rechazar">No me interesa</button>
-        </div>`;
-    }
-
-    return `
-      <div class="solicitud-card" style="border-left:4px solid ${estadoColor}">
-        <div class="solicitud-card__header">
-          <div class="solicitud-card__avatar" style="background:${estadoColor};color:white">💙</div>
-          <div class="solicitud-card__header-info">
-            <span class="solicitud-card__nombre">${m.estado === 'desbloqueado' && fam.nombre ? esc(fam.nombre + ' ' + (fam.apellido || '')) : 'Familia interesada'}</span>
-            ${zona ? `<span class="solicitud-card__ubicacion">${icon('mapPin')} ${esc(zona)}</span>` : ''}
-          </div>
-          <div class="solicitud-card__header-right">
-            <span class="solicitud-card__estado" style="color:${estadoColor};font-weight:600">${estadoLabel}</span>
-            <span class="solicitud-card__fecha">${fecha}</span>
-          </div>
-        </div>
-        ${servicio || horarios ? `
-        <div class="solicitud-card__contexto">
-          <strong>Lo que busca:</strong>
-          <div class="solicitud-card__detalle-grid">
-            ${servicio ? `<span class="solicitud-detalle-item">${icon('tag')} ${esc(servicio)}</span>` : ''}
-            ${horarios ? `<span class="solicitud-detalle-item">${icon('clock')} ${esc(horarios)}</span>` : ''}
-          </div>
-        </div>` : ''}
-        ${detalle ? `<div class="solicitud-card__mensaje">${icon('messageCircle')} ${esc(detalle)}</div>` : ''}
-        ${contactoInfo}
-        ${acciones}
-      </div>`;
-  }
-
-  async function responderMatch(matchId, accion) {
-    const motivo = accion === 'rechazar'
-      ? prompt('¿Querés indicar un motivo? (opcional)') || ''
-      : '';
-
-    try {
-      const res = await fetch(`${API}/matches/${matchId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ accion, motivo })
-      });
+      const res = await fetch(`${API}/red/cuidador-stats?cuidador_id=${cuidador.id}`);
       const json = await res.json();
       if (json.ok) {
-        loadMatches();
-      } else {
-        alert(json.error || 'Error al responder');
+        const d = json.data;
+        document.getElementById('statRecs').textContent = d.recomendaciones ?? 0;
+        document.getElementById('statContactos').textContent = d.contactos_activos ?? 0;
+        document.getElementById('statNuevos').textContent = d.nuevos_7d ?? 0;
+
+        // Visibility badge
+        const recs = d.recomendaciones ?? 0;
+        const visEl = document.getElementById('dashVisibility');
+        if (recs > 0) {
+          visEl.innerHTML = `<span class="dash-badge dash-badge--active">${icon('eye')} Visible en ${recs} red${recs > 1 ? 'es' : ''}</span>`;
+        } else {
+          visEl.innerHTML = '<span class="dash-badge dash-badge--inactive">Aún no tenés recomendaciones</span>';
+        }
       }
     } catch {
-      alert('Sin conexión. Intentá nuevamente.');
+      document.getElementById('statRecs').textContent = '—';
+      document.getElementById('statContactos').textContent = '—';
+      document.getElementById('statNuevos').textContent = '—';
     }
-  }
 
-  // === Solicitudes de contacto (legacy — sistema anterior) ===
-  async function loadSolicitudes() {
-    const list = document.getElementById('solicitudesList');
-    if (!list) return;
+    // Fetch recent recommendations
     try {
-      const res = await fetch(`${API}/contactos/solicitudes?cuidador_id=${cuidador.id}`);
+      const res = await fetch(`${API}/red/mis-recomendaciones?cuidador_id=${cuidador.id}`);
       const json = await res.json();
-      if (!json.ok || !json.data?.length) {
-        // No hay solicitudes legacy → ocultar sección
-        return;
-      }
-
-      // Mostrar sección legacy
-      const wrapper = document.getElementById('solicitudesLegacy');
-      if (wrapper) wrapper.classList.remove('hidden');
-
-      list.innerHTML = json.data.map(s => renderSolicitud(s)).join('');
-
-      // Event listeners para aceptar/rechazar
-      list.querySelectorAll('[data-accion]').forEach(btn => {
-        btn.addEventListener('click', () => responderSolicitud(btn.dataset.id, btn.dataset.accion));
-      });
-    } catch {
-      list.innerHTML = '<p class="solicitudes-empty">Error al cargar solicitudes. Intentá recargar la página.</p>';
-    }
-  }
-
-  function renderSolicitud(s) {
-    const fam = s.familias || {};
-    const nombre = `${fam.nombre || 'Familia'} ${fam.apellido || ''}`.trim();
-    const inicial = (fam.nombre || '?').charAt(0).toUpperCase();
-    const fecha = s.created_at ? new Date(s.created_at).toLocaleDateString('es-AR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
-    const estadoClass = `solicitud-card__estado--${s.estado}`;
-    const estadoLabel = { pendiente: 'Pendiente', aceptada: 'Aceptada', rechazada: 'Rechazada' }[s.estado] || s.estado;
-
-    // Datos de contexto de la familia
-    const zona = fam.zona || {};
-    const busqueda = fam.busqueda || {};
-    const detalle = fam.detalle || {};
-
-    // Tipo de cuidado
-    const tipoLabels = { ninera: 'Niñera', adulto_mayor: 'Adulto mayor', domestica: 'Empleada doméstica' };
-    const tipoBuscado = busqueda.tipo
-      ? (tipoLabels[busqueda.tipo] || busqueda.tipo)
-      : (busqueda.tipos || []).map(t => tipoLabels[t] || t).join(', ');
-    const ubicacion = [zona.localidad, zona.provincia].filter(Boolean).join(', ');
-
-    // Días y horarios
-    const diasLabels = { lunes: 'Lun', martes: 'Mar', miercoles: 'Mié', miércoles: 'Mié', jueves: 'Jue', viernes: 'Vie', sabado: 'Sáb', sábado: 'Sáb', domingo: 'Dom' };
-    let diasTexto = '';
-    if (busqueda.dias) {
-      const diasArr = Array.isArray(busqueda.dias) ? busqueda.dias : busqueda.dias.split(',').map(d => d.trim());
-      diasTexto = diasArr.map(d => diasLabels[d.toLowerCase()] || d).join(', ');
-    }
-    const franjaLabels = { manana: 'Mañana (6-13h)', tarde: 'Tarde (13-20h)', noche: 'Noche (20-6h)', completa: 'Jornada completa' };
-    const franjaTexto = busqueda.franja ? (franjaLabels[busqueda.franja] || busqueda.franja) : '';
-
-    // Observaciones del detalle
-    const observaciones = [];
-    if (detalle.cantidad_ninos) observaciones.push(`${detalle.cantidad_ninos} niño${detalle.cantidad_ninos > 1 ? 's' : ''}`);
-    if (detalle.edades) observaciones.push(`Edades: ${detalle.edades}`);
-    if (detalle.observaciones) observaciones.push(detalle.observaciones);
-    if (detalle.necesidades) observaciones.push(detalle.necesidades);
-    if (detalle.notas) observaciones.push(detalle.notas);
-
-    // Construir sección de contexto
-    let contextoHtml = '';
-    const hayContexto = tipoBuscado || ubicacion || diasTexto || franjaTexto || observaciones.length;
-    if (hayContexto) {
-      contextoHtml = `
-        <div class="solicitud-card__contexto">
-          <strong>Lo que busca la familia:</strong>
-          <div class="solicitud-card__detalle-grid">
-            ${tipoBuscado ? `<span class="solicitud-detalle-item">${icon('tag')} ${esc(tipoBuscado)}</span>` : ''}
-            ${ubicacion ? `<span class="solicitud-detalle-item">${icon('mapPin')} ${esc(ubicacion)}</span>` : ''}
-            ${diasTexto ? `<span class="solicitud-detalle-item">${icon('calendar')} ${esc(diasTexto)}</span>` : ''}
-            ${franjaTexto ? `<span class="solicitud-detalle-item">${icon('clock')} ${esc(franjaTexto)}</span>` : ''}
-          </div>
-          ${observaciones.length ? `<div class="solicitud-card__obs"><span class="solicitud-detalle-item">${icon('fileText')} ${esc(observaciones.join(' · '))}</span></div>` : ''}
-        </div>`;
-    }
-
-    let contactoInfo = '';
-    if (s.estado === 'aceptada') {
-      const datos = [];
-      if (fam.telefono) datos.push(`${icon('phone')} ${esc(fam.telefono)}`);
-      if (fam.email) datos.push(`${icon('mail')} ${esc(fam.email)}`);
-      if (datos.length) {
-        contactoInfo = `
-          <div class="solicitud-card__contacto-info">
-            <strong>Datos de contacto:</strong><br>${datos.join('<br>')}
+      const container = document.getElementById('dashRecomendaciones');
+      if (json.ok && json.data?.length) {
+        const cards = json.data.slice(0, 5).map(r => {
+          const nombre = `${r.familia_nombre || 'Familia'} ${(r.familia_apellido || '').charAt(0)}.`.trim();
+          const fecha = r.created_at ? new Date(r.created_at).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }) : '';
+          return `
+            <div class="dash-rec-card">
+              <div class="dash-rec-card__icon">${icon('heart')}</div>
+              <div class="dash-rec-card__body">
+                <strong>${esc(nombre)}</strong> te recomendó
+                ${r.comentario ? `<p class="dash-rec-card__quote">"${esc(r.comentario)}"</p>` : ''}
+              </div>
+              <span class="dash-rec-card__date">${fecha}</span>
+            </div>`;
+        }).join('');
+        container.innerHTML = `
+          <h3 class="dash-subtitle">${icon('heart')} Mis recomendaciones</h3>
+          ${cards}`;
+      } else {
+        container.innerHTML = `
+          <div class="dash-empty">
+            ${icon('heart')}
+            <p>Todavía no recibiste recomendaciones. Cuando una familia te recomiende, vas a verlo acá.</p>
           </div>`;
       }
+    } catch {
+      document.getElementById('dashRecomendaciones').innerHTML = '';
     }
 
-    let acciones = '';
-    if (s.estado === 'pendiente') {
-      acciones = `
-        <div class="solicitud-card__acciones">
-          <button class="btn btn--primary btn--sm" data-id="${s.id}" data-accion="aceptada">Aceptar</button>
-          <button class="btn btn--ghost btn--sm" data-id="${s.id}" data-accion="rechazada">Rechazar</button>
-        </div>`;
-    }
-
-    return `
-      <div class="solicitud-card">
-        <div class="solicitud-card__header">
-          <div class="solicitud-card__avatar">${fam.foto_url ? `<img src="${esc(fam.foto_url)}" alt="${esc(nombre)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.style.display='none';this.parentElement.textContent='${inicial}'">` : inicial}</div>
-          <div class="solicitud-card__header-info">
-            <span class="solicitud-card__nombre">${esc(nombre)}</span>
-            ${ubicacion ? `<span class="solicitud-card__ubicacion">${icon('mapPin')} ${esc(ubicacion)}</span>` : ''}
-          </div>
-          <div class="solicitud-card__header-right">
-            <span class="solicitud-card__estado ${estadoClass}">${estadoLabel}</span>
-            <span class="solicitud-card__fecha">${fecha}</span>
-          </div>
-        </div>
-        ${contextoHtml}
-        ${s.mensaje ? `<div class="solicitud-card__mensaje">${icon('messageCircle')} ${esc(s.mensaje)}</div>` : ''}
-        ${contactoInfo}
-        ${s.respuesta_cuidador ? `<div class="solicitud-card__mensaje"><em>Tu respuesta:</em> ${esc(s.respuesta_cuidador)}</div>` : ''}
-        ${acciones}
-      </div>`;
+    // Fetch new contacts (últimos 7 días)
+    try {
+      const res = await fetch(`${API}/red/contactos?cuidador_id=${cuidador.id}&limit=5`);
+      const json = await res.json();
+      const container = document.getElementById('dashNuevos');
+      if (json.ok && json.data?.length) {
+        const recent = json.data.filter(c => {
+          if (!c.created_at) return false;
+          const diff = Date.now() - new Date(c.created_at).getTime();
+          return diff < 7 * 24 * 60 * 60 * 1000;
+        });
+        if (recent.length) {
+          const cards = recent.map(c => {
+            const fam = c.familia || c.familias || {};
+            const nombre = `${fam.nombre || 'Familia'} ${(fam.apellido || '').charAt(0)}.`.trim();
+            return `
+              <div class="dash-nuevo-card">
+                <div class="dash-nuevo-card__avatar">${(fam.nombre || 'F').charAt(0).toUpperCase()}</div>
+                <div class="dash-nuevo-card__body">
+                  <strong>${esc(nombre)}</strong>
+                  <span class="dash-nuevo-card__label">Nuevo contacto</span>
+                </div>
+                <button class="btn btn--primary btn--sm dash-nuevo-card__action" onclick="window.open('https://wa.me/${(fam.telefono || '').replace(/\D/g,'')}','_blank')">
+                  ${icon('messageCircle')} Contactar
+                </button>
+              </div>`;
+          }).join('');
+          container.innerHTML = `
+            <h3 class="dash-subtitle">${icon('userPlus')} Nuevas solicitudes</h3>
+            ${cards}`;
+        }
+      }
+    } catch {}
   }
 
-  async function responderSolicitud(id, estado) {
-    const respuesta = estado === 'rechazada'
-      ? prompt('¿Querés dejar un mensaje para la familia? (opcional)') || ''
-      : '';
+  // === Capacitaciones (C03) ===
+  async function loadCapacitaciones() {
+    const listEl = document.getElementById('capList');
+    const countEl = document.getElementById('capCount');
+    const fillEl = document.getElementById('capFill');
 
+    // Definir capacitaciones disponibles
+    const capacitaciones = [
+      { id: 'rcp', nombre: 'RCP y primeros auxilios', descripcion: 'Técnicas básicas de reanimación y primeros auxilios para emergencias domésticas.', duracion: '2 horas' },
+      { id: 'adulto_mayor', nombre: 'Cuidado del adulto mayor', descripcion: 'Buenas prácticas para el acompañamiento y cuidado de personas mayores.', duracion: '3 horas' },
+      { id: 'estimulacion', nombre: 'Estimulación cognitiva', descripcion: 'Herramientas para estimular el desarrollo cognitivo en niños y adultos.', duracion: '2 horas' }
+    ];
+
+    // Fetch evaluaciones del cuidador
+    let completadas = [];
     try {
-      const res = await fetch(`${API}/contactos/solicitudes/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ estado, respuesta })
-      });
+      const res = await fetch(`${API}/evaluaciones?cuidador_id=${cuidador.id}`);
       const json = await res.json();
-      if (json.ok) {
-        loadSolicitudes();
-      } else {
-        alert(json.error || 'Error al responder');
+      if (json.ok && json.data) {
+        completadas = json.data
+          .filter(e => e.aprobado || e.completado)
+          .map(e => e.tipo || e.capacitacion_id || e.nombre);
       }
-    } catch {
-      alert('Sin conexión. Intentá nuevamente.');
-    }
+    } catch {}
+
+    // Update progress bar
+    const total = capacitaciones.length;
+    const done = Math.min(completadas.length, total);
+    countEl.textContent = `${done}/${total}`;
+    fillEl.style.width = total > 0 ? `${(done / total) * 100}%` : '0%';
+
+    // Render cards
+    const cards = capacitaciones.map(cap => {
+      const isDone = completadas.includes(cap.id);
+      return `
+        <div class="cap-card ${isDone ? 'cap-card--done' : ''}">
+          <div class="cap-card__header">
+            <div class="cap-card__icon">${isDone ? icon('checkCircle', 'success') : icon('bookOpen')}</div>
+            <div class="cap-card__info">
+              <h4 class="cap-card__name">${esc(cap.nombre)}</h4>
+              <span class="cap-card__duracion">${icon('clock')} ${esc(cap.duracion)}</span>
+            </div>
+            ${isDone
+              ? '<span class="cap-card__badge cap-card__badge--done">Completada</span>'
+              : '<span class="cap-card__badge cap-card__badge--pending">Pendiente</span>'}
+          </div>
+          <p class="cap-card__desc">${esc(cap.descripcion)}</p>
+          ${isDone
+            ? ''
+            : '<button class="btn btn--primary btn--sm cap-card__btn">Empezar</button>'}
+        </div>`;
+    }).join('');
+
+    listEl.innerHTML = cards || '<p class="panel-loading">No hay capacitaciones disponibles.</p>';
   }
 
   // === Mis Datos ===
@@ -469,7 +349,6 @@
       });
       const json = await res.json();
       if (json.ok) {
-        // Actualizar estado local
         Object.assign(cuidador, json.data);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(cuidador));
         document.getElementById('cuidName').textContent = cuidador.nombre;

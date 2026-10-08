@@ -326,19 +326,36 @@
 
     buscar: {
       bot: (a) => {
+        const enRed = _familiaLogueada && _familiaLogueada.id;
+        if (enRed) {
+          const frases = {
+            ninera: 'Perfecto, voy a buscar niñeras recomendadas en tu red de confianza…',
+            adulto_mayor: 'Voy a buscar cuidadores recomendados en tu red para tu familiar…',
+            cocinera: 'Buscando cocineras recomendadas en tu red…',
+            domestica: 'Buscando en tu red de confianza…'
+          };
+          return [frases[a.tipo] || 'Buscando en tu red de confianza…'];
+        }
         const frases = {
-          ninera: 'Perfecto, ya tengo todo. Voy a buscar las mejores niñeras para tu familia…',
-          adulto_mayor: 'Ya tengo toda la información. Voy a buscar a las personas más preparadas para cuidar a tu familiar…',
-          cocinera: 'Listo, voy a buscar las mejores cocineras para tu hogar…',
-          domestica: 'Listo, voy a buscar las mejores opciones para tu hogar…'
+          ninera: 'Perfecto, ya tengo todo. Voy a buscar niñeras para tu familia…',
+          adulto_mayor: 'Ya tengo toda la información. Voy a buscar cuidadores para tu familiar…',
+          cocinera: 'Listo, voy a buscar cocineras para tu hogar…',
+          domestica: 'Listo, voy a buscar opciones para tu hogar…'
         };
-        return [frases[a.tipo] || 'Buscando las mejores opciones para vos…'];
+        return [frases[a.tipo] || 'Buscando opciones para vos…'];
       },
       action: 'search'
     },
 
     sin_resultados: {
       bot: (a) => {
+        const enRed = _familiaLogueada && _familiaLogueada.id;
+        if (enRed) {
+          return [
+            'No encontré cuidadores en tu red de confianza con esos criterios.',
+            'Esto puede pasar si tu red es todavía chica. ¿Querés ampliar la búsqueda o invitar a más familias a tu red?'
+          ];
+        }
         const tipo = a.tipo || 'todos';
         if (tipo === 'adulto_mayor') {
           return [
@@ -374,14 +391,23 @@
     resultados_ok: {
       bot: (a, count) => {
         const msgs = [];
+        const enRed = _familiaLogueada && _familiaLogueada.id;
         if (count === 1) {
-          msgs.push('Encontré 1 persona que coincide con lo que buscás.');
+          msgs.push(enRed
+            ? 'Encontré 1 cuidador en tu red de confianza.'
+            : 'Encontré 1 persona que coincide con lo que buscás.');
         } else if (count <= 3) {
-          msgs.push(`Encontré ${count} personas que coinciden con lo que me contaste.`);
+          msgs.push(enRed
+            ? `Encontré ${count} cuidadores en tu red que coinciden con lo que me contaste.`
+            : `Encontré ${count} personas que coinciden con lo que me contaste.`);
         } else {
-          msgs.push(`Encontré ${count} personas que podrían ser ideales para vos.`);
+          msgs.push(enRed
+            ? `Encontré ${count} cuidadores en tu red de confianza.`
+            : `Encontré ${count} personas que podrían ser ideales para vos.`);
         }
-        msgs.push('Hacé click en cualquier perfil para ver más detalles, su disponibilidad y su experiencia. Si alguna te interesa, podés guardarla en favoritos.');
+        msgs.push(enRed
+          ? 'Hacé click en cualquier perfil para ver más detalles. Debajo de cada uno podés ver quién lo recomienda.'
+          : 'Hacé click en cualquier perfil para ver más detalles, su disponibilidad y su experiencia.');
         return msgs;
       },
       options: [
@@ -446,12 +472,12 @@
     express_buscar: {
       bot: (a) => {
         const frases = {
-          ninera: 'Perfecto, busco las mejores niñeras para vos con tus criterios anteriores…',
-          adulto_mayor: 'Buscando cuidadores para tu familiar con los mismos criterios…',
-          cocinera: 'Buscando cocineras con tus preferencias anteriores…',
-          domestica: 'Buscando empleadas domésticas con tus preferencias…'
+          ninera: 'Perfecto, busco niñeras en tu red con tus criterios anteriores…',
+          adulto_mayor: 'Buscando cuidadores en tu red para tu familiar…',
+          cocinera: 'Buscando cocineras en tu red con tus preferencias…',
+          domestica: 'Buscando en tu red con tus preferencias…'
         };
-        return [frases[a.tipo] || 'Buscando con tus criterios anteriores…'];
+        return [frases[a.tipo] || 'Buscando en tu red con tus criterios anteriores…'];
       },
       action: 'search'
     },
@@ -746,6 +772,90 @@
   async function doBusqueda(wide) {
     showTyping();
 
+    const usarRedConfianza = _familiaLogueada && _familiaLogueada.id;
+
+    if (usarRedConfianza) {
+      // --- Búsqueda por red de confianza ---
+      await doBusquedaRed(wide);
+    } else {
+      // --- Búsqueda general (usuario no logueado) ---
+      await doBusquedaGeneral(wide);
+    }
+  }
+
+  // Búsqueda filtrada por red de confianza
+  async function doBusquedaRed(wide) {
+    const qs = new URLSearchParams();
+    qs.set('familia_id', _familiaLogueada.id);
+
+    if (answers.tipo && answers.tipo !== 'todos') {
+      qs.set('especialidad', answers.tipo);
+    }
+
+    if (wide && answers._ampliar === 'ampliar_zona') {
+      // no ponemos zona
+    } else if (answers.zona) {
+      qs.set('zona', answers.zona);
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/red/cuidadores?${qs.toString()}`);
+      const json = await res.json();
+      removeTyping();
+
+      if (!json.ok) throw new Error(json.error);
+
+      // Mapear campos de la función cuidadores_en_red al formato esperado por las cards
+      cuidadoresActuales = (json.cuidadores || []).map(c => ({
+        id: c.cuidador_id,
+        nombre: (c.nombre || '') + (c.apellido ? ' ' + c.apellido : ''),
+        foto: c.foto_url || '',
+        especialidad: (c.especialidades || [])[0] || '',
+        especialidades: c.especialidades || [],
+        zona: c.localidad || '',
+        valoracion: c.valoracion,
+        experiencia_anios: c.experiencia_anios,
+        lat: c.lat,
+        lng: c.lng,
+        disponibilidad: c.disponibilidad,
+        nivel_confianza: c.nivel_confianza,
+        total_recomendaciones: c.total_recomendaciones,
+        familias_que_recomiendan: c.familias_que_recomiendan,
+        _es_red: true
+      }));
+
+      // Filtro de distancia en el cliente
+      if (answers.user_lat && answers.distancia_km) {
+        const maxKm = Number(answers.distancia_km);
+        cuidadoresActuales = cuidadoresActuales
+          .map(c => {
+            if (c.lat != null && c.lng != null) {
+              c._distancia = haversineKm(answers.user_lat, answers.user_lng, c.lat, c.lng);
+            } else {
+              c._distancia = Infinity;
+            }
+            return c;
+          })
+          .filter(c => c._distancia <= maxKm)
+          .sort((a, b) => a._distancia - b._distancia);
+      }
+
+      if (cuidadoresActuales.length === 0) {
+        runStep('sin_resultados');
+      } else {
+        renderResultsInChat(cuidadoresActuales);
+        showMapResults(cuidadoresActuales);
+        guardarBusqueda();
+        runStep('resultados_ok');
+      }
+    } catch (err) {
+      removeTyping();
+      addBotMessage('Ups, tuve un problema al buscar en tu red. ¿Podés intentar de nuevo en unos segundos?');
+    }
+  }
+
+  // Búsqueda general (sin red de confianza)
+  async function doBusquedaGeneral(wide) {
     const qs = new URLSearchParams();
     const verTodosZona = wide && answers._ampliar === 'ver_todos_zona';
 
@@ -800,13 +910,42 @@
       } else {
         renderResultsInChat(cuidadoresActuales);
         showMapResults(cuidadoresActuales);
-        guardarBusqueda(); // Guardar preferencias para flujo express
+        guardarBusqueda();
         runStep('resultados_ok');
       }
     } catch (err) {
       removeTyping();
       addBotMessage('Ups, tuve un problema al buscar. ¿Podés intentar de nuevo en unos segundos?');
     }
+  }
+
+  // ---- Helpers de confianza ----
+  function nivelBadgeHtml(c) {
+    if (!c._es_red || c.nivel_confianza == null) return '';
+    if (c.nivel_confianza <= 1) {
+      return '<span class="nivel-badge nivel-badge--1">Nivel 1</span>';
+    }
+    return '<span class="nivel-badge nivel-badge--2">Nivel 2</span>';
+  }
+
+  function trustChainHtml(c) {
+    if (!c._es_red || !c.familias_que_recomiendan) return '';
+    const texto = c.nivel_confianza <= 1
+      ? `${c.familias_que_recomiendan.split(',')[0].trim()} lo recomienda`
+      : `Vía red de ${c.familias_que_recomiendan.split(',')[0].trim()}`;
+    return `<div class="trust-chain trust-chain--sm"><span class="trust-chain__dot"></span><span class="trust-chain__line"></span><span>${escapeHtml(texto)}</span></div>`;
+  }
+
+  function avatarHtml(c) {
+    if (c.foto) {
+      return `<img class="chat-card__avatar" src="${c.foto}" alt="${escapeHtml(c.nombre)}" />`;
+    }
+    // Avatar de color por inicial
+    const initial = (c.nombre || '?').charAt(0).toUpperCase();
+    const colors = { A:'#006D77', B:'#00B4B8', C:'#FF6B6B', D:'#006D77', E:'#00B4B8', F:'#FF6B6B' };
+    const nivelColor = c.nivel_confianza <= 1 ? 'var(--teal)' : c.nivel_confianza === 2 ? 'var(--aqua)' : 'var(--coral)';
+    const bg = c._es_red ? nivelColor : (colors[initial] || 'var(--teal)');
+    return `<div class="chat-card__avatar chat-card__avatar--initial" style="background:${bg}">${initial}</div>`;
   }
 
   // ---- Render cards en el chat ----
@@ -820,22 +959,23 @@
       card.addEventListener('click', () => abrirFicha(c.id));
 
       const rating = Number(c.valoracion) > 0
-        ? `<span class="chat-card__stars">${icon('starFilled', 'gold')} ${Number(c.valoracion).toFixed(1)}</span> <span class="chat-card__reviews">(${c.resenas || 0})</span>`
-        : '<span class="chat-card__reviews">Sin reseñas</span>';
+        ? `<span class="chat-card__stars">${icon('starFilled', 'gold')} ${Number(c.valoracion).toFixed(1)}</span>`
+        : '';
 
       card.innerHTML = `
-        <img class="chat-card__avatar" src="${c.foto}" alt="${escapeHtml(c.nombre)}" />
+        ${avatarHtml(c)}
         <div class="chat-card__info">
           <div class="chat-card__name">
-            ${escapeHtml(c.nombre)}${c.edad ? ', ' + c.edad : ''}
-            ${c.verificado ? '<span class="chat-card__verified">' + icon('check', 'success') + '</span>' : ''}
+            ${escapeHtml(c.nombre)}
+            ${nivelBadgeHtml(c)}
           </div>
           <div class="chat-card__meta">${labelEspecialidad(c)} · ${escapeHtml(c.zona)}</div>
-          <div class="chat-card__rating">${rating}</div>
-          <div class="chat-card__exp">${c.experiencia_anios || 0} años de experiencia${c._distancia != null && c._distancia !== Infinity ? ' · a ' + c._distancia.toFixed(1) + ' km' : ''}</div>
-          ${c.valor_hora_min ? `<div class="chat-card__tarifa">${icon('dollarSign')} $${c.valor_hora_min.toLocaleString('es-AR')}${c.valor_hora_max && c.valor_hora_max !== c.valor_hora_min ? ' - $' + c.valor_hora_max.toLocaleString('es-AR') : ''}/h</div>` : ''}
+          <div class="chat-card__exp">${rating}${rating ? ' · ' : ''}${c.experiencia_anios || 0} años exp.${c._distancia != null && c._distancia !== Infinity ? ' · ' + c._distancia.toFixed(1) + ' km' : ''}</div>
+          ${trustChainHtml(c)}
         </div>
-        <div class="chat-card__arrow">›</div>
+        <div class="chat-card__arrow">
+          <span class="chat-card__ver-perfil">Ver perfil</span>
+        </div>
       `;
       container.appendChild(card);
     });
@@ -881,25 +1021,45 @@
     }, 350);
   }
 
-  // ---- Card para la lista lateral ----
+  // ---- Card para la lista lateral (ficha exprés) ----
   function cardEl(c) {
     const el = document.createElement('div');
-    el.className = 'card';
+    el.className = 'card ficha-expres';
     el.dataset.id = c.id;
+
     const rating = Number(c.valoracion) > 0
-      ? `${icon('starFilled', 'gold')} ${Number(c.valoracion).toFixed(1)} <span>(${c.resenas || 0} reseñas)</span>`
-      : '<span style="color:var(--muted)">Sin reseñas aún</span>';
+      ? `★ ${Number(c.valoracion).toFixed(1)}`
+      : '';
+
+    // Avatar: foto o inicial con color por nivel
+    let avatarContent;
+    if (c.foto) {
+      avatarContent = `<img class="card__avatar" src="${c.foto}" alt="${escapeHtml(c.nombre)}" />`;
+    } else {
+      const initial = (c.nombre || '?').charAt(0).toUpperCase();
+      const nivelColor = c._es_red
+        ? (c.nivel_confianza <= 1 ? 'var(--teal)' : 'var(--aqua)')
+        : 'var(--teal)';
+      avatarContent = `<div class="card__avatar card__avatar--initial" style="background:${nivelColor}">${initial}</div>`;
+    }
+
     el.innerHTML = `
-      <img class="card__avatar" src="${c.foto}" alt="${c.nombre}" />
-      <div class="card__body">
-        <div class="card__name">
-          ${escapeHtml(c.nombre)}${c.edad ? ', ' + c.edad : ''}
-          ${c.verificado ? '<span class="card__badge">Verificado</span>' : ''}
-          ${c.recomendado ? '<span class="card__badge card__badge--rec">Recomendado</span>' : ''}
+      ${nivelBadgeHtml(c) ? `<div class="ficha-expres__nivel">${nivelBadgeHtml(c)}</div>` : ''}
+      <div class="ficha-expres__top">
+        ${avatarContent}
+        <div class="card__body">
+          <div class="card__name">${escapeHtml(c.nombre)}</div>
+          <div class="card__meta">${labelEspecialidad(c)} · ${escapeHtml(c.zona)}</div>
         </div>
-        <div class="card__meta">${labelEspecialidad(c)} · ${escapeHtml(c.zona)}</div>
-        <div class="card__rating">${rating}</div>
-        ${c.valor_hora_min ? `<div class="card__tarifa">$${c.valor_hora_min.toLocaleString('es-AR')}${c.valor_hora_max && c.valor_hora_max !== c.valor_hora_min ? ' - $' + c.valor_hora_max.toLocaleString('es-AR') : ''}/h</div>` : ''}
+      </div>
+      <div class="ficha-expres__stats">
+        ${rating ? `<span>${rating}</span><span>·</span>` : ''}
+        <span>${c.experiencia_anios || 0} años exp.</span>
+        ${c._distancia != null && c._distancia !== Infinity ? `<span>·</span><span>${c._distancia.toFixed(1)} km</span>` : ''}
+      </div>
+      ${trustChainHtml(c)}
+      <div class="ficha-expres__action">
+        <button class="btn btn--sm btn--teal">Ver perfil</button>
       </div>
     `;
     el.addEventListener('click', () => {
@@ -913,6 +1073,11 @@
 
   // ---- Abrir ficha ----
   async function abrirFicha(id) {
+    // Trust network: navigate to dedicated profile page
+    if (_familiaLogueada && _familiaLogueada.id) {
+      window.location.href = `perfil-cuidador.html?id=${id}`;
+      return;
+    }
     if (typeof window.abrirFicha === 'function') {
       window.abrirFicha(id);
     }

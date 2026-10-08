@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <title>Perfil · Cuidy</title>
+  <meta name="description" content="Perfil de cuidador en Cuidy — tu red de confianza para el cuidado." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="auth.css" />
+  <script src="js/analytics.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__row">
+      <a class="brand" href="/" aria-label="Cuidy">
+        <img class="brand__logo" src="assets/logo.svg" alt="Cuidy" />
+      </a>
+      <nav class="topbar__nav">
+        <a href="feed-familia.html">Inicio</a>
+        <a href="/#asistente">Buscar</a>
+        <a href="mi-red.html">Mi Red</a>
+        <div class="user-menu" id="userMenu">
+          <button class="user-menu__trigger" id="userMenuBtn">
+            <span class="user-menu__avatar" id="userAvatar"></span>
+            <span class="user-menu__name" id="userName"></span>
+          </button>
+          <div class="user-menu__dropdown hidden" id="userDropdown">
+            <button class="user-menu__item" id="menuMisDatos"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> Mis datos</button>
+            <hr class="user-menu__divider" />
+            <button class="user-menu__item user-menu__item--logout" id="menuSalir">Cerrar sesión</button>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main id="perfilMain">
+    <div id="perfilLoading" style="text-align:center;padding:60px 20px">
+      <p style="color:#999;font-size:14px">Cargando perfil…</p>
+    </div>
+  </main>
+
+  <!-- Mobile tab bar -->
+  <nav class="tab-bar">
+    <a href="feed-familia.html" class="tab-bar__item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 L12 4 L21 12 V20 H3 Z"/></svg>
+      <span>Inicio</span>
+    </a>
+    <a href="/#asistente" class="tab-bar__item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <span>Buscar</span>
+    </a>
+    <a href="mi-red.html" class="tab-bar__item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>
+      <span>Mi Red</span>
+    </a>
+    <a href="#" class="tab-bar__item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>
+      <span>Diario</span>
+    </a>
+  </nav>
+
+  <footer class="footer">
+    <div class="container footer__row">
+      <span>© <span id="year"></span> Cuidy</span>
+      <em class="footer__tagline">Cuidy. Tu red de confianza para el cuidado.</em>
+    </div>
+  </footer>
+
+  <script src="auth.js"></script>
+  <script src="icons.js"></script>
+  <script>
+  (function() {
+    const API = '/.netlify/functions/api';
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Auth
+    const session = typeof getSession === 'function' ? getSession() : null;
+    if (!session?.id) { window.location.href = 'login.html'; return; }
+    const familiaId = session.id;
+    const familiaName = session.nombre || '';
+
+    // User menu
+    const avatar = document.getElementById('userAvatar');
+    const nameEl = document.getElementById('userName');
+    if (avatar) avatar.textContent = familiaName.charAt(0).toUpperCase();
+    if (nameEl) nameEl.textContent = familiaName;
+
+    const menuBtn = document.getElementById('userMenuBtn');
+    const dropdown = document.getElementById('userDropdown');
+    if (menuBtn && dropdown) {
+      menuBtn.addEventListener('click', () => dropdown.classList.toggle('hidden'));
+      document.addEventListener('click', (e) => {
+        if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.add('hidden');
+      });
+    }
+    document.getElementById('menuSalir')?.addEventListener('click', () => {
+      if (typeof logout === 'function') logout();
+      window.location.href = '/';
+    });
+    document.getElementById('menuMisDatos')?.addEventListener('click', () => window.location.href = 'mis-datos.html');
+
+    // Get cuidador ID from URL
+    const params = new URLSearchParams(window.location.search);
+    const cuidadorId = params.get('id');
+    if (!cuidadorId) {
+      document.getElementById('perfilMain').innerHTML = '<div style="text-align:center;padding:60px 20px"><p>No se encontró el perfil.</p><a href="/#asistente" class="btn btn--primary" style="margin-top:16px">Buscar cuidadores</a></div>';
+      return;
+    }
+
+    const ESPECIALIDAD_LABEL = {
+      ninera: 'Niñera',
+      adulto_mayor: 'Cuidado de adultos mayores',
+      cocinera: 'Cocinera',
+      domestica: 'Empleada doméstica'
+    };
+
+    loadPerfil();
+
+    async function loadPerfil() {
+      try {
+        // Fetch cuidador details
+        const res = await fetch(`${API}/cuidadores/${cuidadorId}?familia_id=${familiaId}`);
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.error);
+
+        const c = json.data;
+        const contactoVisible = json.contacto_visible;
+
+        // Check if already unlocked via contactos_desbloqueados
+        let desbloqueado = false;
+        let contactoData = null;
+        try {
+          const cdRes = await fetch(`${API}/red/contactos?familia_id=${familiaId}`);
+          const cdJson = await cdRes.json();
+          if (cdJson.ok && cdJson.contactos) {
+            const found = cdJson.contactos.find(ct => ct.cuidador_id === cuidadorId);
+            if (found) {
+              desbloqueado = true;
+              contactoData = found.cuidador_info || found.cuidadores;
+            }
+          }
+        } catch(e) {}
+
+        // Also check legacy contacto_visible
+        if (contactoVisible && c.contacto) desbloqueado = true;
+
+        // Fetch trust chain info (recomendaciones for this cuidador in the family's network)
+        let recomendaciones = [];
+        try {
+          const recRes = await fetch(`${API}/red/cuidadores?familia_id=${familiaId}`);
+          const recJson = await recRes.json();
+          if (recJson.ok && recJson.cuidadores) {
+            const match = recJson.cuidadores.find(rc => rc.cuidador_id === cuidadorId);
+            if (match) {
+              c._nivel_confianza = match.nivel_confianza;
+              c._familias_que_recomiendan = match.familias_que_recomiendan;
+              c._total_recomendaciones = match.total_recomendaciones;
+            }
+          }
+        } catch(e) {}
+
+        // Fetch recomendaciones detalladas
+        try {
+          const detRes = await fetch(`${API}/red/mis-recomendaciones?cuidador_id=${cuidadorId}`);
+          const detJson = await detRes.json();
+          if (detJson.ok) recomendaciones = detJson.recomendaciones || [];
+        } catch(e) {}
+
+        renderPerfil(c, desbloqueado, contactoData, recomendaciones);
+      } catch (err) {
+        document.getElementById('perfilMain').innerHTML = `<div style="text-align:center;padding:60px 20px"><p style="color:var(--coral)">Error al cargar el perfil: ${err.message}</p><a href="/#asistente" class="btn btn--ghost" style="margin-top:16px">Volver a buscar</a></div>`;
+      }
+    }
+
+    function renderPerfil(c, desbloqueado, contactoData, recomendaciones) {
+      const main = document.getElementById('perfilMain');
+      const nombre = c.nombre || '';
+      const primerNombre = nombre.split(' ')[0];
+      const initial = nombre.charAt(0).toUpperCase();
+      const esp = (c.especialidades || [c.especialidad]).map(e => ESPECIALIDAD_LABEL[e]).filter(Boolean).join(', ') || '';
+      const zona = c.zona || c.localidad || '';
+
+      // Rating
+      const rating = Number(c.valoracion) > 0
+        ? `★ ${Number(c.valoracion).toFixed(1)}`
+        : '';
+
+      // Nivel badge
+      let nivelBadge = '';
+      if (c._nivel_confianza != null) {
+        const cls = c._nivel_confianza <= 1 ? 'nivel-badge--1' : 'nivel-badge--2';
+        const lbl = c._nivel_confianza <= 1 ? 'Nivel 1' : 'Nivel 2';
+        nivelBadge = `<span class="nivel-badge ${cls}" style="background:rgba(255,255,255,0.15);color:white">${lbl}</span>`;
+      }
+
+      // Trust chain section
+      let trustSection = '';
+      if (c._familias_que_recomiendan) {
+        const fams = c._familias_que_recomiendan.split(',').map(f => f.trim());
+        trustSection = `
+          <div class="perfil-section">
+            <h4 class="perfil-section__title perfil-section__title--teal">Cadena de confianza</h4>
+            ${fams.map(f => `
+              <div class="trust-card">
+                <div class="trust-card__avatar">${f.charAt(0).toUpperCase()}</div>
+                <div class="trust-card__info">
+                  <p class="trust-card__name"><strong>${escapeHtml(f)}</strong> ${c._nivel_confianza <= 1 ? 'lo recomienda' : 'lo recomienda (red extendida)'}</p>
+                  ${recomendaciones.find(r => r.familia_nombre && (r.familia_nombre + ' ' + (r.familia_apellido || '').charAt(0) + '.').trim() === f)
+                    ? `<p class="trust-card__text">"${escapeHtml(recomendaciones.find(r => (r.familia_nombre + ' ' + (r.familia_apellido || '').charAt(0) + '.').trim() === f).texto || '')}"</p>
+                       <p class="trust-card__stars">${'★'.repeat(recomendaciones.find(r => (r.familia_nombre + ' ' + (r.familia_apellido || '').charAt(0) + '.').trim() === f).valoracion || 0)}</p>`
+                    : ''}
+                </div>
+              </div>
+            `).join('')}
+          </div>`;
+      }
+
+      // Recomendaciones section (for unlocked profiles)
+      let recsSection = '';
+      if (desbloqueado && recomendaciones.length > 0) {
+        recsSection = `
+          <div class="perfil-section">
+            <h4 class="perfil-section__title perfil-section__title--coral">Recomendaciones (${recomendaciones.length})</h4>
+            ${recomendaciones.map(r => `
+              <div class="rec-card">
+                <div class="rec-card__header">
+                  <strong>${escapeHtml((r.familia_nombre || '') + ' ' + ((r.familia_apellido || '').charAt(0) || '') + '.')}</strong>
+                  <span style="color:var(--coral)">${'★'.repeat(r.valoracion || 0)}</span>
+                </div>
+                ${r.texto ? `<p class="rec-card__text">"${escapeHtml(r.texto)}"</p>` : ''}
+                <p class="rec-card__meta">${ESPECIALIDAD_LABEL[r.tipo_servicio] || r.tipo_servicio || ''} · ${r.relacion === 'empleador_actual' ? 'Empleador actual' : r.relacion === 'empleador_anterior' ? 'Empleador anterior' : 'Conocido'}</p>
+              </div>
+            `).join('')}
+          </div>`;
+      }
+
+      // Disponibilidad
+      let dispSection = '';
+      if (c.disponibilidad && typeof c.disponibilidad === 'object') {
+        dispSection = `
+          <div class="perfil-section">
+            <h4 class="perfil-section__title">Disponibilidad</h4>
+            <p style="font-size:13px;color:#555">${formatDisp(c.disponibilidad)}</p>
+          </div>`;
+      }
+
+      // Experiencia & bio (only full for unlocked)
+      let expSection = '';
+      if (desbloqueado) {
+        expSection = `
+          <div class="perfil-section">
+            <h4 class="perfil-section__title">Experiencia</h4>
+            <p style="font-size:13px;color:#555;line-height:1.6">${c.experiencia_anios || 0} años de experiencia. ${escapeHtml(c.bio || '')}</p>
+          </div>`;
+      }
+
+      // Contact section or locked section
+      let actionSection = '';
+      if (desbloqueado) {
+        // F08: Full profile unlocked
+        const tel = contactoData?.telefono || c.contacto?.telefono || c.telefono || '';
+        const email = contactoData?.email || c.contacto?.email || c.email || '';
+        actionSection = `
+          <div class="perfil-actions">
+            ${tel ? `<a href="https://wa.me/${tel.replace(/[^0-9]/g,'')}" target="_blank" class="btn btn--primary perfil-actions__btn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              Enviar mensaje
+            </a>` : ''}
+            ${tel ? `<a href="tel:${tel}" class="btn btn--ghost perfil-actions__btn">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              Llamar
+            </a>` : ''}
+          </div>
+          ${email ? `<p style="font-size:12px;color:#888;text-align:center;margin-top:8px">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            <a href="mailto:${escapeHtml(email)}" style="color:var(--teal)">${escapeHtml(email)}</a>
+          </p>` : ''}`;
+      } else {
+        // F06: Locked profile
+        actionSection = `
+          <div class="perfil-locked">
+            <svg viewBox="0 0 24 24" width="28" fill="none" stroke="var(--gris-medio)" stroke-width="2" style="margin-bottom:8px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <p class="perfil-locked__title">Perfil completo bloqueado</p>
+            <p class="perfil-locked__text">Desbloqueá para ver experiencia detallada, datos de contacto y enviar mensaje.</p>
+            <button class="btn btn--primary btn--full perfil-locked__btn" id="btnDesbloquear">Desbloquear perfil</button>
+            <p class="perfil-locked__note">Pago único. Sin suscripción.</p>
+          </div>`;
+      }
+
+      // Capacitaciones (for unlocked)
+      let capsSection = '';
+      if (desbloqueado && c.capacitaciones && c.capacitaciones.length) {
+        capsSection = `
+          <div class="perfil-section">
+            <h4 class="perfil-section__title">Capacitaciones</h4>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              ${c.capacitaciones.map(cap => `<span class="badge badge--teal">${escapeHtml(cap.nombre || cap)}</span>`).join('')}
+            </div>
+          </div>`;
+      }
+
+      // Verificaciones
+      let verifBadge = '';
+      if (c.verificado || c.estado_verificacion === 'aprobada') {
+        verifBadge = `<span class="perfil-header__badge">✓ Identidad verificada</span>`;
+      }
+
+      main.innerHTML = `
+        <div class="perfil-page">
+          <!-- Header gradient -->
+          <div class="perfil-header">
+            <button class="perfil-header__back" onclick="history.back()" aria-label="Volver">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="white" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            ${c.foto_url
+              ? `<img class="perfil-header__photo" src="${c.foto_url}" alt="${escapeHtml(nombre)}" />`
+              : `<div class="perfil-header__photo">${initial}</div>`}
+            <h1 class="perfil-header__name">${escapeHtml(nombre)}</h1>
+            <p class="perfil-header__meta">${esp} · ${escapeHtml(zona)}</p>
+            <div class="perfil-header__badges">
+              ${rating ? `<span class="perfil-header__badge">${rating}</span>` : ''}
+              ${c._total_recomendaciones ? `<span class="perfil-header__badge">${c._total_recomendaciones} recomendacion${c._total_recomendaciones > 1 ? 'es' : ''}</span>` : ''}
+              ${nivelBadge}
+              ${verifBadge}
+            </div>
+          </div>
+
+          <div class="perfil-body">
+            ${desbloqueado ? actionSection : ''}
+
+            ${trustSection}
+
+            ${expSection}
+
+            ${dispSection}
+
+            ${capsSection}
+
+            ${desbloqueado ? recsSection : ''}
+
+            ${!desbloqueado ? actionSection : ''}
+          </div>
+        </div>
+      `;
+
+      // Wire up unlock button
+      if (!desbloqueado) {
+        const btn = document.getElementById('btnDesbloquear');
+        if (btn) {
+          btn.addEventListener('click', () => showCheckout(c, recomendaciones));
+        }
+      }
+
+      // Update page title
+      document.title = `${nombre} · Cuidy`;
+    }
+
+    // F07: Checkout view
+    function showCheckout(c, recomendaciones) {
+      const main = document.getElementById('perfilMain');
+      const nombre = c.nombre || '';
+      const primerNombre = nombre.split(' ')[0];
+      const initial = nombre.charAt(0).toUpperCase();
+      const esp = (c.especialidades || [c.especialidad]).map(e => ESPECIALIDAD_LABEL[e]).filter(Boolean).join(', ') || '';
+      const zona = c.zona || c.localidad || '';
+
+      main.innerHTML = `
+        <div class="perfil-page">
+          <div style="padding:16px;border-bottom:1px solid var(--gris)">
+            <button class="perfil-header__back-dark" onclick="location.reload()" aria-label="Volver">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <h2 style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:20px;text-align:center">Desbloquear perfil</h2>
+          </div>
+
+          <div class="perfil-body">
+            <!-- Cuidador summary -->
+            <div class="checkout-summary">
+              <div class="checkout-summary__avatar" style="background:var(--teal)">${initial}</div>
+              <div class="checkout-summary__info">
+                <div class="checkout-summary__name">${escapeHtml(nombre)}</div>
+                <div class="checkout-summary__meta">${esp} · ${escapeHtml(zona)}</div>
+              </div>
+            </div>
+
+            <!-- What's included -->
+            <div class="checkout-includes">
+              <p class="checkout-includes__title">¿Qué incluye?</p>
+              <div class="checkout-includes__list">
+                <div class="checkout-includes__item">✓ Perfil completo con experiencia detallada</div>
+                <div class="checkout-includes__item">✓ Datos de contacto (teléfono, email)</div>
+                <div class="checkout-includes__item">✓ Mensajería directa dentro de Cuidy</div>
+                <div class="checkout-includes__item">✓ Verificaciones y capacitaciones</div>
+                <div class="checkout-includes__item">✓ Acceso al Diario de Cuidado (al confirmar contratación)</div>
+              </div>
+            </div>
+
+            <!-- Price -->
+            <div class="checkout-price">
+              <div class="checkout-price__amount">Pago único</div>
+              <div class="checkout-price__desc">Sin suscripción · Acceso permanente</div>
+            </div>
+
+            <!-- CTA -->
+            <button class="btn btn--primary btn--full checkout-btn" id="btnPagar">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+              Pagar con MercadoPago
+            </button>
+            <p style="font-size:11px;color:#999;text-align:center;margin-top:10px;line-height:1.5">Pago seguro. Si el cuidador no responde en 7 días, te devolvemos el monto.</p>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('btnPagar').addEventListener('click', async () => {
+        const btn = document.getElementById('btnPagar');
+        btn.disabled = true;
+        btn.textContent = 'Procesando…';
+
+        // For now, simulate direct unlock (MercadoPago integration TBD)
+        try {
+          const res = await fetch(`${API}/red/desbloquear`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              familia_id: familiaId,
+              cuidador_id: cuidadorId
+            })
+          });
+          const json = await res.json();
+          if (json.ok) {
+            // Reload profile in unlocked state
+            loadPerfil();
+          } else {
+            alert(json.error || 'Error al procesar el pago');
+            btn.disabled = false;
+            btn.textContent = 'Pagar con MercadoPago';
+          }
+        } catch(e) {
+          alert('Error de conexión. Intentá de nuevo.');
+          btn.disabled = false;
+          btn.textContent = 'Pagar con MercadoPago';
+        }
+      });
+    }
+
+    function formatDisp(d) {
+      if (!d || typeof d !== 'object') return '—';
+      const dayLabels = { lun:'Lun', mar:'Mar', mie:'Mié', jue:'Jue', vie:'Vie', sab:'Sáb', dom:'Dom' };
+      const days = Object.keys(dayLabels);
+      const active = days.filter(day => d[day]);
+      if (!active.length) return '—';
+      return active.map(day => dayLabels[day]).join(', ');
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, s => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[s]));
+    }
+  })();
+  </script>
+
+  <style>
+    .perfil-page { max-width: 600px; margin: 0 auto; padding-bottom: 100px; }
+
+    /* Header */
+    .perfil-header {
+      background: linear-gradient(135deg, var(--teal), #005A63);
+      padding: 24px 20px 28px;
+      text-align: center;
+      color: #fff;
+      position: relative;
+    }
+    .perfil-header__back {
+      position: absolute; top: 16px; left: 16px;
+      background: rgba(255,255,255,0.15); border: none; border-radius: 50%;
+      width: 36px; height: 36px; display: flex; align-items: center;
+      justify-content: center; cursor: pointer;
+      transition: background .2s;
+    }
+    .perfil-header__back:hover { background: rgba(255,255,255,0.25); }
+    .perfil-header__back-dark {
+      position: absolute; top: 16px; left: 16px;
+      background: none; border: none; cursor: pointer; padding: 4px;
+    }
+    .perfil-header__photo {
+      width: 80px; height: 80px; border-radius: 50%;
+      margin: 0 auto 12px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.2);
+      font-size: 32px; font-weight: 700; color: #fff;
+      border: 4px solid rgba(255,255,255,0.3);
+      object-fit: cover;
+    }
+    img.perfil-header__photo { background: rgba(255,255,255,0.2); }
+    .perfil-header__name {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700; font-size: 20px; color: #fff;
+      margin-bottom: 4px;
+    }
+    .perfil-header__meta {
+      font-size: 13px; opacity: 0.85; margin-bottom: 10px;
+    }
+    .perfil-header__badges {
+      display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+    }
+    .perfil-header__badge {
+      display: inline-block; padding: 3px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+      background: rgba(255,255,255,0.15); color: #fff;
+    }
+
+    /* Body */
+    .perfil-body { padding: 16px 20px; }
+
+    /* Sections */
+    .perfil-section { margin-bottom: 20px; }
+    .perfil-section__title {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+      font-weight: 600; margin-bottom: 8px; color: var(--noche);
+    }
+    .perfil-section__title--teal { color: var(--teal); }
+    .perfil-section__title--coral { color: var(--coral); }
+
+    /* Trust card */
+    .trust-card {
+      display: flex; gap: 10px; align-items: flex-start;
+      background: #fff; border: 1px solid var(--gris);
+      border-radius: 12px; padding: 12px; margin-bottom: 8px;
+    }
+    .trust-card__avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--coral); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; flex-shrink: 0;
+    }
+    .trust-card__info { flex: 1; }
+    .trust-card__name { font-size: 13px; color: var(--noche); }
+    .trust-card__text {
+      font-size: 12px; color: #666; margin-top: 2px;
+      font-style: italic; line-height: 1.4;
+    }
+    .trust-card__stars { font-size: 11px; color: var(--coral); margin-top: 2px; }
+
+    /* Locked section */
+    .perfil-locked {
+      background: var(--marfil); border-radius: 14px;
+      padding: 24px 20px; text-align: center; margin-top: 16px;
+    }
+    .perfil-locked__title {
+      font-size: 15px; font-weight: 600; color: var(--noche); margin-bottom: 6px;
+    }
+    .perfil-locked__text {
+      font-size: 13px; color: #888; margin-bottom: 16px; line-height: 1.5;
+    }
+    .perfil-locked__btn { font-size: 15px; padding: 14px; }
+    .perfil-locked__note {
+      font-size: 11px; color: #999; margin-top: 8px;
+    }
+
+    /* Actions (unlocked) */
+    .perfil-actions {
+      display: flex; gap: 8px; margin-bottom: 16px;
+    }
+    .perfil-actions__btn {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 12px; font-size: 13px;
+    }
+
+    /* Recommendation card */
+    .rec-card {
+      background: #fff; border: 1px solid var(--gris);
+      border-radius: 10px; padding: 10px 12px; margin-bottom: 6px;
+    }
+    .rec-card__header {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; margin-bottom: 2px;
+    }
+    .rec-card__text {
+      font-size: 12px; color: #666; font-style: italic;
+      line-height: 1.4; margin-top: 2px;
+    }
+    .rec-card__meta { font-size: 11px; color: #999; margin-top: 4px; }
+
+    /* Checkout */
+    .checkout-summary {
+      display: flex; gap: 12px; align-items: center;
+      padding: 14px; border: 1px solid var(--gris);
+      border-radius: 12px; margin-bottom: 20px;
+    }
+    .checkout-summary__avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 18px; font-weight: 700; flex-shrink: 0;
+    }
+    .checkout-summary__name {
+      font-weight: 600; font-size: 15px; color: var(--noche);
+    }
+    .checkout-summary__meta {
+      font-size: 12px; color: #888;
+    }
+
+    .checkout-includes { margin-bottom: 20px; }
+    .checkout-includes__title {
+      font-size: 13px; font-weight: 600; margin-bottom: 8px;
+    }
+    .checkout-includes__list { font-size: 13px; color: #555; line-height: 2; }
+    .checkout-includes__item { }
+
+    .checkout-price {
+      text-align: center; padding: 16px;
+      background: var(--marfil); border-radius: 12px; margin-bottom: 16px;
+    }
+    .checkout-price__amount {
+      font-family: 'Montserrat', sans-serif; font-weight: 700;
+      font-size: 24px; color: var(--noche);
+    }
+    .checkout-price__desc { font-size: 12px; color: #888; margin-top: 2px; }
+
+    .checkout-btn { font-size: 16px; padding: 14px; }
+
+    /* Tab bar */
+    .tab-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1px solid var(--gris);
+      display: flex; justify-content: space-around;
+      padding: 8px 0 env(safe-area-inset-bottom, 8px);
+      z-index: 100;
+    }
+    .tab-bar__item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-size: 10px; color: #999; text-decoration: none; padding: 4px 12px;
+    }
+    .tab-bar__item--active { color: var(--teal); }
+
+    @media (min-width: 768px) {
+      .tab-bar { display: none; }
+      .perfil-page { padding-bottom: 40px; }
+    }
+  </style>
+</body>
+</html>

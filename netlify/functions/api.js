@@ -1,6 +1,12 @@
 /* =============================================================
-   QQMC · API (Netlify Functions)
+   Cuidy · API (Netlify Functions)
    - Público: GET /cuidadores, GET /cuidadores/:id, POST /cuidadores, POST /familias
+   - Red de Confianza:
+              POST /red/conectar, POST /red/responder, GET /red/conexiones,
+              POST /red/recomendar, GET /red/mis-recomendaciones,
+              GET /red/cuidadores, GET /red/stats, GET /red/feed,
+              GET /red/contactos, POST /red/confirmar-contratacion,
+              POST /red/invitar, GET /red/validar-invitacion
    - Matches: POST /matches/interes, GET /matches, PATCH /matches/:id,
               POST /matches/:id/desbloquear, POST /matches/expirar
    - Verificación: POST /verificacion/iniciar, POST /webhooks/didit,
@@ -8,13 +14,10 @@
    - Evaluación: POST /evaluacion/iniciar, POST /evaluacion/enviar
    - Admin:   POST /admin/login, POST /admin/logout, GET /admin/me,
               GET /admin/excepciones, PATCH /admin/excepciones/:id,
-              GET /admin/candidaturas (filtros: estado,q,especialidad,zona,min_valoracion),
-              GET /admin/candidaturas/:id,
-              PATCH /admin/candidaturas/:id (cambio de estado + metadata),
-              POST /admin/candidaturas/:id/notas,
+              GET /admin/candidaturas, GET /admin/candidaturas/:id,
+              PATCH /admin/candidaturas/:id, POST /admin/candidaturas/:id/notas,
               GET /admin/schedule, PUT /admin/schedule,
-              GET /admin/entrevistas?from&to,
-              GET /admin/entrevistas/slots?fecha=YYYY-MM-DD,
+              GET /admin/entrevistas, GET /admin/entrevistas/slots,
               GET /admin/usuarios, POST /admin/usuarios,
               PATCH /admin/usuarios/:id, DELETE /admin/usuarios/:id,
               GET /admin/familias, GET /admin/familias/:id, PATCH /admin/familias/:id
@@ -1975,6 +1978,21 @@ exports.handler = async (event) => {
       if (!data) return json(404, { ok: false, error: 'Cuidador no encontrado' })
 
       return json(200, { ok: true, data })
+    }
+
+    // GET /familias?buscar=... → búsqueda pública de familias por nombre/email
+    if (event.httpMethod === 'GET' && path === 'familias' && params.buscar) {
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'Supabase no configurado' })
+      const q = `%${params.buscar}%`
+      const { data, error } = await supabaseAdmin.from('familias')
+        .select('id, nombre, apellido, localidad, zona')
+        .or(`nombre.ilike.${q},apellido.ilike.${q},email.ilike.${q}`)
+        .limit(10)
+      if (error) return json(500, { ok: false, error: error.message })
+      return json(200, { ok: true, data: (data || []).map(f => ({
+        id: f.id, nombre: f.nombre, apellido: f.apellido,
+        localidad: f.localidad || (f.zona && f.zona.localidad) || ''
+      })) })
     }
 
     // GET /familias/me?email=...
@@ -4253,6 +4271,436 @@ exports.handler = async (event) => {
         total: 10,
         critica_fallida: criticaFallida,
         detalle
+      })
+    }
+
+    // ========== RED DE CONFIANZA ==========
+
+    // --- Conexiones familia ↔ familia ---
+
+    // Enviar solicitud de conexión
+    if (path === 'red/conectar' && event.httpMethod === 'POST') {
+      const { familia_id, conectada_id, mensaje, canal } = safeParse(event.body)
+      if (!familia_id || !conectada_id) return json(400, { ok: false, error: 'familia_id y conectada_id requeridos' })
+      if (familia_id === conectada_id) return json(400, { ok: false, error: 'No podés conectarte con vos misma' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      // Verificar que no exista ya
+      const { data: existente } = await supabaseAdmin.from('conexiones_familia')
+        .select('id, estado')
+        .or(`and(familia_id.eq.${familia_id},conectada_id.eq.${conectada_id}),and(familia_id.eq.${conectada_id},conectada_id.eq.${familia_id})`)
+        .maybeSingle()
+
+      if (existente) {
+        if (existente.estado === 'aceptada') return json(200, { ok: true, ya_conectadas: true })
+        if (existente.estado === 'pendiente') return json(200, { ok: true, pendiente: true })
+      }
+
+      const { data, error } = await supabaseAdmin.from('conexiones_familia')
+        .insert({ familia_id, conectada_id, mensaje, canal: canal || 'plataforma' })
+        .select().single()
+
+      if (error) return json(500, { ok: false, error: error.message })
+      return json(201, { ok: true, conexion: data })
+    }
+
+    // Aceptar/rechazar solicitud de conexión
+    if (path === 'red/responder' && event.httpMethod === 'POST') {
+      const { conexion_id, accion } = safeParse(event.body)
+      if (!conexion_id || !['aceptar', 'rechazar'].includes(accion)) {
+        return json(400, { ok: false, error: 'conexion_id y accion (aceptar/rechazar) requeridos' })
+      }
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      const nuevoEstado = accion === 'aceptar' ? 'aceptada' : 'rechazada'
+      const updates = { estado: nuevoEstado }
+      if (accion === 'aceptar') updates.aceptada_at = new Date().toISOString()
+
+      const { data, error } = await supabaseAdmin.from('conexiones_familia')
+        .update(updates)
+        .eq('id', conexion_id)
+        .eq('estado', 'pendiente')
+        .select().single()
+
+      if (error || !data) return json(404, { ok: false, error: 'Solicitud no encontrada o ya respondida' })
+      return json(200, { ok: true, conexion: data })
+    }
+
+    // Listar conexiones de una familia
+    if (path === 'red/conexiones' && event.httpMethod === 'GET') {
+      const { familia_id } = params
+      if (!familia_id) return json(400, { ok: false, error: 'familia_id requerido' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      // Conexiones aceptadas (bidireccional)
+      const { data: enviadas } = await supabaseAdmin.from('conexiones_familia')
+        .select('id, conectada_id, estado, aceptada_at, familias!conexiones_familia_conectada_id_fkey(id, nombre, apellido, email)')
+        .eq('familia_id', familia_id)
+        .eq('estado', 'aceptada')
+
+      const { data: recibidas } = await supabaseAdmin.from('conexiones_familia')
+        .select('id, familia_id, estado, aceptada_at, familias!conexiones_familia_familia_id_fkey(id, nombre, apellido, email)')
+        .eq('conectada_id', familia_id)
+        .eq('estado', 'aceptada')
+
+      // Solicitudes pendientes recibidas
+      const { data: pendientes } = await supabaseAdmin.from('conexiones_familia')
+        .select('id, familia_id, mensaje, created_at, familias!conexiones_familia_familia_id_fkey(id, nombre, apellido)')
+        .eq('conectada_id', familia_id)
+        .eq('estado', 'pendiente')
+
+      const conexiones = [
+        ...(enviadas || []).map(c => ({ ...c, tipo: 'enviada', familia: c.familias })),
+        ...(recibidas || []).map(c => ({ ...c, tipo: 'recibida', familia: c.familias }))
+      ]
+
+      return json(200, { ok: true, conexiones, pendientes: pendientes || [] })
+    }
+
+    // --- Recomendaciones ---
+
+    // Crear recomendación
+    if (path === 'red/recomendar' && event.httpMethod === 'POST') {
+      const body = safeParse(event.body)
+      const { familia_id, cuidador_id, cuidador_nombre, cuidador_telefono, cuidador_email,
+              tipo_servicio, relacion, duracion_relacion, valoracion, texto } = body
+      if (!familia_id || !tipo_servicio) return json(400, { ok: false, error: 'familia_id y tipo_servicio requeridos' })
+      if (!cuidador_id && !cuidador_nombre) return json(400, { ok: false, error: 'cuidador_id o cuidador_nombre requerido' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      // Si tiene teléfono/email, buscar si ya existe como cuidador
+      let cuidadorIdFinal = cuidador_id || null
+      if (!cuidadorIdFinal && (cuidador_telefono || cuidador_email)) {
+        let query = supabaseAdmin.from('cuidadores').select('id')
+        if (cuidador_email) query = query.eq('email', cuidador_email)
+        else if (cuidador_telefono) query = query.eq('telefono', cuidador_telefono)
+        const { data: cuidExistente } = await query.maybeSingle()
+        if (cuidExistente) cuidadorIdFinal = cuidExistente.id
+      }
+
+      const estado = cuidadorIdFinal ? 'activa' : 'pendiente_registro'
+
+      const { data, error } = await supabaseAdmin.from('recomendaciones')
+        .insert({
+          familia_id,
+          cuidador_id: cuidadorIdFinal,
+          cuidador_nombre: cuidador_nombre || null,
+          cuidador_telefono: cuidador_telefono || null,
+          cuidador_email: cuidador_email || null,
+          tipo_servicio,
+          relacion: relacion || null,
+          duracion_relacion: duracion_relacion || null,
+          valoracion: valoracion || null,
+          texto: texto || null,
+          estado,
+          ip_origen: event.headers['x-forwarded-for'] || event.headers['client-ip'] || null
+        })
+        .select().single()
+
+      if (error) return json(500, { ok: false, error: error.message })
+
+      // Si el cuidador no está registrado, enviar invitación
+      if (!cuidadorIdFinal && (cuidador_telefono || cuidador_email)) {
+        // TODO: enviar WhatsApp o email de invitación al cuidador
+        console.log(`[red] Recomendación pendiente — cuidador no registrado: ${cuidador_nombre} (${cuidador_telefono || cuidador_email})`)
+      }
+
+      return json(201, { ok: true, recomendacion: data })
+    }
+
+    // Listar recomendaciones de una familia, o recomendaciones de un cuidador
+    if (path === 'red/mis-recomendaciones' && event.httpMethod === 'GET') {
+      const { familia_id, cuidador_id } = params
+      if (!familia_id && !cuidador_id) return json(400, { ok: false, error: 'familia_id o cuidador_id requerido' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      let query = supabaseAdmin.from('recomendaciones')
+        .select('*, cuidadores(id, nombre, apellido, foto_url, especialidades, estado), familias!recomendaciones_familia_id_fkey(id, nombre, apellido)')
+        .eq('estado', 'activa')
+        .order('created_at', { ascending: false })
+
+      if (cuidador_id) query = query.eq('cuidador_id', cuidador_id)
+      if (familia_id && !cuidador_id) query = query.eq('familia_id', familia_id)
+
+      const { data, error } = await query
+      if (error) return json(500, { ok: false, error: error.message })
+
+      // Map to include familia name
+      const recs = (data || []).map(r => ({
+        ...r,
+        familia_nombre: r.familias?.nombre || '',
+        familia_apellido: r.familias?.apellido || ''
+      }))
+
+      return json(200, { ok: true, recomendaciones: recs })
+    }
+
+    // --- Búsqueda por red de confianza ---
+
+    // Buscar cuidadores filtrados por la red de la familia
+    if (path === 'red/cuidadores' && event.httpMethod === 'GET') {
+      const { familia_id, especialidad, zona, limit: lim, offset: off } = params
+      if (!familia_id) return json(400, { ok: false, error: 'familia_id requerido' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      const { data, error } = await supabaseAdmin.rpc('cuidadores_en_red', {
+        p_familia_id: familia_id,
+        p_especialidad: especialidad || null,
+        p_zona: zona || null,
+        p_limit: parseInt(lim) || 50,
+        p_offset: parseInt(off) || 0
+      })
+
+      if (error) return json(500, { ok: false, error: error.message })
+      return json(200, { ok: true, cuidadores: data || [] })
+    }
+
+    // Stats de la red de una familia
+    if (path === 'red/stats' && event.httpMethod === 'GET') {
+      const { familia_id } = params
+      if (!familia_id) return json(400, { ok: false, error: 'familia_id requerido' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      // Contar conexiones
+      const { count: totalConexiones } = await supabaseAdmin.from('conexiones_familia')
+        .select('id', { count: 'exact', head: true })
+        .or(`familia_id.eq.${familia_id},conectada_id.eq.${familia_id}`)
+        .eq('estado', 'aceptada')
+
+      // Contar cuidadores en red (via función)
+      const { data: statsRed } = await supabaseAdmin.rpc('contar_cuidadores_en_red', {
+        p_familia_id: familia_id
+      })
+
+      // Contar recomendaciones hechas
+      const { count: misRecomendaciones } = await supabaseAdmin.from('recomendaciones')
+        .select('id', { count: 'exact', head: true })
+        .eq('familia_id', familia_id)
+        .eq('estado', 'activa')
+
+      return json(200, {
+        ok: true,
+        stats: {
+          conexiones: totalConexiones || 0,
+          cuidadores: statsRed?.[0] || { total: 0, nivel_1: 0, nivel_2: 0 },
+          mis_recomendaciones: misRecomendaciones || 0
+        }
+      })
+    }
+
+    // --- Contactos desbloqueados ---
+
+    // Listar contactos desbloqueados de una familia
+    if (path === 'red/contactos' && event.httpMethod === 'GET') {
+      const { familia_id } = params
+      if (!familia_id) return json(400, { ok: false, error: 'familia_id requerido' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      const { data, error } = await supabaseAdmin.from('contactos_desbloqueados')
+        .select('*, cuidadores(id, nombre, apellido, foto_url, especialidades, localidad, telefono, email, estado, valoracion)')
+        .eq('familia_id', familia_id)
+        .order('desbloqueado_at', { ascending: false })
+
+      if (error) return json(500, { ok: false, error: error.message })
+
+      // Para contactos "no_disponible", agregar snapshot
+      const contactos = (data || []).map(c => {
+        if (c.estado === 'no_disponible' && c.cuidador_snapshot) {
+          return { ...c, cuidador_info: c.cuidador_snapshot }
+        }
+        return { ...c, cuidador_info: c.cuidadores }
+      })
+
+      return json(200, { ok: true, contactos })
+    }
+
+    // Desbloquear perfil de un cuidador (pago único)
+    if (path === 'red/desbloquear' && event.httpMethod === 'POST') {
+      const { familia_id, cuidador_id } = safeParse(event.body)
+      if (!familia_id || !cuidador_id) return json(400, { ok: false, error: 'familia_id y cuidador_id requeridos' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      // Verificar que el cuidador existe y está aprobado
+      const { data: cuid } = await supabaseAdmin.from('cuidadores')
+        .select('id, nombre').eq('id', cuidador_id).eq('estado', 'aprobado').maybeSingle()
+      if (!cuid) return json(404, { ok: false, error: 'Cuidador no encontrado' })
+
+      // Verificar que no esté ya desbloqueado
+      const { data: existing } = await supabaseAdmin.from('contactos_desbloqueados')
+        .select('id').eq('familia_id', familia_id).eq('cuidador_id', cuidador_id).maybeSingle()
+      if (existing) return json(200, { ok: true, ya_desbloqueado: true })
+
+      // TODO: Integrar MercadoPago aquí antes de insertar
+      // Por ahora, registrar el desbloqueo directamente (modo desarrollo)
+
+      const { data, error } = await supabaseAdmin.from('contactos_desbloqueados')
+        .insert({
+          familia_id,
+          cuidador_id,
+          desbloqueado_at: new Date().toISOString(),
+          estado: 'activo'
+        })
+        .select().single()
+
+      if (error) return json(500, { ok: false, error: error.message })
+
+      return json(201, { ok: true, contacto: data })
+    }
+
+    // Dashboard stats para un cuidador
+    if (path === 'red/cuidador-stats' && event.httpMethod === 'GET') {
+      const { cuidador_id } = params
+      if (!cuidador_id) return json(400, { ok: false, error: 'cuidador_id requerido' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      // Recomendaciones recibidas
+      const { count: totalRecs } = await supabaseAdmin.from('recomendaciones')
+        .select('id', { count: 'exact', head: true })
+        .eq('cuidador_id', cuidador_id)
+        .eq('estado', 'activa')
+
+      // Contactos desbloqueados (familias que pagaron por este cuidador)
+      const { count: totalContactos } = await supabaseAdmin.from('contactos_desbloqueados')
+        .select('id', { count: 'exact', head: true })
+        .eq('cuidador_id', cuidador_id)
+        .in('estado', ['activo', 'contratado'])
+
+      // Nuevos (últimos 7 días)
+      const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString()
+      const { count: nuevos } = await supabaseAdmin.from('contactos_desbloqueados')
+        .select('id', { count: 'exact', head: true })
+        .eq('cuidador_id', cuidador_id)
+        .gte('desbloqueado_at', weekAgo)
+
+      // Evaluaciones completadas (capacitaciones)
+      const { count: capsCompletadas } = await supabaseAdmin.from('evaluaciones')
+        .select('id', { count: 'exact', head: true })
+        .eq('cuidador_id', cuidador_id)
+        .eq('aprobado', true)
+
+      return json(200, {
+        ok: true,
+        stats: {
+          recomendaciones: totalRecs || 0,
+          contactos_activos: totalContactos || 0,
+          nuevos_7d: nuevos || 0,
+          capacitaciones_completadas: capsCompletadas || 0
+        }
+      })
+    }
+
+    // Confirmar contratación (activa Diario de Cuidado)
+    if (path === 'red/confirmar-contratacion' && event.httpMethod === 'POST') {
+      const { familia_id, cuidador_id } = safeParse(event.body)
+      if (!familia_id || !cuidador_id) return json(400, { ok: false, error: 'familia_id y cuidador_id requeridos' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      const { data, error } = await supabaseAdmin.from('contactos_desbloqueados')
+        .update({
+          estado: 'contratado',
+          confirmado_at: new Date().toISOString(),
+          diario_activo: true
+        })
+        .eq('familia_id', familia_id)
+        .eq('cuidador_id', cuidador_id)
+        .in('estado', ['activo', 'pendiente_confirmacion'])
+        .select().single()
+
+      if (error || !data) return json(404, { ok: false, error: 'Contacto no encontrado o no disponible' })
+
+      // Crear contrato en diario si existe la tabla
+      try {
+        await supabaseAdmin.from('diario_contratos').insert({
+          familia_id,
+          cuidador_id,
+          estado: 'activo',
+          fecha_inicio: new Date().toISOString().split('T')[0]
+        })
+      } catch (e) {
+        console.log('[red] No se pudo crear contrato diario:', e.message)
+      }
+
+      return json(200, { ok: true, contacto: data })
+    }
+
+    // --- Invitaciones a la red ---
+
+    // Generar link de invitación
+    if (path === 'red/invitar' && event.httpMethod === 'POST') {
+      const { familia_id, canal } = safeParse(event.body)
+      if (!familia_id) return json(400, { ok: false, error: 'familia_id requerido' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      const codigo = crypto.randomBytes(6).toString('hex')
+      const { data, error } = await supabaseAdmin.from('invitaciones_red')
+        .insert({ familia_id, codigo, canal: canal || 'link' })
+        .select().single()
+
+      if (error) return json(500, { ok: false, error: error.message })
+
+      const baseUrl = process.env.URL || 'https://cuidy-ar.netlify.app'
+      const link = `${baseUrl}/registro-familia.html?invita=${codigo}`
+
+      return json(201, { ok: true, codigo, link, invitacion: data })
+    }
+
+    // Validar código de invitación
+    if (path === 'red/validar-invitacion' && event.httpMethod === 'GET') {
+      const { codigo } = params
+      if (!codigo) return json(400, { ok: false, error: 'codigo requerido' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      const { data, error } = await supabaseAdmin.from('invitaciones_red')
+        .select('*, familias!invitaciones_red_familia_id_fkey(nombre, apellido)')
+        .eq('codigo', codigo)
+        .is('usado_por', null)
+        .gt('expira_at', new Date().toISOString())
+        .maybeSingle()
+
+      if (error || !data) return json(404, { ok: false, error: 'Invitación no válida o expirada' })
+
+      return json(200, {
+        ok: true,
+        invitacion: {
+          id: data.id,
+          invitada_por: `${data.familias.nombre} ${data.familias.apellido}`
+        }
+      })
+    }
+
+    // Feed de actividad de la red
+    if (path === 'red/feed' && event.httpMethod === 'GET') {
+      const { familia_id, limit: lim } = params
+      if (!familia_id) return json(400, { ok: false, error: 'familia_id requerido' })
+      if (!supabaseAdmin) return json(500, { ok: false, error: 'DB no configurada' })
+
+      const feedLimit = parseInt(lim) || 20
+
+      // Recomendaciones recientes de mi red
+      const { data: recsRed } = await supabaseAdmin.rpc('familias_conectadas', { p_familia_id: familia_id })
+      const familiaIds = [familia_id, ...(recsRed || []).map(r => r.familia_id)]
+
+      const { data: recomendaciones } = await supabaseAdmin.from('recomendaciones')
+        .select('id, familia_id, cuidador_id, tipo_servicio, valoracion, texto, created_at, familias(nombre, apellido), cuidadores(nombre, apellido, foto_url, especialidades)')
+        .in('familia_id', familiaIds)
+        .eq('estado', 'activa')
+        .order('created_at', { ascending: false })
+        .limit(feedLimit)
+
+      // Nuevas conexiones recientes
+      const { data: nuevasConexiones } = await supabaseAdmin.from('conexiones_familia')
+        .select('id, familia_id, conectada_id, aceptada_at, familias!conexiones_familia_familia_id_fkey(nombre, apellido), familias!conexiones_familia_conectada_id_fkey(nombre, apellido)')
+        .or(`familia_id.eq.${familia_id},conectada_id.eq.${familia_id}`)
+        .eq('estado', 'aceptada')
+        .order('aceptada_at', { ascending: false })
+        .limit(5)
+
+      return json(200, {
+        ok: true,
+        feed: {
+          recomendaciones: recomendaciones || [],
+          nuevas_conexiones: nuevasConexiones || []
+        }
       })
     }
 

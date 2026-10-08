@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
-  <title>Cuidy · Volver a confiar</title>
-  <meta name="description" content="Cuidy conecta a familias que necesitan ayuda con personas que trabajan cuidando. Una comunidad donde las recomendaciones importan y la confianza se construye de los dos lados." />
+  <title>Cuidy · Tu red de confianza para el cuidado</title>
+  <meta name="description" content="Cuidy conecta familias con cuidadores recomendados por personas de confianza. Solo ves cuidadores que otras familias de tu red ya conocen y recomiendan." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -28,7 +28,7 @@
         <img class="brand__logo" src="assets/logo.svg" alt="Cuidy" />
       </a>
       <nav class="topbar__nav">
-        <a href="#asistente">Buscar cuidado</a>
+        <a href="#asistente">Buscar en mi red</a>
         <a href="sumate-cuidador.html" id="navSoyCuidador">Trabajar cuidando</a>
         <script>try{if(JSON.parse(localStorage.getItem('qqmc_cuidador')||'null')?.id){var l=document.getElementById('navSoyCuidador');l.href='panel-cuidador.html';l.textContent='Mi panel';}}catch(e){}</script>
         <a href="#como-funciona">Cómo funciona</a>
@@ -44,7 +44,7 @@
             <svg class="user-menu__chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
           </button>
           <div class="user-menu__dropdown hidden" id="userDropdown">
-            <button class="user-menu__item" id="menuMisContactos"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span> Mis matches</button>
+            <button class="user-menu__item" id="menuMisContactos"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span> Mis contactos</button>
             <button class="user-menu__item" id="menuRecomendar"><span class="ci" style="color:#f59e0b"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span> Recomendar cuidador</button>
             <a class="user-menu__item hidden" id="menuVerificar" href="verificar-identidad.html"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span> Verificar identidad</a>
             <button class="user-menu__item" id="menuMisDatos"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> Mis datos</button>
@@ -89,11 +89,12 @@
     </div>
     <div class="container hero-unified__inner">
       <p style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.45);margin:0 0 16px;font-weight:600;">Cuidy</p>
-      <h1 class="hero-unified__title">Volver a confiar.</h1>
-      <p class="hero-unified__sub">Conectamos familias y cuidadores<br>que se eligen con confianza.</p>
+      <h1 class="hero-unified__title">Tu red de confianza<br>para el cuidado.</h1>
+      <p class="hero-unified__sub">En Cuidy no hay perfiles abiertos.<br><strong style="color:#fff">Solo ves cuidadores que otras familias de tu red ya conocen y recomiendan.</strong></p>
+      <p style="font-size:14px;color:rgba(255,255,255,.6);margin:0 0 28px;max-width:500px;">Cada cuidador que ves fue recomendado por alguien de tu confianza.</p>
       <div class="hero-ctas">
-        <a href="#asistente" class="btn btn--primary btn--lg hero-cta-btn">Necesito cuidado</a>
-        <a href="sumate-cuidador.html" class="btn btn--ghost-light btn--lg hero-cta-btn" style="backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.25);">Quiero trabajar cuidando</a>
+        <a href="registro-familia.html" class="btn btn--primary btn--lg hero-cta-btn">Soy familia</a>
+        <a href="sumate-cuidador.html" class="btn btn--ghost-light btn--lg hero-cta-btn" style="backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.25);">Soy cuidador/a</a>
       </div>
     </div>
     <!-- Wave transition to marfil -->
@@ -114,10 +115,10 @@
             <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="12" r="4" fill="#FF6B6B"/><circle cx="18" cy="12" r="2.5" fill="#006D77"/><path d="M12 12C14 9 15 15 15.5 12" fill="none" stroke="#00B4B8" stroke-width="1" stroke-opacity=".5"/></svg>
             <span class="cuidy-section-label__text" style="color:var(--aqua)">Nuestra propuesta</span>
           </div>
-          <h2 class="landing-section__title">La confianza se construye de los dos lados</h2>
+          <h2 class="landing-section__title">Tu comunidad, tus cuidadores</h2>
         </div>
         <div class="split-layout__right">
-          <p class="landing-section__sub">Durante mucho tiempo elegimos a quien cuidaba a nuestros hijos, nuestros padres o nuestra casa porque alguien de confianza nos decía: "Conozco a una persona".<br><br>Cuidy recupera el valor de esa recomendación y lo acompaña con información clara para que sepas con quién te estás encontrando.</p>
+          <p class="landing-section__sub">En otras plataformas cualquiera se registra y aparece.<br><strong style="color:var(--teal)">En Cuidy, un cuidador solo es visible si una familia lo recomendó.</strong><br><br>No publicamos perfiles abiertos. Cada cuidador que ves en tu búsqueda fue recomendado por una familia real de tu comunidad. Sabés quién lo conoce, hace cuánto y por qué lo recomienda.</p>
         </div>
       </div>
       <div class="manifiesto-grid">
@@ -125,22 +126,22 @@
         <div class="manifiesto-card">
           <svg class="cuidy-connection-dots" viewBox="0 0 36 20" aria-hidden="true"><circle cx="6" cy="10" r="4" fill="#FF6B6B"/><circle cx="30" cy="10" r="2.5" fill="#006D77"/><path d="M10 10C16 4 24 16 27.5 10" fill="none" stroke="#00B4B8" stroke-width="1"/></svg>
           <span class="manifiesto-card__icon"><span class="cuidy-icon-box"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></span></span>
-          <h3 class="manifiesto-card__title">Personas reales</h3>
-          <p class="manifiesto-card__desc">Saber quién está del otro lado es el primer paso.<br>Por eso, familias y cuidadores validan su identidad antes de conectarse.</p>
+          <h3 class="manifiesto-card__title">Conectá con familias</h3>
+          <p class="manifiesto-card__desc">Invitá a familias que conocés y construí tu red de confianza. Cuantas más conexiones, más cuidadores recomendados vas a ver.</p>
         </div>
         <!-- H04 · La recomendación vuelve a importar -->
         <div class="manifiesto-card">
           <svg class="cuidy-connection-dots" viewBox="0 0 36 20" aria-hidden="true"><circle cx="6" cy="10" r="4" fill="#FF6B6B"/><circle cx="30" cy="10" r="2.5" fill="#006D77"/><path d="M10 10C16 4 24 16 27.5 10" fill="none" stroke="#00B4B8" stroke-width="1"/></svg>
           <span class="manifiesto-card__icon"><span class="cuidy-icon-box"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span></span>
-          <h3 class="manifiesto-card__title">La recomendación vuelve a importar</h3>
-          <p class="manifiesto-card__desc">La experiencia de quienes ya conocen a un cuidador ayuda a otras familias a elegir.<br>En cada perfil podés ver qué referencias fueron revisadas.</p>
+          <h3 class="manifiesto-card__title">Recomendá cuidadores</h3>
+          <p class="manifiesto-card__desc">¿Tenés un buen cuidador? Recomendalo para que otras familias de tu red lo encuentren. Tu recomendación es lo que lo hace visible.</p>
         </div>
         <!-- H05 · Los dos eligen -->
         <div class="manifiesto-card">
           <svg class="cuidy-connection-dots" viewBox="0 0 36 20" aria-hidden="true"><circle cx="6" cy="10" r="4" fill="#FF6B6B"/><circle cx="30" cy="10" r="2.5" fill="#006D77"/><path d="M10 10C16 4 24 16 27.5 10" fill="none" stroke="#00B4B8" stroke-width="1"/></svg>
           <span class="manifiesto-card__icon"><span class="cuidy-icon-box"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg></span></span>
-          <h3 class="manifiesto-card__title">Los dos eligen</h3>
-          <p class="manifiesto-card__desc">La familia conoce al cuidador.<br>El cuidador conoce la propuesta de la familia.<br>Y cada uno decide si quiere avanzar.<br>Si los dos aceptan, los conectamos.</p>
+          <h3 class="manifiesto-card__title">Encontrá con confianza</h3>
+          <p class="manifiesto-card__desc">Solo ves cuidadores recomendados por familias de tu red. Sabés quién los conoce y por qué. Así elegís con tranquilidad.</p>
         </div>
       </div>
     </div>
@@ -194,12 +195,12 @@
     <div class="container welcome-familia__inner">
       <div class="welcome-familia__greeting">
         <h1 class="welcome-familia__title">Hola <span id="welcomeNombre"></span>, qué bueno tenerte de vuelta</h1>
-        <p class="welcome-familia__sub">Caro está lista para ayudarte a encontrar a la persona indicada.</p>
+        <p class="welcome-familia__sub">Explorá tu red de confianza y encontrá cuidadores recomendados por familias como la tuya.</p>
       </div>
       <div class="welcome-familia__shortcuts">
         <button class="shortcut-btn" id="shortcutContactos">
           <span class="shortcut-btn__icon"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span></span>
-          <span class="shortcut-btn__label">Mis matches</span>
+          <span class="shortcut-btn__label">Mis contactos</span>
         </button>
         <button class="shortcut-btn" id="shortcutRecomendar">
           <span class="shortcut-btn__icon"><span class="ci" style="color:#f59e0b"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span></span>
@@ -279,22 +280,29 @@
         <div class="step-card" style="position:relative;overflow:hidden;">
           <div class="cuidy-top-line cuidy-top-line--teal"></div>
           <span class="step-card__number">1</span>
-          <h3 class="step-card__title">Contanos qué necesitás</h3>
-          <p class="step-card__desc">A quién necesitás cuidar, en qué zona, en qué horarios y qué es importante para vos.</p>
+          <h3 class="step-card__title">Registrate gratis</h3>
+          <p class="step-card__desc">Creá tu cuenta como familia y empezá a construir tu red de confianza.</p>
           <svg class="cuidy-connection-dots" viewBox="0 0 36 20" aria-hidden="true"><circle cx="8" cy="10" r="5" fill="#FF6B6B"/><circle cx="28" cy="10" r="3.5" fill="#006D77"/><path d="M13 10H24.5" stroke="#006D77" stroke-width="1" stroke-opacity=".3"/></svg>
         </div>
         <div class="step-card" style="position:relative;overflow:hidden;">
           <div class="cuidy-top-line cuidy-top-line--coral"></div>
           <span class="step-card__number">2</span>
-          <h3 class="step-card__title">Conocé mucho más que un nombre</h3>
-          <p class="step-card__desc">Explorá la experiencia, las referencias y las validaciones que muestra cada perfil.</p>
+          <h3 class="step-card__title">Conectá con familias</h3>
+          <p class="step-card__desc">Invitá a familias que conocés. Cuantas más conexiones, más cuidadores recomendados vas a ver.</p>
           <svg class="cuidy-connection-dots" viewBox="0 0 36 20" aria-hidden="true"><circle cx="8" cy="10" r="5" fill="#FF6B6B"/><circle cx="28" cy="10" r="3.5" fill="#006D77"/><path d="M13 10H24.5" stroke="#006D77" stroke-width="1" stroke-opacity=".3"/></svg>
         </div>
         <div class="step-card" style="position:relative;overflow:hidden;">
           <div class="cuidy-top-line cuidy-top-line--teal"></div>
           <span class="step-card__number">3</span>
-          <h3 class="step-card__title">Elegirse es cosa de dos</h3>
-          <p class="step-card__desc">Cuando alguien te interesa, enviás una solicitud.<br>Esa persona conoce tu propuesta y decide si quiere avanzar.<br>Si los dos aceptan, los conectamos.</p>
+          <h3 class="step-card__title">Recomendá cuidadores</h3>
+          <p class="step-card__desc">¿Tenés un buen cuidador? Recomendalo para que las familias de tu red lo encuentren.</p>
+          <svg class="cuidy-connection-dots" viewBox="0 0 36 20" aria-hidden="true"><circle cx="8" cy="10" r="5" fill="#FF6B6B"/><circle cx="28" cy="10" r="3.5" fill="#006D77"/><path d="M13 10H24.5" stroke="#006D77" stroke-width="1" stroke-opacity=".3"/></svg>
+        </div>
+        <div class="step-card" style="position:relative;overflow:hidden;">
+          <div class="cuidy-top-line cuidy-top-line--coral"></div>
+          <span class="step-card__number" style="color:var(--coral)">4</span>
+          <h3 class="step-card__title">Encontrá con confianza</h3>
+          <p class="step-card__desc">Solo ves cuidadores recomendados por tu comunidad. Sabés quién los conoce y por qué.</p>
           <svg class="cuidy-connection-dots" viewBox="0 0 36 20" aria-hidden="true"><circle cx="8" cy="10" r="5" fill="#FF6B6B"/><circle cx="28" cy="10" r="3.5" fill="#006D77"/><path d="M13 10H24.5" stroke="#006D77" stroke-width="1" stroke-opacity=".3"/></svg>
         </div>
       </div>
@@ -316,11 +324,11 @@
             <span class="cuidy-section-label__text" style="color:var(--teal)">Familias</span>
           </div>
           <h2 class="landing-section__title">Para las familias</h2>
-          <a href="#asistente" class="btn btn--primary btn--lg">Necesito un cuidador</a>
+          <a href="registro-familia.html" class="btn btn--primary btn--lg">Soy familia</a>
         </div>
         <div class="split-layout__right">
-          <p class="landing-section__sub">Cuando se trata de alguien que querés, elegir no debería sentirse como una apuesta.<br><br>Buscar a alguien para cuidar a un hijo, acompañar a mamá o papá o ayudar en casa trae preguntas: ¿quién es?, ¿qué experiencia tiene?, ¿alguien lo conoce?<br><br>En Cuidy podés conocer la experiencia, las referencias y el estado de las validaciones de cada persona antes de decidir con quién conversar.<br>Queremos ayudarte a elegir con más información y tranquilidad.</p>
-          <p class="landing-section__sub" style="margin-top:24px;"><strong>El Diario de Cuidado te permite seguir cerca, incluso cuando no estés.</strong><br>Compartí notas y, cuando corresponde, fotos del día.</p>
+          <p class="landing-section__sub">Cuando se trata de alguien que querés, elegir no debería sentirse como una apuesta.<br><br>En Cuidy, cada cuidador que ves fue recomendado por una familia de tu red. Sabés quién lo conoce, hace cuánto y por qué lo recomienda. Así elegís con información real, no con perfiles anónimos.<br><br>Conectá con familias que conocés, recomendá cuidadores de confianza y encontrá ayuda a través de personas que alguien de tu red ya probó.</p>
+          <p class="landing-section__sub" style="margin-top:24px;"><strong>El Diario de Cuidado te permite seguir cerca, incluso cuando no estés.</strong><br>Compartí notas y fotos del día con tu cuidador.</p>
         </div>
       </div>
     </div>
@@ -393,11 +401,11 @@
         <circle cx="115" cy="80" r="12" fill="#FF6B6B"/>
         <circle cx="160" cy="80" r="6" fill="#006D77"/>
       </svg>
-      <p class="landing-section__sub" style="max-width:520px;">Quizás todavía no conozcas bien a quien va a cuidar de tu familia.<br>Te acompañamos a construir esa confianza.</p>
-      <p style="font-family:'Montserrat',sans-serif;font-size:16px;color:var(--teal);font-weight:700;letter-spacing:.1em;margin:0 0 36px;">CUIDY. VOLVER A CONFIAR.</p>
+      <p class="landing-section__sub" style="max-width:520px;">Registrate gratis y empezá a construir tu red: conectá con familias, recomendá cuidadores y encontrá ayuda a través de personas de confianza.</p>
+      <p style="font-family:'Montserrat',sans-serif;font-size:16px;color:var(--teal);font-weight:700;letter-spacing:.1em;margin:0 0 36px;">CUIDY. TU RED DE CONFIANZA.</p>
       <div class="hero-ctas">
-        <a href="#asistente" class="btn btn--primary btn--lg hero-cta-btn">Necesito cuidado</a>
-        <a href="sumate-cuidador.html" class="btn btn--ghost btn--lg hero-cta-btn">Quiero trabajar cuidando</a>
+        <a href="registro-familia.html" class="btn btn--primary btn--lg hero-cta-btn">Soy familia</a>
+        <a href="sumate-cuidador.html" class="btn btn--ghost btn--lg hero-cta-btn">Soy cuidador/a</a>
       </div>
     </div>
   </section>
@@ -496,8 +504,8 @@
     <div class="modal__backdrop" data-close-contactos></div>
     <div class="modal__content modal__content--contactos">
       <button class="modal__close" aria-label="Cerrar" data-close-contactos>&times;</button>
-      <h2 class="planes__title">Mis matches</h2>
-      <p class="planes__sub">Tus matches con cuidadores y el estado de cada uno</p>
+      <h2 class="planes__title">Mis contactos</h2>
+      <p class="planes__sub">Cuidadores que desbloqueaste y el estado de cada uno</p>
       <div id="contactosList"></div>
     </div>
   </div>
@@ -576,8 +584,8 @@
 
   <footer class="footer">
     <div class="container footer__row">
-      <strong style="font-size:1.1em;">Cuidy. Volver a confiar.</strong>
-      <em class="footer__tagline">Cuidamos a quien cuida y a quien necesita cuidado.</em>
+      <strong style="font-size:1.1em;">Cuidy. Tu red de confianza para el cuidado.</strong>
+      <em class="footer__tagline">Cuidadores recomendados por familias como la tuya.</em>
       <br><a href="terminos.html" style="color:inherit;opacity:.7;text-decoration:underline;">Términos y condiciones</a> · <a href="privacidad.html" style="color:inherit;opacity:.7;text-decoration:underline;">Privacidad</a> · <a href="mailto:hola@cuidy.com.ar" style="color:inherit;opacity:.7;text-decoration:underline;">Contacto</a>
       <br><span style="opacity:.5;">© <span id="year"></span> Cuidy</span>
     </div>

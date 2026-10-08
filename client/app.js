@@ -420,6 +420,36 @@
     document.querySelectorAll('.card').forEach(n => n.classList.toggle('active', n.dataset.id == id));
   }
 
+  // Color de pin por nivel de confianza
+  function pinColor(c) {
+    if (c._es_red) {
+      if (c.nivel_confianza <= 1) return '#006D77'; // teal — nivel 1
+      if (c.nivel_confianza === 2) return '#00B4B8'; // aqua — nivel 2
+      return '#FF6B6B'; // coral — plataforma
+    }
+    return COLORS[c.especialidad] || '#6d28d9';
+  }
+
+  // Leyenda del mapa (solo si hay cuidadores de red)
+  let _legendControl = null;
+  function showMapLegend(cuidadores) {
+    if (_legendControl) { map.removeControl(_legendControl); _legendControl = null; }
+    const tieneRed = cuidadores.some(c => c._es_red);
+    if (!tieneRed) return;
+
+    _legendControl = L.control({ position: 'topright' });
+    _legendControl.onAdd = function() {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.innerHTML = `
+        <div class="map-legend__item"><span class="map-legend__dot" style="background:#006D77"></span> Nivel 1 (tu red)</div>
+        <div class="map-legend__item"><span class="map-legend__dot" style="background:#00B4B8"></span> Nivel 2 (red extendida)</div>
+        <div class="map-legend__item"><span class="map-legend__dot" style="background:#FF6B6B"></span> Rec. de plataforma</div>
+      `;
+      return div;
+    };
+    _legendControl.addTo(map);
+  }
+
   function renderMarkers(cuidadores) {
     markersLayer.clearLayers();
     markersById.clear();
@@ -430,25 +460,49 @@
     );
 
     conCoords.forEach(c => {
-      const marker = L.circleMarker([c.lat, c.lng], {
-        radius: 10,
-        color: '#fff',
-        weight: 2,
-        fillColor: COLORS[c.especialidad] || '#6d28d9',
-        fillOpacity: 0.95
+      const color = pinColor(c);
+      const initial = (c.nombre || '?').charAt(0).toUpperCase();
+
+      // Usar DivIcon para mostrar inicial dentro del pin
+      const markerIcon = L.divIcon({
+        className: 'map-pin',
+        html: `<div class="map-pin__circle" style="background:${color}">${initial}</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -18]
       });
+
+      const marker = L.marker([c.lat, c.lng], { icon: markerIcon });
+
       const ratingTxt = Number(c.valoracion) > 0
-        ? `${icon('starFilled', 'gold')} ${Number(c.valoracion).toFixed(1)} (${c.resenas || 0})`
-        : 'Sin reseñas aún';
-      const tarifaTxt = c.valor_hora_min
-        ? `$${c.valor_hora_min.toLocaleString('es-AR')}${c.valor_hora_max && c.valor_hora_max !== c.valor_hora_min ? ' - $' + c.valor_hora_max.toLocaleString('es-AR') : ''}/h`
+        ? `★ ${Number(c.valoracion).toFixed(1)}`
         : '';
+
+      // Trust chain para el popup
+      let trustHtml = '';
+      if (c._es_red && c.familias_que_recomiendan) {
+        const nombre = c.familias_que_recomiendan.split(',')[0].trim();
+        const texto = c.nivel_confianza <= 1
+          ? `${nombre} lo recomienda`
+          : `Vía red de ${nombre}`;
+        trustHtml = `<div class="popup__trust"><span class="trust-chain__dot" style="display:inline-block"></span> ${escapeHtml(texto)}</div>`;
+      }
+
+      let nivelHtml = '';
+      if (c._es_red && c.nivel_confianza != null) {
+        const cls = c.nivel_confianza <= 1 ? 'nivel-badge--1' : 'nivel-badge--2';
+        const lbl = c.nivel_confianza <= 1 ? 'Nivel 1' : 'Nivel 2';
+        nivelHtml = `<span class="nivel-badge ${cls}" style="font-size:9px;margin-left:6px">${lbl}</span>`;
+      }
+
+      const espLabel = ESPECIALIDAD_LABEL[c.especialidad] || (c.especialidades || []).map(e => ESPECIALIDAD_LABEL[e]).filter(Boolean).join(', ') || '';
+
       marker.bindPopup(`
-        <div class="popup__name">${escapeHtml(c.nombre)}${c.edad ? ', ' + c.edad : ''}</div>
-        <div class="popup__meta">${ESPECIALIDAD_LABEL[c.especialidad] || ''} · ${escapeHtml(c.zona)}</div>
-        <div class="popup__meta">${ratingTxt}</div>
-        ${tarifaTxt ? `<div class="popup__tarifa">${tarifaTxt}</div>` : ''}
-        <a class="popup__link" data-cid="${c.id}">Ver ficha ${icon('arrowRight')}</a>
+        <div class="popup__name">${escapeHtml(c.nombre)}${nivelHtml}</div>
+        <div class="popup__meta">${espLabel} · ${escapeHtml(c.zona)}</div>
+        ${ratingTxt ? `<div class="popup__meta">${ratingTxt}${c.experiencia_anios ? ' · ' + c.experiencia_anios + ' años exp.' : ''}</div>` : ''}
+        ${trustHtml}
+        <a class="popup__link" data-cid="${c.id}">Ver perfil ${icon('arrowRight')}</a>
       `);
       marker.on('popupopen', (e) => {
         const link = e.popup.getElement().querySelector('.popup__link');
@@ -458,6 +512,9 @@
       marker.addTo(markersLayer);
       markersById.set(c.id, marker);
     });
+
+    // Mostrar leyenda si hay resultados de red
+    showMapLegend(cuidadores);
 
     // Guardar bounds pendientes — se aplican después de invalidateSize
     if (markersById.size) {
@@ -484,6 +541,11 @@
 
   // === Ficha / modal ===
   async function abrirFicha(id) {
+    // Trust network: navigate to dedicated profile page
+    if (_familiaLogueada && _familiaLogueada.id) {
+      window.location.href = `perfil-cuidador.html?id=${id}`;
+      return;
+    }
     const modal = document.getElementById('modal');
     const body = document.getElementById('modalBody');
     body.innerHTML = '<p>Cargando…</p>';
@@ -935,7 +997,7 @@
       // Menu actions
       document.getElementById('menuMisContactos')?.addEventListener('click', () => {
         dropdown.classList.add('hidden');
-        abrirMisContactos(familia.id);
+        window.location.href = 'mis-contactos.html';
       });
       document.getElementById('menuRecomendar')?.addEventListener('click', () => {
         dropdown.classList.add('hidden');

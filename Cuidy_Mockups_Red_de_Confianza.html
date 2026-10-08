@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuidy — Mockups Red de Confianza</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal: #006D77;
+  --aqua: #00B4B8;
+  --coral: #FF6B6B;
+  --marfil: #F8F7F3;
+  --noche: #1F2933;
+  --gris: #E6E8EB;
+  --gris-medio: #B4BAC2;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; color: var(--noche); background: #f0f0f0; }
+
+/* NAV */
+.doc-nav {
+  position: fixed; top: 0; left: 0; width: 260px; height: 100vh;
+  background: var(--noche); color: white; padding: 24px 0;
+  overflow-y: auto; z-index: 100;
+}
+.doc-nav h2 {
+  font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 700;
+  padding: 0 20px; margin-bottom: 16px; color: white;
+}
+.doc-nav .nav-group { margin-bottom: 20px; }
+.doc-nav .nav-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--coral); padding: 0 20px; margin-bottom: 8px; font-weight: 600;
+}
+.doc-nav a {
+  display: block; padding: 6px 20px; font-size: 13px; color: rgba(255,255,255,0.7);
+  text-decoration: none; transition: all 0.2s;
+}
+.doc-nav a:hover { color: white; background: rgba(255,255,255,0.08); }
+.doc-nav a.active { color: var(--coral); background: rgba(255,107,107,0.1); }
+
+/* MAIN */
+.doc-main { margin-left: 260px; padding: 40px; }
+
+/* SECTION */
+.screen-section {
+  background: white; border-radius: 16px; padding: 40px;
+  margin-bottom: 32px; box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.screen-section h2 {
+  font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 22px;
+  color: var(--teal); margin-bottom: 4px;
+}
+.screen-section .screen-id {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--coral); font-weight: 600; margin-bottom: 16px;
+}
+.screen-section .screen-desc {
+  font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 24px;
+  max-width: 700px;
+}
+.screen-section .flow-note {
+  background: rgba(0,109,119,0.06); border-left: 3px solid var(--teal);
+  padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: 13px;
+  color: var(--noche); margin-bottom: 24px; line-height: 1.5;
+}
+.screen-section .flow-note strong { color: var(--teal); }
+
+/* MOCKUP CONTAINERS */
+.mockups-row {
+  display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap;
+}
+
+/* PHONE */
+.phone-frame {
+  width: 320px; flex-shrink: 0;
+  background: var(--noche); border-radius: 32px; padding: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+.phone-screen {
+  background: white; border-radius: 22px; min-height: 580px;
+  overflow: hidden; position: relative;
+}
+.phone-notch {
+  width: 120px; height: 24px; background: var(--noche);
+  border-radius: 0 0 14px 14px; margin: 0 auto;
+}
+.phone-status {
+  display: flex; justify-content: space-between; padding: 4px 16px;
+  font-size: 11px; color: #555; font-weight: 600;
+}
+.phone-content { padding: 0 16px 16px; }
+
+/* DESKTOP */
+.desktop-frame {
+  flex: 1; min-width: 500px;
+  background: white; border-radius: 12px; overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 1px solid var(--gris);
+}
+.desktop-toolbar {
+  background: #f5f5f5; padding: 8px 12px; display: flex; gap: 6px;
+  align-items: center; border-bottom: 1px solid var(--gris);
+}
+.desktop-toolbar .dot { width: 10px; height: 10px; border-radius: 50%; }
+.desktop-toolbar .dot.r { background: #ff5f57; }
+.desktop-toolbar .dot.y { background: #ffbd2e; }
+.desktop-toolbar .dot.g { background: #28ca42; }
+.desktop-toolbar .url {
+  background: white; border-radius: 4px; padding: 4px 10px;
+  font-size: 12px; color: #666; margin-left: 8px; flex: 1;
+}
+.desktop-content { padding: 0; min-height: 400px; }
+
+/* UI COMPONENTS */
+.m-navbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px; border-bottom: 1px solid var(--gris);
+}
+.m-navbar-logo { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 16px; color: var(--noche); display: flex; align-items: center; gap: 6px; }
+.m-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--teal); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 600; }
+
+.m-tab-bar {
+  display: flex; justify-content: space-around; padding: 10px 0;
+  border-top: 1px solid var(--gris); background: white;
+  position: absolute; bottom: 0; left: 0; right: 0;
+}
+.m-tab { text-align: center; font-size: 10px; color: var(--gris-medio); }
+.m-tab.active { color: var(--teal); font-weight: 600; }
+.m-tab svg { display: block; margin: 0 auto 2px; width: 20px; height: 20px; }
+
+.m-card {
+  background: white; border: 1px solid var(--gris); border-radius: 12px;
+  padding: 14px; margin-bottom: 10px;
+}
+.m-btn {
+  display: inline-block; padding: 10px 20px; border-radius: 8px;
+  font-size: 14px; font-weight: 600; text-align: center; cursor: pointer;
+}
+.m-btn--primary { background: var(--coral); color: white; }
+.m-btn--secondary { background: white; border: 1.5px solid var(--teal); color: var(--teal); }
+.m-btn--teal { background: var(--teal); color: white; }
+.m-btn--full { display: block; width: 100%; }
+
+.m-input {
+  width: 100%; padding: 10px 14px; border: 1px solid var(--gris);
+  border-radius: 8px; font-size: 14px; background: var(--marfil);
+  font-family: 'Inter', sans-serif; margin-bottom: 10px;
+}
+
+.m-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+}
+.m-badge--teal { background: rgba(0,109,119,0.1); color: var(--teal); }
+.m-badge--coral { background: rgba(255,107,107,0.1); color: var(--coral); }
+.m-badge--aqua { background: rgba(0,180,184,0.1); color: var(--aqua); }
+
+.trust-chain {
+  display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--teal);
+}
+.trust-chain .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--coral); }
+.trust-chain .line { width: 16px; height: 1px; background: var(--teal); }
+
+/* DESKTOP NAV */
+.d-navbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 32px; border-bottom: 1px solid var(--gris); background: white;
+}
+.d-navbar-logo { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 20px; color: var(--noche); display: flex; align-items: center; gap: 8px; }
+.d-navbar-links { display: flex; gap: 24px; align-items: center; font-size: 14px; }
+.d-navbar-links a { color: var(--noche); text-decoration: none; font-weight: 500; }
+.d-navbar-links .btn-nav { background: var(--teal); color: white; padding: 8px 18px; border-radius: 8px; font-weight: 600; }
+
+.d-content { padding: 32px; }
+
+/* ANNOTATIONS */
+.annotation {
+  background: #FFF8E6; border: 1px solid #FFD54F; border-radius: 8px;
+  padding: 10px 14px; font-size: 12px; color: #7B6B00; margin-top: 16px;
+}
+.annotation strong { color: #5D4E00; }
+
+/* LABEL */
+.screen-label {
+  display: inline-block; background: var(--teal); color: white;
+  padding: 2px 10px; border-radius: 4px; font-size: 10px;
+  font-weight: 600; letter-spacing: 0.5px; margin-bottom: 12px;
+}
+
+/* PROFILE CARD */
+.profile-card {
+  display: flex; gap: 12px; align-items: center; padding: 12px;
+  border: 1px solid var(--gris); border-radius: 12px; margin-bottom: 8px;
+}
+.profile-avatar {
+  width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: white; font-size: 18px;
+}
+.profile-info { flex: 1; }
+.profile-name { font-weight: 600; font-size: 14px; color: var(--noche); }
+.profile-meta { font-size: 12px; color: #888; margin-top: 2px; }
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center; padding: 40px 20px;
+}
+.empty-state svg { opacity: 0.3; margin-bottom: 16px; }
+.empty-state h3 { font-family: 'Montserrat', sans-serif; font-size: 16px; color: var(--noche); margin-bottom: 8px; }
+.empty-state p { font-size: 13px; color: #888; margin-bottom: 16px; }
+
+/* HERO */
+.hero-section {
+  background: linear-gradient(135deg, var(--marfil), #EDF5F5);
+  padding: 48px 32px;
+}
+.hero-section h1 {
+  font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 32px;
+  color: var(--noche); line-height: 1.1; margin-bottom: 12px;
+}
+.hero-section h1 span { color: var(--teal); }
+.hero-section p { font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 20px; max-width: 480px; }
+.hero-buttons { display: flex; gap: 10px; }
+
+/* STEPS */
+.steps-row { display: flex; gap: 16px; margin: 16px 0; }
+.step-card {
+  flex: 1; background: var(--marfil); border-radius: 12px; padding: 16px;
+  text-align: center; position: relative;
+}
+.step-num {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--teal);
+  color: white; font-weight: 700; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 8px;
+}
+.step-card h4 { font-family: 'Montserrat', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.step-card p { font-size: 11px; color: #666; line-height: 1.4; }
+
+/* DIARIO */
+.diario-entry {
+  border-left: 3px solid var(--aqua); padding: 10px 14px;
+  margin-bottom: 10px; background: rgba(0,180,184,0.04); border-radius: 0 8px 8px 0;
+}
+.diario-entry .time { font-size: 11px; color: var(--aqua); font-weight: 600; }
+.diario-entry .text { font-size: 13px; color: var(--noche); margin-top: 4px; }
+
+/* PRICING */
+.price-box {
+  text-align: center; background: linear-gradient(135deg, var(--teal), #005A63);
+  color: white; border-radius: 16px; padding: 24px; margin: 16px 0;
+}
+.price-box .amount { font-family: 'Montserrat', sans-serif; font-size: 32px; font-weight: 800; }
+.price-box .desc { font-size: 13px; opacity: 0.85; margin-top: 6px; }
+
+/* NOTIFICATION */
+.notif-card {
+  background: white; border: 2px solid var(--aqua); border-radius: 12px;
+  padding: 16px; margin-bottom: 12px;
+}
+.notif-card h4 { font-size: 14px; color: var(--noche); margin-bottom: 6px; }
+.notif-card p { font-size: 13px; color: #555; line-height: 1.5; }
+
+@media (max-width: 900px) {
+  .doc-nav { display: none; }
+  .doc-main { margin-left: 0; padding: 16px; }
+  .mockups-row { flex-direction: column; }
+  .desktop-frame { min-width: auto; }
+}
+</style>
+</head>
+<body>
+
+<nav class="doc-nav">
+  <h2>Cuidy · Mockups</h2>
+  <div class="nav-group">
+    <div class="nav-label">Público</div>
+    <a href="#home">P01 · Home Landing</a>
+    <a href="#registro-familia">P02 · Registro Familia</a>
+    <a href="#registro-cuidador">P03 · Registro Cuidador</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">Familia logueada</div>
+    <a href="#feed-vacio">F01 · Feed vacío (onboarding)</a>
+    <a href="#feed-activo">F02 · Feed con red activa</a>
+    <a href="#mi-red">F03 · Mi Red</a>
+    <a href="#recomendar">F04 · Recomendar cuidador</a>
+    <a href="#busqueda">F05a · Asistente Caro</a>
+    <a href="#busqueda-resultados">F05b · Resultados + Ficha exprés</a>
+    <a href="#perfil-parcial">F06 · Perfil parcial</a>
+    <a href="#pago">F07 · Pago de contacto</a>
+    <a href="#perfil-completo">F08 · Perfil completo</a>
+    <a href="#confirmacion">F09 · Confirmación contratación</a>
+    <a href="#diario">F10 · Diario de Cuidado</a>
+    <a href="#mis-contactos">F11 · Mis Contactos</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">Cuidador logueado</div>
+    <a href="#cuid-dashboard">C01 · Dashboard</a>
+    <a href="#cuid-perfil">C02 · Mi perfil</a>
+    <a href="#cuid-capacitaciones">C03 · Capacitaciones</a>
+    <a href="#cuid-suscripcion">C04 · Suscripción</a>
+  </div>
+</nav>
+
+<main class="doc-main">
+
+<!-- ============================================ -->
+<!-- P01 · HOME LANDING -->
+<!-- ============================================ -->
+<section class="screen-section" id="home">
+  <div class="screen-id">P01 · Público</div>
+  <h2>Home — Landing pública</h2>
+  <p class="screen-desc">La página que ve alguien que no conoce Cuidy. Debe explicar el concepto de Red de Confianza, diferenciar familias y cuidadores, y llevar al registro.</p>
+  <div class="flow-note"><strong>Flujo:</strong> Visitante llega → entiende el concepto → elige su rol (familia o cuidador) → va a registro.</div>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div class="phone-content">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <span style="font-family:'Montserrat';font-weight:700;font-size:16px;display:flex;align-items:center;gap:6px"><svg viewBox="0 0 200 200" width="20"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>Cuidy</span>
+            <span class="m-btn--teal m-btn" style="padding:6px 14px;font-size:12px">Ingresar</span>
+          </div>
+          <h3 style="font-family:'Montserrat';font-weight:800;font-size:22px;line-height:1.1;margin-bottom:8px">Tu red de confianza<br>para el <span style="color:var(--teal)">cuidado.</span></h3>
+          <p style="font-size:12px;color:#666;line-height:1.5;margin-bottom:6px">En Cuidy no hay perfiles abiertos. <strong style="color:var(--noche)">Solo ves cuidadores que otras familias de tu red ya conocen y recomiendan.</strong></p>
+          <p style="font-size:11px;color:var(--teal);font-weight:600;margin-bottom:14px">Cada cuidador que ves fue recomendado por alguien de tu confianza.</p>
+          <div style="display:flex;gap:8px;margin-bottom:20px">
+            <span class="m-btn m-btn--primary" style="font-size:12px;padding:8px 14px">Soy familia</span>
+            <span class="m-btn m-btn--secondary" style="font-size:12px;padding:8px 14px">Soy cuidador/a</span>
+          </div>
+
+          <!-- Diferenciador -->
+          <div style="background:linear-gradient(135deg,rgba(0,109,119,0.08),rgba(0,180,184,0.06));border-radius:10px;padding:10px 12px;margin-bottom:14px;border-left:3px solid var(--teal)">
+            <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);font-weight:700;margin-bottom:4px">¿Qué nos hace diferentes?</p>
+            <p style="font-size:11px;color:var(--noche);line-height:1.5">En otras plataformas cualquiera se registra y aparece. <strong>En Cuidy, un cuidador solo es visible si una familia lo recomendó.</strong> Así sabés que alguien de verdad lo conoce.</p>
+          </div>
+
+          <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);font-weight:600;margin-bottom:10px">¿Cómo funciona?</p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <span style="width:22px;height:22px;border-radius:50%;background:var(--teal);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</span>
+              <div><strong style="font-size:12px">Registrate gratis</strong><br><span style="font-size:11px;color:#888">Creá tu perfil de familia en un minuto.</span></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <span style="width:22px;height:22px;border-radius:50%;background:var(--teal);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</span>
+              <div><strong style="font-size:12px">Armá tu red</strong><br><span style="font-size:11px;color:#888">Conectá con familias que conocés e invitá nuevas.</span></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <span style="width:22px;height:22px;border-radius:50%;background:var(--teal);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</span>
+              <div><strong style="font-size:12px">Recomendá cuidadores</strong><br><span style="font-size:11px;color:#888">¿Tenés un buen cuidador? Recomendalo para que otras familias lo encuentren.</span></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <span style="width:22px;height:22px;border-radius:50%;background:var(--coral);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</span>
+              <div><strong style="font-size:12px">Encontrá con confianza</strong><br><span style="font-size:11px;color:#888">Solo ves cuidadores recomendados por familias de tu red. Sabés quién los conoce y por qué.</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="desktop-frame">
+      <div class="desktop-toolbar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="url">cuidy.com.ar</span>
+      </div>
+      <div class="desktop-content">
+        <div class="d-navbar">
+          <span class="d-navbar-logo"><svg viewBox="0 0 200 200" width="28"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>Cuidy</span>
+          <div class="d-navbar-links">
+            <a href="#">Cómo funciona</a>
+            <a href="#">Familias</a>
+            <a href="#">Cuidadores</a>
+            <span class="btn-nav">Ingresar</span>
+          </div>
+        </div>
+        <div class="hero-section">
+          <div style="display:flex;gap:48px;align-items:center">
+            <div style="flex:1">
+              <h1>Tu red de confianza<br>para el <span>cuidado.</span></h1>
+              <p>En Cuidy no hay perfiles abiertos. <strong>Solo ves cuidadores que otras familias de tu comunidad ya conocen y recomiendan.</strong> Cada persona que aparece en tu búsqueda llegó porque alguien de confianza la recomendó.</p>
+              <div class="hero-buttons">
+                <span class="m-btn m-btn--primary">Soy familia</span>
+                <span class="m-btn m-btn--secondary">Soy cuidador/a</span>
+              </div>
+            </div>
+            <div style="width:280px;height:280px;background:linear-gradient(135deg,var(--teal),#005A63);border-radius:24px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0">
+              <div style="position:absolute;top:20px;right:20px;width:80px;height:80px;border-radius:50%;background:rgba(255,107,107,0.2)"></div>
+              <div style="position:absolute;bottom:-20px;left:-20px;width:120px;height:120px;border-radius:50%;background:rgba(0,180,184,0.15)"></div>
+              <svg viewBox="0 0 200 200" width="120" style="position:relative;z-index:1"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="white" stroke-width="22" stroke-linecap="round" opacity="0.9"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="white" stroke-width="22" stroke-linecap="round" opacity="0.9"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="white"/></g></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Diferenciador explícito -->
+        <div style="padding:24px 32px;background:linear-gradient(135deg,rgba(0,109,119,0.06),rgba(0,180,184,0.04));border-top:1px solid rgba(0,109,119,0.1);border-bottom:1px solid rgba(0,109,119,0.1)">
+          <div style="display:flex;gap:32px;align-items:center;max-width:800px;margin:0 auto">
+            <div style="flex:1">
+              <p style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--coral);font-weight:700;margin-bottom:6px">Lo que nos hace diferentes</p>
+              <p style="font-size:15px;font-weight:600;color:var(--noche);line-height:1.4;margin-bottom:8px">En otras plataformas, cualquier persona se registra y aparece. En Cuidy, un cuidador solo es visible si una familia lo recomendó.</p>
+              <p style="font-size:13px;color:#555;line-height:1.5">No publicamos perfiles abiertos ni hacemos "matching" automático. Cada cuidador que ves en tu búsqueda fue recomendado por una familia real de tu comunidad. Sabés quién lo conoce, hace cuánto y por qué lo recomienda.</p>
+            </div>
+            <div style="width:200px;flex-shrink:0;display:flex;flex-direction:column;gap:8px">
+              <div style="background:white;border-radius:10px;padding:10px 14px;border:1px solid var(--gris);font-size:12px">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                  <span style="color:var(--coral);font-weight:700">✕</span>
+                  <span style="color:#999;font-weight:500">Otras plataformas</span>
+                </div>
+                <span style="color:#888">Perfiles abiertos, cualquiera se registra</span>
+              </div>
+              <div style="background:white;border-radius:10px;padding:10px 14px;border:2px solid var(--teal);font-size:12px">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                  <span style="color:var(--teal);font-weight:700">✓</span>
+                  <span style="color:var(--teal);font-weight:600">Cuidy</span>
+                </div>
+                <span style="color:var(--noche);font-weight:500">Solo cuidadores recomendados por familias de tu red</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:32px;background:white">
+          <p style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--teal);font-weight:600;text-align:center;margin-bottom:24px">¿Cómo funciona?</p>
+          <div class="steps-row">
+            <div class="step-card">
+              <div class="step-num">1</div>
+              <h4>Registrate gratis</h4>
+              <p>Creá tu perfil de familia en un minuto. Sin costos.</p>
+            </div>
+            <div class="step-card">
+              <div class="step-num">2</div>
+              <h4>Armá tu red</h4>
+              <p>Conectá con familias que conocés e invitá nuevas.</p>
+            </div>
+            <div class="step-card">
+              <div class="step-num">3</div>
+              <h4>Recomendá cuidadores</h4>
+              <p>¿Tenés un buen cuidador? Recomendalo para que las familias de tu red lo encuentren.</p>
+            </div>
+            <div class="step-card">
+              <div class="step-num" style="background:var(--coral)">4</div>
+              <h4>Encontrá con confianza</h4>
+              <p>Solo ves cuidadores recomendados por tu comunidad. Sabés quién los conoce y por qué.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="annotation"><strong>Diferencial central:</strong> "Un cuidador solo es visible si una familia lo recomendó." — Este mensaje debe aparecer varias veces en la landing (hero, sección diferenciadora, pasos). Es lo que distingue a Cuidy de cualquier marketplace abierto donde cualquiera se registra y publica un perfil. En Cuidy, la recomendación de una familia real es el requisito para existir en la plataforma.</div>
+</section>
+
+<!-- ============================================ -->
+<!-- P02 · REGISTRO FAMILIA -->
+<!-- ============================================ -->
+<section class="screen-section" id="registro-familia">
+  <div class="screen-id">P02 · Público</div>
+  <h2>Registro — Familia</h2>
+  <p class="screen-desc">Registro gratuito y rápido. Solo datos esenciales para empezar a construir la red.</p>
+  <div class="flow-note"><strong>Flujo:</strong> Llena formulario → verificación email → onboarding (invitar familias) → feed vacío.</div>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div class="phone-content">
+          <div style="text-align:center;margin-bottom:16px">
+            <svg viewBox="0 0 200 200" width="40"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>
+          </div>
+          <h3 style="font-family:'Montserrat';font-weight:700;font-size:18px;text-align:center;margin-bottom:4px">Creá tu cuenta</h3>
+          <p style="font-size:13px;color:#888;text-align:center;margin-bottom:16px">Es gratis. Empezá a construir tu red de confianza.</p>
+
+          <input class="m-input" placeholder="Nombre completo" disabled>
+          <input class="m-input" placeholder="Email" disabled>
+          <input class="m-input" placeholder="Zona / Barrio" disabled>
+          <input class="m-input" type="password" placeholder="Contraseña" disabled>
+
+          <span class="m-btn m-btn--teal m-btn--full" style="margin-top:6px">Crear cuenta</span>
+
+          <p style="font-size:11px;color:#999;text-align:center;margin-top:12px">¿Ya tenés cuenta? <span style="color:var(--teal);font-weight:600">Ingresá</span></p>
+          <p style="font-size:10px;color:#bbb;text-align:center;margin-top:8px">Al registrarte aceptás los <span style="color:var(--teal)">Términos</span> y la <span style="color:var(--teal)">Política de privacidad</span>.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="desktop-frame">
+      <div class="desktop-toolbar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="url">cuidy.com.ar/registro</span>
+      </div>
+      <div class="desktop-content">
+        <div class="d-navbar">
+          <span class="d-navbar-logo"><svg viewBox="0 0 200 200" width="28"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>Cuidy</span>
+          <div class="d-navbar-links"><span class="btn-nav" style="background:transparent;color:var(--teal)">Ingresar</span></div>
+        </div>
+        <div style="display:flex;min-height:400px">
+          <div style="flex:1;background:linear-gradient(135deg,var(--teal),#005A63);display:flex;flex-direction:column;justify-content:center;padding:48px;color:white">
+            <h2 style="font-family:'Montserrat';font-weight:800;font-size:28px;line-height:1.1;margin-bottom:12px;color:white">El cuidado empieza<br>por la confianza.</h2>
+            <p style="font-size:14px;opacity:0.85;line-height:1.5">Registrate gratis y empezá a construir tu red: conectá con familias, recomendá cuidadores y encontrá ayuda a través de personas de confianza.</p>
+          </div>
+          <div style="flex:1;padding:48px;display:flex;flex-direction:column;justify-content:center;max-width:480px">
+            <h3 style="font-family:'Montserrat';font-weight:700;font-size:20px;margin-bottom:4px">Creá tu cuenta</h3>
+            <p style="font-size:13px;color:#888;margin-bottom:20px">Es gratis. Solo te toma un minuto.</p>
+            <input class="m-input" placeholder="Nombre completo" disabled>
+            <input class="m-input" placeholder="Email" disabled>
+            <input class="m-input" placeholder="Zona / Barrio" disabled>
+            <input class="m-input" type="password" placeholder="Contraseña" disabled>
+            <span class="m-btn m-btn--teal m-btn--full">Crear cuenta</span>
+            <p style="font-size:12px;color:#999;text-align:center;margin-top:14px">¿Ya tenés cuenta? <span style="color:var(--teal);font-weight:600">Ingresá</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- P03 · REGISTRO CUIDADOR -->
+<!-- ============================================ -->
+<section class="screen-section" id="registro-cuidador">
+  <div class="screen-id">P03 · Público</div>
+  <h2>Registro — Cuidador/a</h2>
+  <p class="screen-desc">Puede llegar por invitación (con recomendación precargada) o por cuenta propia. El registro siempre es gratuito.</p>
+  <div class="flow-note"><strong>Flujo invitación:</strong> Link de familia → registro con recomendación ya incluida → dashboard con 1 recomendación.<br><strong>Flujo directo:</strong> Registro → dashboard sin recomendaciones → opción de suscripción o esperar invitación.</div>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div class="phone-content">
+          <div style="text-align:center;margin-bottom:12px">
+            <span class="m-badge m-badge--teal">Invitación de María G.</span>
+          </div>
+          <h3 style="font-family:'Montserrat';font-weight:700;font-size:16px;text-align:center;margin-bottom:4px">Sumate como cuidador/a</h3>
+          <p style="font-size:12px;color:#888;text-align:center;margin-bottom:14px">María te recomendó. Completá tu perfil para ser visible en su red.</p>
+
+          <input class="m-input" placeholder="Nombre completo" disabled>
+          <input class="m-input" placeholder="Email" disabled>
+          <input class="m-input" placeholder="Zona / Barrio" disabled>
+          <input class="m-input" placeholder="Tipo de cuidado (niños, adultos mayores...)" disabled>
+          <input class="m-input" placeholder="Disponibilidad" disabled>
+          <input class="m-input" type="password" placeholder="Contraseña" disabled>
+
+          <span class="m-btn m-btn--teal m-btn--full" style="margin-top:4px">Crear mi perfil</span>
+          <p style="font-size:10px;color:#bbb;text-align:center;margin-top:10px">Registro 100% gratuito.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- F01 · FEED VACÍO -->
+<!-- ============================================ -->
+<section class="screen-section" id="feed-vacio">
+  <div class="screen-id">F01 · Familia logueada</div>
+  <h2>Feed vacío — Onboarding</h2>
+  <p class="screen-desc">Primera experiencia post-registro. La familia no tiene conexiones ni ve cuidadores. El objetivo es que invite/conecte con otras familias.</p>
+  <div class="flow-note"><strong>Flujo:</strong> Registro → feed vacío → invita familias por WhatsApp/email/link → al aceptar, empiezan a ver cuidadores.</div>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div class="m-navbar">
+          <span class="m-navbar-logo"><svg viewBox="0 0 200 200" width="22"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>Cuidy</span>
+          <div class="m-avatar">M</div>
+        </div>
+        <div class="phone-content" style="padding-top:12px">
+          <div class="empty-state">
+            <svg viewBox="0 0 200 200" width="60"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>
+            <h3>Tu red está vacía</h3>
+            <p>Conectá con familias que conocés para ver cuidadores recomendados por tu comunidad.</p>
+            <span class="m-btn m-btn--primary" style="margin-bottom:8px">Invitar familias</span><br>
+            <span class="m-btn m-btn--secondary" style="font-size:12px">Buscar familias por nombre</span>
+          </div>
+
+          <div style="background:var(--marfil);border-radius:12px;padding:14px;margin-top:8px">
+            <p style="font-size:11px;color:var(--teal);font-weight:600;margin-bottom:6px">¿CONOCÉS A UN BUEN CUIDADOR?</p>
+            <p style="font-size:12px;color:#666;margin-bottom:8px">Recomendalo para que otras familias lo encuentren.</p>
+            <span class="m-btn m-btn--teal" style="font-size:12px;padding:6px 14px">Recomendar cuidador</span>
+          </div>
+        </div>
+        <div class="m-tab-bar">
+          <div class="m-tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 L12 4 L21 12 V20 H3 Z"/></svg>Inicio</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>Buscar</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>Mi Red</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>Diario</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- F02 · FEED CON RED -->
+<!-- ============================================ -->
+<section class="screen-section" id="feed-activo">
+  <div class="screen-id">F02 · Familia logueada</div>
+  <h2>Feed con red activa</h2>
+  <p class="screen-desc">La familia ya tiene conexiones. Ve actividad de su red: nuevas recomendaciones, cuidadores destacados y estadísticas de su comunidad.</p>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div class="m-navbar">
+          <span class="m-navbar-logo"><svg viewBox="0 0 200 200" width="22"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>Cuidy</span>
+          <div class="m-avatar">M</div>
+        </div>
+        <div class="phone-content" style="padding-top:12px">
+          <div style="background:linear-gradient(135deg,var(--teal),#005A63);border-radius:12px;padding:14px;color:white;margin-bottom:12px">
+            <p style="font-size:11px;opacity:0.8">Tu red</p>
+            <div style="display:flex;justify-content:space-around;margin-top:8px;text-align:center">
+              <div><span style="font-family:'Montserrat';font-weight:800;font-size:20px">8</span><br><span style="font-size:10px;opacity:0.8">familias</span></div>
+              <div><span style="font-family:'Montserrat';font-weight:800;font-size:20px">12</span><br><span style="font-size:10px;opacity:0.8">cuidadores</span></div>
+              <div><span style="font-family:'Montserrat';font-weight:800;font-size:20px">3</span><br><span style="font-size:10px;opacity:0.8">nuevos</span></div>
+            </div>
+          </div>
+
+          <p style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);font-weight:600;margin-bottom:8px">Novedades en tu red</p>
+
+          <div class="m-card" style="padding:10px">
+            <div style="display:flex;gap:8px;align-items:center">
+              <div style="width:32px;height:32px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:600;flex-shrink:0">L</div>
+              <div style="flex:1">
+                <p style="font-size:12px"><strong>Laura M.</strong> recomendó a <strong>Ana Rodríguez</strong></p>
+                <p style="font-size:10px;color:#999">Hace 2 horas · Cuidado de adultos mayores</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="m-card" style="padding:10px">
+            <div style="display:flex;gap:8px;align-items:center">
+              <div style="width:32px;height:32px;border-radius:50%;background:var(--aqua);display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:600;flex-shrink:0">P</div>
+              <div style="flex:1">
+                <p style="font-size:12px"><strong>Paula S.</strong> se conectó con vos</p>
+                <p style="font-size:10px;color:#999">Ayer · 5 cuidadores en su red</p>
+              </div>
+            </div>
+          </div>
+
+          <p style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--coral);font-weight:600;margin:12px 0 8px">Cuidadores destacados</p>
+          <div class="profile-card">
+            <div class="profile-avatar" style="background:var(--teal)">A</div>
+            <div class="profile-info">
+              <div class="profile-name">Ana Rodríguez</div>
+              <div class="profile-meta">Adultos mayores · Palermo</div>
+              <div class="trust-chain" style="margin-top:4px">
+                <span class="dot"></span><span class="line"></span>
+                <span>Laura M. la recomienda</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="m-tab-bar">
+          <div class="m-tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 L12 4 L21 12 V20 H3 Z"/></svg>Inicio</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>Buscar</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>Mi Red</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>Diario</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- F03 · MI RED -->
+<!-- ============================================ -->
+<section class="screen-section" id="mi-red">
+  <div class="screen-id">F03 · Familia logueada</div>
+  <h2>Mi Red</h2>
+  <p class="screen-desc">Lista de familias conectadas. Desde acá se invita a nuevas familias y se ven las recomendaciones de cada una.</p>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--gris)">
+          <h3 style="font-family:'Montserrat';font-weight:700;font-size:18px">Mi Red</h3>
+          <p style="font-size:12px;color:#888">8 familias conectadas</p>
+        </div>
+        <div class="phone-content" style="padding-top:12px">
+          <div style="display:flex;gap:8px;margin-bottom:14px">
+            <span class="m-btn m-btn--primary" style="font-size:11px;padding:6px 12px">Invitar por WhatsApp</span>
+            <span class="m-btn m-btn--secondary" style="font-size:11px;padding:6px 12px">Buscar familia</span>
+          </div>
+
+          <input class="m-input" placeholder="Buscar en mi red..." disabled style="margin-bottom:12px">
+
+          <div class="profile-card">
+            <div class="profile-avatar" style="background:var(--coral)">L</div>
+            <div class="profile-info">
+              <div class="profile-name">Laura Martínez</div>
+              <div class="profile-meta">Palermo · 3 cuidadores recomendados</div>
+            </div>
+          </div>
+          <div class="profile-card">
+            <div class="profile-avatar" style="background:var(--aqua)">P</div>
+            <div class="profile-info">
+              <div class="profile-name">Paula Sánchez</div>
+              <div class="profile-meta">Belgrano · 5 cuidadores recomendados</div>
+            </div>
+          </div>
+          <div class="profile-card">
+            <div class="profile-avatar" style="background:var(--teal)">C</div>
+            <div class="profile-info">
+              <div class="profile-name">Carolina López</div>
+              <div class="profile-meta">Núñez · 2 cuidadores recomendados</div>
+            </div>
+          </div>
+
+          <div style="border:1px dashed var(--gris);border-radius:12px;padding:12px;text-align:center;margin-top:8px">
+            <p style="font-size:12px;color:#888">Solicitud pendiente</p>
+            <div style="display:flex;align-items:center;gap:8px;justify-content:center;margin-top:6px">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--gris);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">V</div>
+              <span style="font-size:13px;font-weight:500">Valeria T.</span>
+            </div>
+            <div style="display:flex;gap:6px;justify-content:center;margin-top:8px">
+              <span class="m-btn m-btn--teal" style="font-size:11px;padding:4px 12px">Aceptar</span>
+              <span class="m-btn m-btn--secondary" style="font-size:11px;padding:4px 12px">Rechazar</span>
+            </div>
+          </div>
+        </div>
+        <div class="m-tab-bar">
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 L12 4 L21 12 V20 H3 Z"/></svg>Inicio</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>Buscar</div>
+          <div class="m-tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>Mi Red</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>Diario</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- F04 · RECOMENDAR CUIDADOR -->
+<!-- ============================================ -->
+<section class="screen-section" id="recomendar">
+  <div class="screen-id">F04 · Familia logueada</div>
+  <h2>Recomendar cuidador/a</h2>
+  <p class="screen-desc">La familia recomienda a alguien que conoce. Si el cuidador no está en Cuidy, se le envía invitación.</p>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--gris)">
+          <h3 style="font-family:'Montserrat';font-weight:700;font-size:18px">Recomendar</h3>
+        </div>
+        <div class="phone-content" style="padding-top:12px">
+          <p style="font-size:13px;color:#666;margin-bottom:14px">Recomendá a un cuidador que conocés para que otras familias de tu red lo encuentren.</p>
+          <input class="m-input" placeholder="Nombre del cuidador/a" disabled>
+          <input class="m-input" placeholder="Email o teléfono del cuidador/a" disabled>
+          <select class="m-input" disabled>
+            <option>Tipo de relación</option>
+            <option>Cuidó a mis hijos</option>
+            <option>Cuidó a un familiar mayor</option>
+            <option>Lo conozco personalmente</option>
+          </select>
+          <div style="margin-bottom:10px">
+            <p style="font-size:12px;font-weight:600;margin-bottom:6px">Valoración</p>
+            <div style="display:flex;gap:4px">
+              <span style="font-size:20px;color:var(--coral)">★</span>
+              <span style="font-size:20px;color:var(--coral)">★</span>
+              <span style="font-size:20px;color:var(--coral)">★</span>
+              <span style="font-size:20px;color:var(--coral)">★</span>
+              <span style="font-size:20px;color:var(--gris)">★</span>
+            </div>
+          </div>
+          <textarea class="m-input" placeholder="Contanos brevemente tu experiencia con este cuidador..." disabled style="height:70px;resize:none"></textarea>
+          <span class="m-btn m-btn--teal m-btn--full">Enviar recomendación</span>
+          <p style="font-size:10px;color:#999;text-align:center;margin-top:8px">Si el cuidador no tiene cuenta, le enviaremos una invitación para registrarse con tu recomendación.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- F05a · ASISTENTE CARO + BÚSQUEDA -->
+<!-- ============================================ -->
+<section class="screen-section" id="busqueda">
+  <div class="screen-id">F05a · Familia logueada</div>
+  <h2>Asistente Caro — Búsqueda conversacional</h2>
+  <p class="screen-desc">La familia busca cuidadores hablando con Caro, la asistente de Cuidy. Caro guía la conversación preguntando tipo de cuidado, zona, días, horarios y experiencia. Al finalizar muestra resultados filtrados por la red de confianza.</p>
+  <div class="flow-note"><strong>Flujo:</strong> Familia toca "Buscar" → Caro saluda → pregunta tipo de cuidado → zona → ubicación → días → horarios → experiencia → muestra resultados en mapa + lista con cadena de confianza.<br><strong>Familia recurrente:</strong> Caro recuerda la búsqueda anterior y ofrece repetirla o ajustar.</div>
+
+  <div class="mockups-row">
+    <!-- MOBILE: Chat con Caro -->
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div style="padding:10px 16px;border-bottom:1px solid var(--gris);display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--aqua));display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg viewBox="0 0 200 200" width="18"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="white" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="white" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="white"/></g></svg>
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:14px">Caro</div>
+            <div style="font-size:10px;color:var(--teal)">Asistente Cuidy</div>
+          </div>
+        </div>
+        <div class="phone-content" style="padding-top:10px;padding-bottom:70px">
+          <!-- Mensaje de Caro -->
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <div style="width:24px;height:24px;border-radius:50%;background:var(--teal);flex-shrink:0;display:flex;align-items:center;justify-content:center">
+              <span style="font-size:10px;color:white;font-weight:700">C</span>
+            </div>
+            <div style="background:var(--marfil);border-radius:0 12px 12px 12px;padding:10px 12px;max-width:85%;font-size:12px;line-height:1.5;color:var(--noche)">
+              Hola Mariana, soy Caro del equipo de Cuidy. Estoy acá para ayudarte a encontrar a la persona indicada. ¿Qué tipo de ayuda estás buscando?
+            </div>
+          </div>
+
+          <!-- Opciones de Caro -->
+          <div style="display:flex;flex-direction:column;gap:6px;margin-left:32px;margin-bottom:10px">
+            <div style="border:1.5px solid var(--teal);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--teal);font-weight:500;display:flex;align-items:center;gap:6px">
+              <svg viewBox="0 0 24 24" width="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h.01M15 12h.01M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><circle cx="12" cy="12" r="10"/></svg>
+              Necesito una niñera
+            </div>
+            <div style="border:1.5px solid var(--teal);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--teal);font-weight:500;display:flex;align-items:center;gap:6px;background:rgba(0,109,119,0.06)">
+              <svg viewBox="0 0 24 24" width="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              Cuidado de adulto mayor
+            </div>
+            <div style="border:1.5px solid var(--teal);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--teal);font-weight:500;display:flex;align-items:center;gap:6px">
+              <svg viewBox="0 0 24 24" width="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+              Ayuda en el hogar
+            </div>
+          </div>
+
+          <!-- Respuesta de usuario -->
+          <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+            <div style="background:var(--teal);color:white;border-radius:12px 0 12px 12px;padding:10px 12px;max-width:75%;font-size:12px">
+              Cuidado de adulto mayor
+            </div>
+          </div>
+
+          <!-- Respuesta de Caro -->
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <div style="width:24px;height:24px;border-radius:50%;background:var(--teal);flex-shrink:0;display:flex;align-items:center;justify-content:center">
+              <span style="font-size:10px;color:white;font-weight:700">C</span>
+            </div>
+            <div style="background:var(--marfil);border-radius:0 12px 12px 12px;padding:10px 12px;max-width:85%;font-size:12px;line-height:1.5;color:var(--noche)">
+              Voy a buscar a alguien que pueda darle la atención que merece tu familiar. ¿En qué barrio o zona necesitás la asistencia?
+            </div>
+          </div>
+
+          <!-- Input -->
+          <div style="position:absolute;bottom:50px;left:0;right:0;padding:8px 16px;background:white;border-top:1px solid var(--gris);display:flex;gap:8px">
+            <input class="m-input" placeholder="Ej: Palermo, Belgrano..." disabled style="margin:0;flex:1;font-size:12px">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg viewBox="0 0 24 24" width="14" fill="none" stroke="white" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="m-tab-bar">
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 L12 4 L21 12 V20 H3 Z"/></svg>Inicio</div>
+          <div class="m-tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>Buscar</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>Mi Red</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>Diario</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESKTOP: Chat + Resultados en mapa -->
+    <div class="desktop-frame">
+      <div class="desktop-toolbar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="url">cuidy.com.ar/buscar</span>
+      </div>
+      <div class="desktop-content">
+        <div class="d-navbar">
+          <span class="d-navbar-logo"><svg viewBox="0 0 200 200" width="28"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>Cuidy</span>
+          <div class="d-navbar-links">
+            <a href="#">Inicio</a>
+            <a href="#" style="color:var(--teal);font-weight:600">Buscar</a>
+            <a href="#">Mi Red</a>
+            <a href="#">Mis Contactos</a>
+            <div class="m-avatar">M</div>
+          </div>
+        </div>
+        <div style="display:flex;height:440px">
+          <!-- Sidebar chat -->
+          <div style="width:320px;border-right:1px solid var(--gris);display:flex;flex-direction:column">
+            <div style="padding:12px 16px;border-bottom:1px solid var(--gris);display:flex;align-items:center;gap:10px">
+              <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--aqua));display:flex;align-items:center;justify-content:center">
+                <svg viewBox="0 0 200 200" width="20"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="white" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="white" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="white"/></g></svg>
+              </div>
+              <div>
+                <div style="font-weight:600;font-size:14px">Caro · Asistente Cuidy</div>
+                <div style="font-size:11px;color:var(--aqua)">En línea</div>
+              </div>
+            </div>
+            <div style="flex:1;overflow-y:auto;padding:12px">
+              <div style="display:flex;gap:6px;margin-bottom:8px">
+                <div style="width:20px;height:20px;border-radius:50%;background:var(--teal);flex-shrink:0;display:flex;align-items:center;justify-content:center"><span style="font-size:8px;color:white;font-weight:700">C</span></div>
+                <div style="background:var(--marfil);border-radius:0 10px 10px 10px;padding:8px 10px;font-size:12px;line-height:1.4;max-width:85%">Encontré <strong>5 cuidadores</strong> en tu red para adultos mayores en Palermo.</div>
+              </div>
+              <div style="display:flex;gap:6px;margin-bottom:8px">
+                <div style="width:20px;height:20px;border-radius:50%;background:var(--teal);flex-shrink:0;display:flex;align-items:center;justify-content:center"><span style="font-size:8px;color:white;font-weight:700">C</span></div>
+                <div style="background:var(--marfil);border-radius:0 10px 10px 10px;padding:8px 10px;font-size:12px;line-height:1.4;max-width:85%">Hacé click en cualquier pin del mapa o en la lista para ver más detalles.</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px;margin-left:26px;font-size:11px">
+                <div style="border:1px solid var(--teal);border-radius:8px;padding:6px 10px;color:var(--teal)">Ajustar la búsqueda</div>
+                <div style="border:1px solid var(--gris);border-radius:8px;padding:6px 10px;color:#666">Empezar de nuevo</div>
+              </div>
+            </div>
+            <div style="padding:8px 12px;border-top:1px solid var(--gris);display:flex;gap:6px">
+              <input class="m-input" placeholder="Escribí tu respuesta..." disabled style="margin:0;flex:1;font-size:12px">
+              <div style="width:30px;height:30px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg viewBox="0 0 24 24" width="12" fill="none" stroke="white" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </div>
+            </div>
+          </div>
+          <!-- Mapa + resultados -->
+          <div style="flex:1;position:relative;background:#E8E4D8">
+            <!-- Mapa simulado -->
+            <div style="width:100%;height:100%;background:linear-gradient(145deg,#E8E4D8 0%,#D4D0C4 50%,#E2DED2 100%);position:relative;overflow:hidden">
+              <!-- Calles simuladas -->
+              <div style="position:absolute;top:80px;left:0;right:0;height:1px;background:rgba(0,0,0,0.1)"></div>
+              <div style="position:absolute;top:160px;left:0;right:0;height:1px;background:rgba(0,0,0,0.1)"></div>
+              <div style="position:absolute;top:240px;left:0;right:0;height:1px;background:rgba(0,0,0,0.08)"></div>
+              <div style="position:absolute;top:320px;left:0;right:0;height:1px;background:rgba(0,0,0,0.08)"></div>
+              <div style="position:absolute;top:0;bottom:0;left:120px;width:1px;background:rgba(0,0,0,0.08)"></div>
+              <div style="position:absolute;top:0;bottom:0;left:260px;width:1px;background:rgba(0,0,0,0.1)"></div>
+              <div style="position:absolute;top:0;bottom:0;right:140px;width:1px;background:rgba(0,0,0,0.08)"></div>
+              <!-- Pin labels: nombre zona -->
+              <div style="position:absolute;top:30px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(0,0,0,0.3);font-weight:500;letter-spacing:2px">PALERMO</div>
+              <!-- Pins de cuidadores -->
+              <div style="position:absolute;top:100px;left:140px;width:32px;height:32px;border-radius:50%;background:var(--teal);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;cursor:pointer">A</div>
+              <div style="position:absolute;top:180px;left:280px;width:32px;height:32px;border-radius:50%;background:var(--teal);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;cursor:pointer">C</div>
+              <div style="position:absolute;top:260px;left:100px;width:32px;height:32px;border-radius:50%;background:var(--aqua);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;cursor:pointer;opacity:0.8">S</div>
+              <div style="position:absolute;top:150px;left:350px;width:32px;height:32px;border-radius:50%;background:var(--teal);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;cursor:pointer">M</div>
+              <div style="position:absolute;top:310px;left:240px;width:32px;height:32px;border-radius:50%;background:var(--coral);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.2);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;cursor:pointer">L</div>
+              <!-- Leyenda -->
+              <div style="position:absolute;top:12px;right:12px;background:white;border-radius:8px;padding:8px 12px;box-shadow:0 2px 8px rgba(0,0,0,0.1);font-size:10px;display:flex;flex-direction:column;gap:4px">
+                <div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:var(--teal)"></div> Nivel 1 (tu red)</div>
+                <div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:var(--aqua)"></div> Nivel 2 (red extendida)</div>
+                <div style="display:flex;align-items:center;gap:6px"><div style="width:10px;height:10px;border-radius:50%;background:var(--coral)"></div> Rec. de plataforma</div>
+              </div>
+              <!-- Ficha exprés (aparece al hacer click en pin) -->
+              <div style="position:absolute;bottom:12px;left:12px;right:12px;background:white;border-radius:14px;padding:14px;box-shadow:0 4px 16px rgba(0,0,0,0.12);display:flex;gap:12px;align-items:center">
+                <div style="width:48px;height:48px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;color:white;font-size:20px;font-weight:700;flex-shrink:0">A</div>
+                <div style="flex:1">
+                  <div style="font-weight:600;font-size:14px;display:flex;align-items:center;gap:6px">Ana Rodríguez <span class="m-badge m-badge--teal" style="font-size:9px">Nivel 1</span></div>
+                  <div style="font-size:12px;color:#888">Adultos mayores · Palermo · ★ 4.9</div>
+                  <div class="trust-chain" style="margin-top:3px;font-size:10px">
+                    <span class="dot"></span><span class="line"></span>
+                    <span>Laura M. la recomienda</span>
+                  </div>
+                </div>
+                <span class="m-btn m-btn--teal" style="font-size:11px;padding:6px 12px;white-space:nowrap">Ver perfil</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="annotation"><strong>UX clave:</strong> La "cadena de confianza" debajo de cada resultado es lo que diferencia Cuidy de un marketplace. El usuario entiende POR QUÉ ve a esa persona. Los pins del mapa usan color por nivel de confianza.</div>
+</section>
+
+<!-- ============================================ -->
+<!-- F05b · RESULTADOS EN LISTA + FICHA EXPRÉS -->
+<!-- ============================================ -->
+<section class="screen-section" id="busqueda-resultados">
+  <div class="screen-id">F05b · Familia logueada</div>
+  <h2>Resultados en lista + Ficha exprés</h2>
+  <p class="screen-desc">Vista alternativa de resultados: lista scrolleable en mobile con fichas exprés que muestran info clave de cada cuidador. Al tocar una ficha se va al perfil parcial (F06).</p>
+  <div class="flow-note"><strong>Ficha exprés:</strong> Nombre, tipo de cuidado, zona, rating, nivel de confianza y quién lo recomienda. Suficiente para decidir si quiere ver más.<br><strong>Mobile:</strong> Lista vertical con mapa colapsable arriba. <strong>Desktop:</strong> Mapa a la derecha, lista a la izquierda.</div>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div style="padding:10px 16px;border-bottom:1px solid var(--gris)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <h3 style="font-family:'Montserrat';font-weight:700;font-size:16px">5 resultados</h3>
+            <div style="display:flex;gap:4px">
+              <span style="padding:4px 8px;border-radius:6px;font-size:10px;font-weight:600;background:var(--teal);color:white">Lista</span>
+              <span style="padding:4px 8px;border-radius:6px;font-size:10px;font-weight:600;border:1px solid var(--gris);color:#888">Mapa</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:4px;flex-wrap:wrap">
+            <span class="m-badge m-badge--teal" style="font-size:9px">Adultos mayores</span>
+            <span class="m-badge m-badge--teal" style="font-size:9px">Palermo</span>
+            <span class="m-badge" style="font-size:9px;background:rgba(0,109,119,0.06);color:var(--teal);cursor:pointer">Filtros ▾</span>
+          </div>
+        </div>
+        <div class="phone-content" style="padding-top:8px;padding-bottom:50px">
+          <!-- Ficha exprés 1 -->
+          <div style="border:1px solid var(--gris);border-radius:12px;padding:12px;margin-bottom:8px;position:relative">
+            <div style="position:absolute;top:10px;right:10px"><span class="m-badge m-badge--teal" style="font-size:8px">Nivel 1</span></div>
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
+              <div style="width:44px;height:44px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;color:white;font-size:18px;font-weight:700;flex-shrink:0">A</div>
+              <div>
+                <div style="font-weight:600;font-size:14px">Ana Rodríguez</div>
+                <div style="font-size:11px;color:#888">Adultos mayores · Palermo</div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px">
+              <div style="display:flex;gap:8px;color:#666">
+                <span>★ 4.9</span>
+                <span>·</span>
+                <span>8 años exp.</span>
+                <span>·</span>
+                <span>L-V</span>
+              </div>
+            </div>
+            <div class="trust-chain" style="margin-top:6px;font-size:10px">
+              <span class="dot"></span><span class="line"></span>
+              <span>Laura M. la recomienda</span>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <span class="m-btn m-btn--teal" style="flex:1;font-size:11px;padding:6px;text-align:center">Ver perfil</span>
+            </div>
+          </div>
+
+          <!-- Ficha exprés 2 -->
+          <div style="border:1px solid var(--gris);border-radius:12px;padding:12px;margin-bottom:8px;position:relative">
+            <div style="position:absolute;top:10px;right:10px"><span class="m-badge m-badge--teal" style="font-size:8px">Nivel 1</span></div>
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
+              <div style="width:44px;height:44px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;color:white;font-size:18px;font-weight:700;flex-shrink:0">C</div>
+              <div>
+                <div style="font-weight:600;font-size:14px">Carlos Pérez</div>
+                <div style="font-size:11px;color:#888">Adultos mayores · Belgrano</div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px">
+              <div style="display:flex;gap:8px;color:#666">
+                <span>★ 4.8</span>
+                <span>·</span>
+                <span>5 años exp.</span>
+                <span>·</span>
+                <span>L-S</span>
+              </div>
+            </div>
+            <div class="trust-chain" style="margin-top:6px;font-size:10px">
+              <span class="dot"></span><span class="line"></span>
+              <span>Paula S. lo recomienda</span>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <span class="m-btn m-btn--teal" style="flex:1;font-size:11px;padding:6px;text-align:center">Ver perfil</span>
+            </div>
+          </div>
+
+          <!-- Ficha exprés 3 (Nivel 2) -->
+          <div style="border:1px solid var(--gris);border-radius:12px;padding:12px;margin-bottom:8px;position:relative;opacity:0.9">
+            <div style="position:absolute;top:10px;right:10px"><span class="m-badge m-badge--aqua" style="font-size:8px">Nivel 2</span></div>
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
+              <div style="width:44px;height:44px;border-radius:50%;background:var(--gris-medio);display:flex;align-items:center;justify-content:center;color:white;font-size:18px;font-weight:700;flex-shrink:0">S</div>
+              <div>
+                <div style="font-weight:600;font-size:14px">Sofía Méndez</div>
+                <div style="font-size:11px;color:#888">Adultos mayores · Núñez</div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px">
+              <div style="display:flex;gap:8px;color:#666">
+                <span>★ 5.0</span>
+                <span>·</span>
+                <span>12 años exp.</span>
+                <span>·</span>
+                <span>L-V</span>
+              </div>
+            </div>
+            <div class="trust-chain" style="margin-top:6px;font-size:10px">
+              <span class="dot"></span><span class="line"></span>
+              <span>Vía red de Carolina L.</span>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <span class="m-btn m-btn--secondary" style="flex:1;font-size:11px;padding:6px;text-align:center">Ver perfil</span>
+            </div>
+          </div>
+        </div>
+        <div class="m-tab-bar">
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 L12 4 L21 12 V20 H3 Z"/></svg>Inicio</div>
+          <div class="m-tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>Buscar</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>Mi Red</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>Diario</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="annotation"><strong>Ficha exprés vs. perfil completo:</strong> La ficha muestra rating, experiencia, disponibilidad y cadena de confianza. Suficiente para decidir si vale la pena ver el perfil. Al tocar "Ver perfil" va al perfil parcial (F06) donde puede pagar para desbloquear el contacto.</div>
+</section>
+
+<!-- ============================================ -->
+<!-- F06 · PERFIL PARCIAL -->
+<!-- ============================================ -->
+<section class="screen-section" id="perfil-parcial">
+  <div class="screen-id">F06 · Familia logueada</div>
+  <h2>Perfil parcial (gratuito)</h2>
+  <p class="screen-desc">Lo que ve la familia antes de pagar. Suficiente para evaluar interés pero no para contactar directamente.</p>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div style="background:linear-gradient(135deg,var(--teal),#005A63);padding:20px 16px;color:white;text-align:center">
+          <div style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.2);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700">A</div>
+          <h3 style="font-family:'Montserrat';font-weight:700;font-size:18px;color:white">Ana Rodríguez</h3>
+          <p style="font-size:12px;opacity:0.85">Cuidado de adultos mayores · Palermo</p>
+          <div style="display:flex;justify-content:center;gap:12px;margin-top:10px">
+            <span class="m-badge" style="background:rgba(255,255,255,0.15);color:white">★ 4.9</span>
+            <span class="m-badge" style="background:rgba(255,255,255,0.15);color:white">3 recomendaciones</span>
+          </div>
+        </div>
+        <div class="phone-content" style="padding-top:12px">
+          <p style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);font-weight:600;margin-bottom:8px">Cadena de confianza</p>
+          <div class="m-card" style="padding:10px">
+            <div style="display:flex;gap:8px;align-items:center">
+              <div style="width:28px;height:28px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;color:white;font-size:11px;font-weight:600;flex-shrink:0">L</div>
+              <div>
+                <p style="font-size:12px"><strong>Laura M.</strong> la recomienda</p>
+                <p style="font-size:11px;color:#888">"Cuidó a mi mamá durante 2 años. Excelente."</p>
+                <p style="font-size:10px;color:var(--coral)">★★★★★</p>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:var(--marfil);border-radius:12px;padding:14px;margin-top:12px;text-align:center">
+            <svg viewBox="0 0 24 24" width="24" fill="none" stroke="var(--gris-medio)" stroke-width="2" style="margin-bottom:6px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <p style="font-size:13px;font-weight:600;color:var(--noche);margin-bottom:4px">Perfil completo bloqueado</p>
+            <p style="font-size:11px;color:#888;margin-bottom:10px">Desbloqueá para ver experiencia detallada, datos de contacto y enviar mensaje.</p>
+            <span class="m-btn m-btn--primary m-btn--full">Desbloquear perfil · $XXX</span>
+            <p style="font-size:10px;color:#999;margin-top:6px">Pago único. Sin suscripción.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- F07 · PAGO -->
+<!-- ============================================ -->
+<section class="screen-section" id="pago">
+  <div class="screen-id">F07 · Familia logueada</div>
+  <h2>Pago de contacto</h2>
+  <p class="screen-desc">Checkout para desbloquear el perfil completo de un cuidador. Pago único, integrado con MercadoPago.</p>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--gris)">
+          <h3 style="font-family:'Montserrat';font-weight:700;font-size:18px">Desbloquear perfil</h3>
+        </div>
+        <div class="phone-content" style="padding-top:12px">
+          <div class="profile-card" style="margin-bottom:16px">
+            <div class="profile-avatar" style="background:var(--teal)">A</div>
+            <div class="profile-info">
+              <div class="profile-name">Ana Rodríguez</div>
+              <div class="profile-meta">Adultos mayores · Palermo</div>
+            </div>
+          </div>
+
+          <p style="font-size:12px;font-weight:600;margin-bottom:8px">¿Qué incluye?</p>
+          <div style="font-size:12px;color:#555;line-height:1.8">
+            ✓ Perfil completo con experiencia detallada<br>
+            ✓ Datos de contacto (teléfono, email)<br>
+            ✓ Mensajería directa dentro de Cuidy<br>
+            ✓ Verificaciones y capacitaciones<br>
+            ✓ Acceso al Diario de Cuidado (al confirmar contratación)
+          </div>
+
+          <div class="price-box">
+            <div class="amount">$XXX</div>
+            <div class="desc">Pago único · Sin suscripción</div>
+          </div>
+
+          <span class="m-btn m-btn--primary m-btn--full" style="margin-bottom:8px">Pagar con MercadoPago</span>
+          <p style="font-size:10px;color:#999;text-align:center">Pago seguro. Si el cuidador no responde en 7 días, te devolvemos el monto.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- F08 · PERFIL COMPLETO -->
+<!-- ============================================ -->
+<section class="screen-section" id="perfil-completo">
+  <div class="screen-id">F08 · Familia logueada</div>
+  <h2>Perfil completo (post-pago)</h2>
+  <p class="screen-desc">Una vez desbloqueado, la familia ve toda la información y puede contactar al cuidador.</p>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div style="background:linear-gradient(135deg,var(--teal),#005A63);padding:20px 16px;color:white;text-align:center">
+          <div style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.2);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700">A</div>
+          <h3 style="font-family:'Montserrat';font-weight:700;font-size:18px;color:white">Ana Rodríguez</h3>
+          <p style="font-size:12px;opacity:0.85">Cuidado de adultos mayores · Palermo</p>
+          <span class="m-badge" style="background:rgba(255,255,255,0.2);color:white;margin-top:6px">✓ Identidad verificada</span>
+        </div>
+        <div class="phone-content" style="padding-top:12px">
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <span class="m-btn m-btn--primary" style="flex:1;font-size:12px;padding:8px">Enviar mensaje</span>
+            <span class="m-btn m-btn--secondary" style="flex:1;font-size:12px;padding:8px">Llamar</span>
+          </div>
+
+          <p style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);font-weight:600;margin-bottom:6px">Experiencia</p>
+          <p style="font-size:12px;color:#555;line-height:1.5;margin-bottom:12px">8 años de experiencia en cuidado de adultos mayores. Especializada en acompañamiento post-operatorio y estimulación cognitiva. Referencias verificables.</p>
+
+          <p style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);font-weight:600;margin-bottom:6px">Disponibilidad</p>
+          <p style="font-size:12px;color:#555;margin-bottom:12px">Lunes a viernes · 8:00 a 18:00</p>
+
+          <p style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);font-weight:600;margin-bottom:6px">Capacitaciones</p>
+          <div style="font-size:12px;color:#555;margin-bottom:12px">
+            <span class="m-badge m-badge--teal">RCP</span>
+            <span class="m-badge m-badge--teal">Primeros auxilios</span>
+            <span class="m-badge m-badge--aqua">Estimulación cognitiva</span>
+          </div>
+
+          <p style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--coral);font-weight:600;margin-bottom:6px">Recomendaciones (3)</p>
+          <div class="m-card" style="padding:8px;font-size:12px">
+            <strong>Laura M.</strong> · ★★★★★<br>
+            <span style="color:#666">"Cuidó a mi mamá durante 2 años. Excelente trato, muy responsable."</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- F09 · CONFIRMACIÓN CONTRATACIÓN -->
+<!-- ============================================ -->
+<section class="screen-section" id="confirmacion">
+  <div class="screen-id">F09 · Familia logueada</div>
+  <h2>Confirmación de contratación</h2>
+  <p class="screen-desc">Notificación que recibe la familia después de X días del contacto. Al confirmar se activa el Diario de Cuidado.</p>
+  <div class="flow-note"><strong>Texto del mensaje:</strong> Incluye la propuesta de valor del Diario para incentivar la confirmación. Si no confirma en 14 días, se reenvía una vez.</div>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div class="m-navbar">
+          <span class="m-navbar-logo"><svg viewBox="0 0 200 200" width="22"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>Cuidy</span>
+          <div class="m-avatar">M</div>
+        </div>
+        <div class="phone-content" style="padding-top:16px">
+          <div class="notif-card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <div style="width:36px;height:36px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;color:white;font-size:15px;font-weight:700;flex-shrink:0">A</div>
+              <div>
+                <h4 style="margin:0">Ana Rodríguez</h4>
+                <p style="font-size:11px;color:#888;margin:0">Adultos mayores · Palermo</p>
+              </div>
+            </div>
+            <p style="font-size:14px;color:var(--noche);line-height:1.5;margin-bottom:12px">¿Empezaste a trabajar con Ana?</p>
+            <p style="font-size:13px;color:#555;line-height:1.5;margin-bottom:14px"><strong>Confirmá para activar el Diario de Cuidado</strong>, donde vas a poder seguir el día a día del cuidado y comunicarte fácilmente.</p>
+            <div style="display:flex;gap:8px">
+              <span class="m-btn m-btn--teal" style="flex:1;font-size:13px">Sí, ya trabajamos juntos</span>
+              <span class="m-btn m-btn--secondary" style="font-size:13px;padding:10px 14px">Todavía no</span>
+            </div>
+          </div>
+          <p style="font-size:10px;color:#999;text-align:center;margin-top:8px">Al confirmar, también vas a poder dejar una valoración verificada de Ana.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- F10 · DIARIO DE CUIDADO -->
+<!-- ============================================ -->
+<section class="screen-section" id="diario">
+  <div class="screen-id">F10 · Familia logueada</div>
+  <h2>Diario de Cuidado</h2>
+  <p class="screen-desc">Vista básica (gratuita). Registro diario de actividades, notas y fotos compartidas entre familia y cuidador.</p>
+  <div class="flow-note"><strong>Versión gratuita:</strong> Registro diario, notas, fotos.<br><strong>Versión premium:</strong> Historial médico, alertas medicación, reportes, GPS, videollamadas.</div>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--gris);display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <h3 style="font-family:'Montserrat';font-weight:700;font-size:16px">Diario de Cuidado</h3>
+            <p style="font-size:11px;color:#888">Ana Rodríguez · Hoy, 7 oct</p>
+          </div>
+          <span class="m-badge m-badge--coral">Básico</span>
+        </div>
+        <div class="phone-content" style="padding-top:12px">
+          <div class="diario-entry">
+            <div class="time">09:30</div>
+            <div class="text">Desayuno completo. Tomó la medicación de la mañana.</div>
+          </div>
+          <div class="diario-entry">
+            <div class="time">11:00</div>
+            <div class="text">Caminata por el parque (30 min). Buen ánimo, conversamos mucho.</div>
+          </div>
+          <div class="diario-entry">
+            <div class="time">13:00</div>
+            <div class="text">Almuerzo liviano. Descansó después de comer.</div>
+          </div>
+          <div style="display:flex;gap:6px;margin:12px 0">
+            <div style="width:56px;height:56px;border-radius:8px;background:var(--gris);display:flex;align-items:center;justify-content:center;font-size:10px;color:#999">Foto 1</div>
+            <div style="width:56px;height:56px;border-radius:8px;background:var(--gris);display:flex;align-items:center;justify-content:center;font-size:10px;color:#999">Foto 2</div>
+          </div>
+
+          <div style="background:linear-gradient(135deg,rgba(0,180,184,0.08),rgba(0,109,119,0.08));border:1px solid var(--aqua);border-radius:12px;padding:12px;text-align:center;margin-top:8px">
+            <p style="font-size:12px;font-weight:600;color:var(--teal);margin-bottom:4px">Diario Premium</p>
+            <p style="font-size:11px;color:#666;margin-bottom:8px">Activá alertas de medicación, reportes mensuales y más.</p>
+            <span class="m-btn m-btn--teal" style="font-size:11px;padding:6px 14px">Ver planes</span>
+          </div>
+
+          <div style="position:fixed;bottom:60px;left:12px;right:12px;display:flex;gap:8px;padding:8px;background:white;border-top:1px solid var(--gris)">
+            <input class="m-input" placeholder="Agregar nota..." disabled style="margin:0;flex:1">
+            <span class="m-btn m-btn--teal" style="padding:8px 12px;font-size:12px">+</span>
+          </div>
+        </div>
+        <div class="m-tab-bar">
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 L12 4 L21 12 V20 H3 Z"/></svg>Inicio</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>Buscar</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>Mi Red</div>
+          <div class="m-tab active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>Diario</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- F11 · MIS CONTACTOS -->
+<!-- ============================================ -->
+<section class="screen-section" id="mis-contactos">
+  <div class="screen-id">F11 · Familia logueada</div>
+  <h2>Mis Contactos desbloqueados</h2>
+  <p class="screen-desc">Lista de todos los cuidadores que la familia desbloqueó con pago. El acceso es ilimitado una vez que se pagó. Incluye estados para contactos que se dieron de baja de la red.</p>
+  <div class="flow-note"><strong>Reglas:</strong> El pago de contacto desbloquea el perfil de forma permanente. Si un cuidador se da de baja de Cuidy, el contacto se marca como "No disponible" — la familia conserva el nombre y los datos de la última versión del perfil, pero no puede enviar mensajes nuevos. Si el cuidador vuelve, se reactiva automáticamente.</div>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--gris)">
+          <h3 style="font-family:'Montserrat';font-weight:700;font-size:18px">Mis Contactos</h3>
+          <p style="font-size:12px;color:#888">3 cuidadores desbloqueados</p>
+        </div>
+        <div class="phone-content" style="padding-top:12px">
+
+          <!-- Contacto activo con Diario -->
+          <div class="profile-card" style="border-color:var(--aqua)">
+            <div class="profile-avatar" style="background:var(--teal)">A</div>
+            <div class="profile-info">
+              <div class="profile-name">Ana Rodríguez</div>
+              <div class="profile-meta">Adultos mayores · Palermo</div>
+              <div style="display:flex;gap:4px;margin-top:4px">
+                <span class="m-badge m-badge--aqua">Diario activo</span>
+                <span class="m-badge m-badge--teal">Contratada</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contacto desbloqueado sin confirmación aún -->
+          <div class="profile-card">
+            <div class="profile-avatar" style="background:var(--coral)">C</div>
+            <div class="profile-info">
+              <div class="profile-name">Carlos Pérez</div>
+              <div class="profile-meta">Niños · Belgrano · Desbloqueado 15 sep</div>
+              <div style="display:flex;gap:4px;margin-top:4px">
+                <span class="m-badge m-badge--coral">Pendiente confirmar</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contacto que se dio de baja -->
+          <div class="profile-card" style="opacity:0.6;border-style:dashed">
+            <div class="profile-avatar" style="background:var(--gris-medio)">S</div>
+            <div class="profile-info">
+              <div class="profile-name" style="color:#888">Sofía Méndez</div>
+              <div class="profile-meta">Adultos mayores · Núñez</div>
+              <div style="display:flex;gap:4px;margin-top:4px">
+                <span class="m-badge" style="background:rgba(180,186,194,0.2);color:var(--gris-medio)">No disponible</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="annotation" style="margin-top:14px;font-size:11px">
+            <strong>Sofía se dio de baja</strong> de Cuidy el 28 sep. Conservás su nombre y los datos del perfil como estaban al momento de la baja. Si vuelve a la plataforma, tu contacto se reactiva automáticamente.
+          </div>
+
+          <p style="font-size:11px;color:var(--teal);font-weight:600;text-align:center;margin-top:14px;cursor:pointer">Ver historial de pagos →</p>
+
+        </div>
+        <div class="m-tab-bar">
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 L12 4 L21 12 V20 H3 Z"/></svg>Inicio</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>Buscar</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>Mi Red</div>
+          <div class="m-tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>Diario</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="desktop-frame">
+      <div class="desktop-toolbar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="url">cuidy.com.ar/mis-contactos</span>
+      </div>
+      <div class="desktop-content">
+        <div class="d-navbar">
+          <span class="d-navbar-logo"><svg viewBox="0 0 200 200" width="28"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>Cuidy</span>
+          <div class="d-navbar-links">
+            <a href="#">Inicio</a>
+            <a href="#">Buscar</a>
+            <a href="#" style="color:var(--teal);font-weight:600">Mis Contactos</a>
+            <a href="#">Mi Red</a>
+            <div class="m-avatar">M</div>
+          </div>
+        </div>
+        <div class="d-content">
+          <h2 style="font-family:'Montserrat';font-weight:700;font-size:22px;margin-bottom:4px">Mis Contactos</h2>
+          <p style="font-size:14px;color:#888;margin-bottom:20px">Cuidadores que desbloqueaste. El acceso es permanente.</p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+            <!-- Card activa -->
+            <div style="border:1px solid var(--aqua);border-radius:14px;padding:20px;background:white">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                <div style="width:48px;height:48px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;color:white;font-size:20px;font-weight:700">A</div>
+                <div>
+                  <div style="font-weight:600;font-size:15px">Ana Rodríguez</div>
+                  <div style="font-size:12px;color:#888">Adultos mayores · Palermo</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:4px;margin-bottom:10px">
+                <span class="m-badge m-badge--aqua">Diario activo</span>
+                <span class="m-badge m-badge--teal">Contratada</span>
+              </div>
+              <div style="display:flex;gap:6px">
+                <span class="m-btn m-btn--teal" style="flex:1;font-size:12px;padding:6px;text-align:center">Ver Diario</span>
+                <span class="m-btn m-btn--secondary" style="flex:1;font-size:12px;padding:6px;text-align:center">Mensaje</span>
+              </div>
+            </div>
+
+            <!-- Card pendiente -->
+            <div style="border:1px solid var(--gris);border-radius:14px;padding:20px;background:white">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                <div style="width:48px;height:48px;border-radius:50%;background:var(--coral);display:flex;align-items:center;justify-content:center;color:white;font-size:20px;font-weight:700">C</div>
+                <div>
+                  <div style="font-weight:600;font-size:15px">Carlos Pérez</div>
+                  <div style="font-size:12px;color:#888">Niños · Belgrano</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:4px;margin-bottom:10px">
+                <span class="m-badge m-badge--coral">Pendiente confirmar</span>
+              </div>
+              <div style="display:flex;gap:6px">
+                <span class="m-btn m-btn--primary" style="flex:1;font-size:12px;padding:6px;text-align:center">Confirmar contratación</span>
+              </div>
+              <p style="font-size:10px;color:#999;margin-top:6px;text-align:center">Desbloqueado el 15 sep 2026</p>
+            </div>
+
+            <!-- Card no disponible -->
+            <div style="border:1px dashed var(--gris-medio);border-radius:14px;padding:20px;background:#fafafa;opacity:0.75">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                <div style="width:48px;height:48px;border-radius:50%;background:var(--gris-medio);display:flex;align-items:center;justify-content:center;color:white;font-size:20px;font-weight:700">S</div>
+                <div>
+                  <div style="font-weight:600;font-size:15px;color:#888">Sofía Méndez</div>
+                  <div style="font-size:12px;color:#aaa">Adultos mayores · Núñez</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:4px;margin-bottom:10px">
+                <span class="m-badge" style="background:rgba(180,186,194,0.2);color:var(--gris-medio)">No disponible</span>
+              </div>
+              <p style="font-size:11px;color:#999;line-height:1.4">Se dio de baja el 28 sep. Conservás los datos del perfil como estaban. Si vuelve, tu contacto se reactiva.</p>
+            </div>
+          </div>
+
+          <div style="margin-top:20px;padding:16px;background:var(--marfil);border-radius:12px;display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <p style="font-size:13px;font-weight:600;color:var(--noche)">Historial de pagos</p>
+              <p style="font-size:12px;color:#888">Consultá todos tus desbloqueos y comprobantes.</p>
+            </div>
+            <span class="m-btn m-btn--secondary" style="font-size:12px;padding:8px 16px">Ver historial</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="annotation"><strong>Regla de negocio:</strong> El pago de contacto es único e ilimitado. Si el cuidador se da de baja, la familia NO pierde el acceso histórico — conserva nombre, datos y recomendaciones. No se ofrece reembolso (ya accedió al perfil). Si el cuidador vuelve, el contacto se reactiva sin pago adicional.</div>
+</section>
+
+<!-- ============================================ -->
+<!-- C01 · DASHBOARD CUIDADOR -->
+<!-- ============================================ -->
+<section class="screen-section" id="cuid-dashboard">
+  <div class="screen-id">C01 · Cuidador logueado</div>
+  <h2>Dashboard del cuidador</h2>
+  <p class="screen-desc">Vista principal del cuidador. Muestra su estado de visibilidad, recomendaciones recibidas y solicitudes de contacto.</p>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div class="m-navbar">
+          <span class="m-navbar-logo"><svg viewBox="0 0 200 200" width="22"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>Cuidy</span>
+          <div class="m-avatar" style="background:var(--coral)">A</div>
+        </div>
+        <div class="phone-content" style="padding-top:12px">
+          <h3 style="font-family:'Montserrat';font-weight:700;font-size:16px;margin-bottom:4px">Hola, Ana</h3>
+          <span class="m-badge m-badge--teal" style="margin-bottom:12px;display:inline-block">Visible en 3 redes</span>
+
+          <div style="display:flex;gap:8px;margin-bottom:14px">
+            <div style="flex:1;background:var(--marfil);border-radius:10px;padding:12px;text-align:center">
+              <div style="font-family:'Montserrat';font-weight:800;font-size:22px;color:var(--teal)">3</div>
+              <div style="font-size:10px;color:#888">Recomendaciones</div>
+            </div>
+            <div style="flex:1;background:var(--marfil);border-radius:10px;padding:12px;text-align:center">
+              <div style="font-family:'Montserrat';font-weight:800;font-size:22px;color:var(--coral)">2</div>
+              <div style="font-size:10px;color:#888">Contactos activos</div>
+            </div>
+            <div style="flex:1;background:var(--marfil);border-radius:10px;padding:12px;text-align:center">
+              <div style="font-family:'Montserrat';font-weight:800;font-size:22px;color:var(--aqua)">1</div>
+              <div style="font-size:10px;color:#888">Nuevo</div>
+            </div>
+          </div>
+
+          <p style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--coral);font-weight:600;margin-bottom:8px">Nueva solicitud</p>
+          <div class="m-card" style="border-color:var(--coral)">
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
+              <div style="width:36px;height:36px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:600">M</div>
+              <div>
+                <p style="font-size:13px;font-weight:600">Mariana M.</p>
+                <p style="font-size:11px;color:#888">Palermo · Adultos mayores</p>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px">
+              <span class="m-btn m-btn--teal" style="flex:1;font-size:12px;padding:6px">Aceptar</span>
+              <span class="m-btn m-btn--secondary" style="font-size:12px;padding:6px 12px">Rechazar</span>
+            </div>
+          </div>
+
+          <p style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);font-weight:600;margin:12px 0 8px">Mis recomendaciones</p>
+          <div class="m-card" style="padding:8px;font-size:12px">
+            <strong>Laura M.</strong> · ★★★★★<br>
+            <span style="color:#666">"Cuidó a mi mamá durante 2 años."</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- C02 · PERFIL CUIDADOR -->
+<!-- ============================================ -->
+<section class="screen-section" id="cuid-perfil">
+  <div class="screen-id">C02 · Cuidador logueado</div>
+  <h2>Mi perfil — Editar</h2>
+  <p class="screen-desc">El cuidador gestiona su información: datos, experiencia, disponibilidad, fotos.</p>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--gris)">
+          <h3 style="font-family:'Montserrat';font-weight:700;font-size:18px">Mi perfil</h3>
+        </div>
+        <div class="phone-content" style="padding-top:12px">
+          <div style="text-align:center;margin-bottom:14px">
+            <div style="width:72px;height:72px;border-radius:50%;background:var(--teal);margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:white">A</div>
+            <span style="font-size:12px;color:var(--teal);font-weight:600">Cambiar foto</span>
+          </div>
+          <input class="m-input" value="Ana Rodríguez" disabled>
+          <input class="m-input" value="Cuidado de adultos mayores" disabled>
+          <input class="m-input" value="Palermo, CABA" disabled>
+          <textarea class="m-input" disabled style="height:60px;resize:none">8 años de experiencia en cuidado de adultos mayores. Especializada en acompañamiento post-operatorio.</textarea>
+          <input class="m-input" value="Lunes a viernes · 8:00 a 18:00" disabled>
+
+          <p style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);font-weight:600;margin:8px 0 6px">Verificaciones</p>
+          <div style="font-size:12px;color:#555">
+            <span style="color:#28a745">✓</span> Identidad verificada<br>
+            <span style="color:#28a745">✓</span> Capacitación RCP<br>
+            <span style="color:var(--gris-medio)">○</span> Primeros auxilios (pendiente)
+          </div>
+
+          <span class="m-btn m-btn--teal m-btn--full" style="margin-top:14px">Guardar cambios</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- C03 · CAPACITACIONES -->
+<!-- ============================================ -->
+<section class="screen-section" id="cuid-capacitaciones">
+  <div class="screen-id">C03 · Cuidador logueado</div>
+  <h2>Capacitaciones</h2>
+  <p class="screen-desc">Progreso del cuidador hacia la recomendación de plataforma. Muestra capacitaciones disponibles y completadas.</p>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--gris)">
+          <h3 style="font-family:'Montserrat';font-weight:700;font-size:18px">Capacitaciones</h3>
+          <p style="font-size:12px;color:#888">Tu camino a la recomendación de plataforma</p>
+        </div>
+        <div class="phone-content" style="padding-top:12px">
+          <div style="background:var(--marfil);border-radius:12px;padding:14px;margin-bottom:14px">
+            <p style="font-size:11px;color:var(--teal);font-weight:600;margin-bottom:6px">PROGRESO</p>
+            <div style="display:flex;gap:8px;align-items:center">
+              <div style="flex:1;height:8px;background:var(--gris);border-radius:4px;overflow:hidden">
+                <div style="width:66%;height:100%;background:var(--teal);border-radius:4px"></div>
+              </div>
+              <span style="font-size:12px;font-weight:600;color:var(--teal)">2/3</span>
+            </div>
+            <p style="font-size:11px;color:#888;margin-top:6px">Completá las 3 capacitaciones + identidad verificada + rating ≥ 4 para obtener la recomendación de plataforma.</p>
+          </div>
+
+          <div class="m-card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <p style="font-size:13px;font-weight:600">RCP y primeros auxilios</p>
+                <p style="font-size:11px;color:#888">Duración: 2 horas</p>
+              </div>
+              <span class="m-badge" style="background:#28a745;color:white">Completada</span>
+            </div>
+          </div>
+          <div class="m-card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <p style="font-size:13px;font-weight:600">Cuidado del adulto mayor</p>
+                <p style="font-size:11px;color:#888">Duración: 3 horas</p>
+              </div>
+              <span class="m-badge" style="background:#28a745;color:white">Completada</span>
+            </div>
+          </div>
+          <div class="m-card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <p style="font-size:13px;font-weight:600">Estimulación cognitiva</p>
+                <p style="font-size:11px;color:#888">Duración: 2.5 horas</p>
+              </div>
+              <span class="m-btn m-btn--teal" style="font-size:11px;padding:4px 12px">Empezar</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- C04 · SUSCRIPCIÓN -->
+<!-- ============================================ -->
+<section class="screen-section" id="cuid-suscripcion">
+  <div class="screen-id">C04 · Cuidador logueado</div>
+  <h2>Suscripción de visibilidad</h2>
+  <p class="screen-desc">Para cuidadores sin recomendación de familia. Incluye acceso a capacitaciones y camino a la recomendación de plataforma.</p>
+
+  <div class="mockups-row">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+        <div class="phone-status"><span>9:41</span><span>●●●</span></div>
+        <div style="padding:12px 16px;border-bottom:1px solid var(--gris)">
+          <h3 style="font-family:'Montserrat';font-weight:700;font-size:18px">Hacete visible</h3>
+        </div>
+        <div class="phone-content" style="padding-top:12px">
+          <p style="font-size:13px;color:#555;line-height:1.5;margin-bottom:14px">Todavía no tenés recomendaciones de familias. Con la suscripción accedés a capacitaciones certificadas y al camino para ganar la recomendación de Cuidy.</p>
+
+          <div style="background:linear-gradient(135deg,var(--teal),#005A63);color:white;border-radius:16px;padding:20px;text-align:center;margin-bottom:14px">
+            <p style="font-size:10px;text-transform:uppercase;letter-spacing:1px;opacity:0.8;margin-bottom:4px">Plan mensual</p>
+            <div style="font-family:'Montserrat';font-weight:800;font-size:28px">$XXX<span style="font-size:14px;font-weight:400;opacity:0.8">/mes</span></div>
+            <p style="font-size:12px;opacity:0.85;margin-top:6px">Cancelá cuando quieras</p>
+          </div>
+
+          <div style="font-size:13px;color:#555;line-height:2;margin-bottom:14px">
+            ✓ Acceso a todas las capacitaciones certificadas<br>
+            ✓ Badge "En capacitación" visible<br>
+            ✓ Camino a recomendación de plataforma<br>
+            ✓ Sugerencia a comunidades al cumplir criterios
+          </div>
+
+          <span class="m-btn m-btn--primary m-btn--full" style="margin-bottom:8px">Suscribirme</span>
+          <p style="font-size:10px;color:#999;text-align:center">No garantiza visibilidad inmediata. Habilita las herramientas para ganártela.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// Simple nav highlighting
+document.querySelectorAll('.doc-nav a').forEach(link => {
+  link.addEventListener('click', () => {
+    document.querySelectorAll('.doc-nav a').forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+  });
+});
+
+// Scroll spy
+const sections = document.querySelectorAll('.screen-section');
+const navLinks = document.querySelectorAll('.doc-nav a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(section => {
+    const sectionTop = section.offsetTop - 100;
+    if (window.scrollY >= sectionTop) current = section.getAttribute('id');
+  });
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) link.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>

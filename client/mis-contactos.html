@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  <title>Mis Contactos · Cuidy</title>
+  <meta name="description" content="Tus cuidadores desbloqueados en Cuidy. Acceso permanente." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="auth.css" />
+  <script src="js/analytics.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar__row">
+      <a class="brand" href="/" aria-label="Cuidy">
+        <img class="brand__logo" src="assets/logo.svg" alt="Cuidy" />
+      </a>
+      <nav class="topbar__nav">
+        <a href="feed-familia.html">Inicio</a>
+        <a href="/#asistente">Buscar</a>
+        <a href="mis-contactos.html" class="topbar__nav-active">Mis Contactos</a>
+        <a href="mi-red.html">Mi Red</a>
+        <div class="user-menu" id="userMenu">
+          <button class="user-menu__trigger" id="userMenuBtn">
+            <span class="user-menu__avatar" id="userAvatar"></span>
+            <span class="user-menu__name" id="userName"></span>
+            <svg class="user-menu__chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+          <div class="user-menu__dropdown hidden" id="userDropdown">
+            <button class="user-menu__item" id="menuRecomendar"><span class="ci" style="color:#f59e0b"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span> Recomendar cuidador</button>
+            <button class="user-menu__item" id="menuMisDatos"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> Mis datos</button>
+            <hr class="user-menu__divider" />
+            <button class="user-menu__item user-menu__item--logout" id="menuSalir">Cerrar sesión</button>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="dashboard" id="contactosMain">
+    <div class="container" style="max-width:900px">
+      <div class="mc-header">
+        <div>
+          <h1 class="mc-header__title">Mis Contactos</h1>
+          <p class="mc-header__subtitle" id="mcSubtitle">Cargando…</p>
+        </div>
+      </div>
+      <div id="contactosList" class="mc-grid">
+        <div style="text-align:center;padding:40px;color:#999;grid-column:1/-1">Cargando contactos…</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Confirm contratación modal -->
+  <div class="modal-overlay hidden" id="modalConfirmar">
+    <div class="modal-card" style="max-width:420px">
+      <button class="modal-card__close" id="cerrarConfirmar">&times;</button>
+      <div id="confirmarBody"></div>
+    </div>
+  </div>
+
+  <!-- Mobile tab bar -->
+  <nav class="tab-bar">
+    <a href="feed-familia.html" class="tab-bar__item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12 L12 4 L21 12 V20 H3 Z"/></svg>
+      <span>Inicio</span>
+    </a>
+    <a href="/#asistente" class="tab-bar__item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <span>Buscar</span>
+    </a>
+    <a href="mi-red.html" class="tab-bar__item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>
+      <span>Mi Red</span>
+    </a>
+    <a href="diario-familia.html" class="tab-bar__item">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>
+      <span>Diario</span>
+    </a>
+  </nav>
+
+  <footer class="footer">
+    <div class="container footer__row">
+      <span>© <span id="year"></span> Cuidy</span>
+      <em class="footer__tagline">Cuidy. Tu red de confianza para el cuidado.</em>
+    </div>
+  </footer>
+
+  <script src="auth.js"></script>
+  <script src="icons.js"></script>
+  <script>
+  (function() {
+    const API = '/.netlify/functions/api';
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const ESPECIALIDAD_LABEL = {
+      ninera: 'Niñera',
+      adulto_mayor: 'Adultos mayores',
+      cocinera: 'Cocinera',
+      domestica: 'Empleada doméstica'
+    };
+
+    // Auth
+    const session = typeof getSession === 'function' ? getSession() : null;
+    if (!session?.id) { window.location.href = 'login.html'; return; }
+    const familiaId = session.id;
+    const familiaName = session.nombre || '';
+
+    // User menu
+    const avatar = document.getElementById('userAvatar');
+    const nameEl = document.getElementById('userName');
+    if (avatar) avatar.textContent = familiaName.charAt(0).toUpperCase();
+    if (nameEl) nameEl.textContent = familiaName;
+
+    const menuBtn = document.getElementById('userMenuBtn');
+    const dropdown = document.getElementById('userDropdown');
+    if (menuBtn && dropdown) {
+      menuBtn.addEventListener('click', () => dropdown.classList.toggle('hidden'));
+      document.addEventListener('click', (e) => {
+        if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.add('hidden');
+      });
+    }
+    document.getElementById('menuSalir')?.addEventListener('click', () => {
+      if (typeof logout === 'function') logout();
+      window.location.href = '/';
+    });
+    document.getElementById('menuMisDatos')?.addEventListener('click', () => window.location.href = 'mis-datos.html');
+    document.getElementById('menuRecomendar')?.addEventListener('click', () => window.location.href = 'recomendar.html');
+
+    // Confirm modal
+    const modalConfirmar = document.getElementById('modalConfirmar');
+    document.getElementById('cerrarConfirmar')?.addEventListener('click', () => modalConfirmar.classList.add('hidden'));
+    modalConfirmar?.addEventListener('click', (e) => { if (e.target === modalConfirmar) modalConfirmar.classList.add('hidden'); });
+
+    loadContactos();
+
+    async function loadContactos() {
+      try {
+        const res = await fetch(`${API}/red/contactos?familia_id=${familiaId}`);
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.error);
+
+        const contactos = json.contactos || [];
+        const subtitle = document.getElementById('mcSubtitle');
+        const list = document.getElementById('contactosList');
+
+        if (!contactos.length) {
+          subtitle.textContent = 'Todavía no desbloqueaste ningún cuidador.';
+          list.innerHTML = `
+            <div class="mc-empty" style="grid-column:1/-1">
+              <svg viewBox="0 0 24 24" width="48" fill="none" stroke="var(--gris-medio)" stroke-width="1.5" style="margin-bottom:12px"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>
+              <p style="color:#888;font-size:14px;margin-bottom:16px;line-height:1.6">Cuando desbloquees el perfil de un cuidador, aparecerá acá con acceso permanente.</p>
+              <a href="/#asistente" class="btn btn--primary">Buscar cuidadores</a>
+            </div>`;
+          return;
+        }
+
+        const activos = contactos.filter(c => c.estado !== 'no_disponible');
+        const noDisp = contactos.filter(c => c.estado === 'no_disponible');
+        subtitle.textContent = `${contactos.length} cuidador${contactos.length > 1 ? 'es' : ''} desbloqueado${contactos.length > 1 ? 's' : ''}`;
+
+        list.innerHTML = '';
+        activos.forEach(c => list.appendChild(contactoCard(c)));
+
+        if (noDisp.length) {
+          const divider = document.createElement('div');
+          divider.className = 'mc-divider';
+          divider.style.gridColumn = '1/-1';
+          divider.innerHTML = '<p style="font-size:12px;color:#999;margin:8px 0">No disponibles</p>';
+          list.appendChild(divider);
+          noDisp.forEach(c => list.appendChild(contactoCard(c)));
+        }
+      } catch (err) {
+        document.getElementById('contactosList').innerHTML = `<div style="text-align:center;padding:40px;color:var(--coral);grid-column:1/-1">Error al cargar: ${err.message}</div>`;
+      }
+    }
+
+    function contactoCard(c) {
+      const info = c.cuidador_info || c.cuidadores || {};
+      const nombre = `${info.nombre || ''} ${(info.apellido || '').charAt(0) || ''}.`.trim();
+      const initial = (info.nombre || '?').charAt(0).toUpperCase();
+      const esp = (info.especialidades || []).map(e => ESPECIALIDAD_LABEL[e] || e).join(', ');
+      const loc = info.localidad || '';
+      const isNoDisp = c.estado === 'no_disponible';
+      const isContratado = c.estado === 'contratado';
+      const isDiario = c.diario_activo;
+      const isActivo = c.estado === 'activo';
+      const tel = info.telefono || '';
+      const email = info.email || '';
+
+      // Avatar color
+      let avatarBg = 'var(--teal)';
+      if (isContratado || isDiario) avatarBg = 'var(--aqua)';
+      if (isNoDisp) avatarBg = 'var(--gris-medio)';
+
+      // Border color
+      let borderStyle = 'border:1px solid var(--gris)';
+      if (isContratado || isDiario) borderStyle = 'border:1px solid var(--aqua)';
+      if (isNoDisp) borderStyle = 'border:1px dashed var(--gris-medio);opacity:0.7';
+
+      // Badges
+      let badges = '';
+      if (isDiario) badges += '<span class="mc-badge mc-badge--aqua">Diario activo</span>';
+      if (isContratado) badges += '<span class="mc-badge mc-badge--teal">Contratado/a</span>';
+      if (isActivo) badges += '<span class="mc-badge mc-badge--coral">Pendiente confirmar</span>';
+      if (isNoDisp) badges += '<span class="mc-badge mc-badge--gris">No disponible</span>';
+
+      // Contact buttons
+      let contactBtns = '';
+      if (!isNoDisp && tel) {
+        contactBtns = `
+          <div class="mc-card__actions">
+            <a href="https://wa.me/${tel.replace(/[^0-9]/g,'')}" target="_blank" class="btn btn--sm btn--primary mc-card__btn">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              Mensaje
+            </a>
+            <a href="tel:${tel}" class="btn btn--sm btn--ghost mc-card__btn">Llamar</a>
+          </div>`;
+      }
+
+      // Confirmar contratación CTA
+      let confirmarCta = '';
+      if (isActivo) {
+        confirmarCta = `<button class="btn btn--sm btn--teal mc-card__confirmar" data-cuidador-id="${c.cuidador_id}" data-nombre="${esc(nombre)}">Confirmar contratación</button>`;
+      }
+
+      // No disponible note
+      let noDispNote = '';
+      if (isNoDisp) {
+        const snap = c.cuidador_snapshot || {};
+        noDispNote = `<p class="mc-card__note">Se dio de baja de Cuidy. Si vuelve, tu contacto se reactiva automáticamente.</p>`;
+      }
+
+      // Desbloqueado date
+      const fecha = c.desbloqueado_at ? new Date(c.desbloqueado_at).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' }) : '';
+
+      const card = document.createElement('div');
+      card.className = 'mc-card';
+      card.style.cssText = borderStyle;
+      card.innerHTML = `
+        <div class="mc-card__top">
+          ${info.foto_url
+            ? `<img class="mc-card__avatar" src="${info.foto_url}" alt="${esc(nombre)}" />`
+            : `<div class="mc-card__avatar" style="background:${avatarBg}">${initial}</div>`}
+          <div class="mc-card__info">
+            <div class="mc-card__name" style="${isNoDisp ? 'color:#888' : ''}">${esc(nombre)}</div>
+            <div class="mc-card__meta">${esp}${loc ? ' · ' + esc(loc) : ''}${fecha ? ' · ' + fecha : ''}</div>
+            ${badges ? `<div class="mc-card__badges">${badges}</div>` : ''}
+          </div>
+        </div>
+        ${contactBtns}
+        ${confirmarCta}
+        ${noDispNote}
+      `;
+
+      // Wire up card click → profile
+      card.querySelector('.mc-card__top')?.addEventListener('click', () => {
+        if (!isNoDisp) window.location.href = `perfil-cuidador.html?id=${c.cuidador_id}`;
+      });
+
+      // Wire up confirmar button
+      const btnConfirmar = card.querySelector('.mc-card__confirmar');
+      if (btnConfirmar) {
+        btnConfirmar.addEventListener('click', (e) => {
+          e.stopPropagation();
+          showConfirmarModal(c.cuidador_id, nombre);
+        });
+      }
+
+      return card;
+    }
+
+    function showConfirmarModal(cuidadorId, nombre) {
+      const body = document.getElementById('confirmarBody');
+      body.innerHTML = `
+        <div style="text-align:center;padding:8px 0">
+          <svg viewBox="0 0 24 24" width="40" fill="none" stroke="var(--teal)" stroke-width="2" style="margin-bottom:10px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4 12 14.01l-3-3"/></svg>
+          <h3 style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:18px;margin-bottom:8px">Confirmar contratación</h3>
+          <p style="font-size:13px;color:#666;line-height:1.6;margin-bottom:20px">
+            ¿Contrataste a <strong>${esc(nombre)}</strong>?<br>
+            Al confirmar, se activa el <strong>Diario de Cuidado</strong> para registrar actividades y notas del día a día.
+          </p>
+          <button class="btn btn--primary btn--full" id="btnConfirmarSi" style="margin-bottom:8px">Sí, confirmar contratación</button>
+          <button class="btn btn--ghost btn--full" id="btnConfirmarNo">Todavía no</button>
+        </div>
+      `;
+      modalConfirmar.classList.remove('hidden');
+
+      document.getElementById('btnConfirmarNo').addEventListener('click', () => modalConfirmar.classList.add('hidden'));
+      document.getElementById('btnConfirmarSi').addEventListener('click', async () => {
+        const btn = document.getElementById('btnConfirmarSi');
+        btn.disabled = true;
+        btn.textContent = 'Confirmando…';
+        try {
+          const res = await fetch(`${API}/red/confirmar-contratacion`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ familia_id: familiaId, cuidador_id: cuidadorId })
+          });
+          const json = await res.json();
+          if (json.ok) {
+            modalConfirmar.classList.add('hidden');
+            loadContactos(); // Reload list
+          } else {
+            alert(json.error || 'Error al confirmar');
+            btn.disabled = false;
+            btn.textContent = 'Sí, confirmar contratación';
+          }
+        } catch(e) {
+          alert('Error de conexión');
+          btn.disabled = false;
+          btn.textContent = 'Sí, confirmar contratación';
+        }
+      });
+    }
+
+    function esc(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+  })();
+  </script>
+
+  <style>
+    .mc-header { margin-bottom: 20px; padding-top: 24px; }
+    .mc-header__title {
+      font-family: 'Montserrat', sans-serif; font-weight: 700;
+      font-size: 22px; color: var(--noche); margin-bottom: 4px;
+    }
+    .mc-header__subtitle { font-size: 13px; color: #888; }
+
+    .mc-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 768px) {
+      .mc-grid { grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    }
+
+    .mc-card {
+      border-radius: 14px; padding: 16px; background: #fff;
+      cursor: default; transition: box-shadow .2s;
+    }
+    .mc-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+
+    .mc-card__top {
+      display: flex; gap: 12px; align-items: center;
+      cursor: pointer; margin-bottom: 10px;
+    }
+    .mc-card__avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 18px; font-weight: 700; flex-shrink: 0;
+      object-fit: cover;
+    }
+    img.mc-card__avatar { background: var(--gris); }
+    .mc-card__info { flex: 1; min-width: 0; }
+    .mc-card__name {
+      font-weight: 600; font-size: 14px; color: var(--noche);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .mc-card__meta { font-size: 11px; color: #999; margin-top: 1px; }
+    .mc-card__badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+
+    .mc-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      font-size: 10px; font-weight: 600;
+    }
+    .mc-badge--aqua { background: rgba(0,180,184,0.12); color: var(--aqua, #00B4B8); }
+    .mc-badge--teal { background: rgba(0,109,119,0.1); color: var(--teal); }
+    .mc-badge--coral { background: rgba(255,107,107,0.1); color: var(--coral); }
+    .mc-badge--gris { background: rgba(180,186,194,0.2); color: var(--gris-medio); }
+
+    .mc-card__actions {
+      display: flex; gap: 6px; margin-top: 4px;
+    }
+    .mc-card__btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 12px; padding: 8px; }
+
+    .mc-card__confirmar {
+      width: 100%; margin-top: 6px; font-size: 12px; padding: 8px;
+    }
+
+    .mc-card__note {
+      font-size: 11px; color: #999; margin-top: 6px; line-height: 1.5;
+      font-style: italic;
+    }
+
+    .mc-empty {
+      text-align: center; padding: 48px 24px;
+    }
+
+    .mc-divider { border-top: 1px solid var(--gris); padding-top: 8px; margin-top: 4px; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; padding: 16px;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-card {
+      background: #fff; border-radius: 16px; padding: 24px;
+      position: relative; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    }
+    .modal-card__close {
+      position: absolute; top: 12px; right: 16px;
+      background: none; border: none; font-size: 24px; color: #999;
+      cursor: pointer; line-height: 1;
+    }
+
+    /* Tab bar */
+    .tab-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1px solid var(--gris);
+      display: flex; justify-content: space-around;
+      padding: 8px 0 env(safe-area-inset-bottom, 8px);
+      z-index: 100;
+    }
+    .tab-bar__item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      font-size: 10px; color: #999; text-decoration: none; padding: 4px 12px;
+    }
+    @media (min-width: 768px) {
+      .tab-bar { display: none; }
+      .dashboard { padding-bottom: 40px; }
+    }
+    @media (max-width: 767px) {
+      .dashboard { padding-bottom: 80px; }
+    }
+  </style>
+</body>
+</html>
