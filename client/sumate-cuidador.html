@@ -332,6 +332,34 @@
     .sc-footer__logo { height: 28px; display: block; margin: 0 auto 8px; opacity: .5; }
     .sc-footer a { color: var(--teal); text-decoration: none; }
 
+    /* === Checkboxes & badges === */
+    .sc-form__checks {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      margin-bottom: 12px;
+    }
+    .sc-form__check {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--noche, #1F2933);
+      cursor: pointer; line-height: 1.4;
+    }
+    .sc-form__check input[type="checkbox"] {
+      width: 18px; height: 18px; accent-color: var(--teal, #006D77);
+      flex-shrink: 0; cursor: pointer;
+    }
+    .sc-form__consents {
+      display: flex; flex-direction: column; gap: 10px;
+      margin-top: 16px; margin-bottom: 8px;
+    }
+    .sc-form__consents .sc-form__check { font-size: 12px; color: #555; }
+    .sc-form__consents a { color: var(--teal); text-decoration: underline; }
+    .m-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .m-badge--teal { background: rgba(0,109,119,.1); color: var(--teal, #006D77); }
+    .hidden { display: none !important; }
+    .field { position: relative; }
+    .field.has-error input,
+    .field.has-error select { border-color: #dc2626; }
+    .field__error { font-size: 12px; color: #dc2626; margin-top: 4px; }
+
     @media (max-width: 768px) {
       .sc-topbar { padding: 12px 16px; }
       .sc-hero__inner { gap: 24px; }
@@ -339,6 +367,7 @@
       .sc-paths__inner { grid-template-columns: 1fr; }
       .sc-form__row { grid-template-columns: 1fr; }
       .sc-form__card { padding: 20px 16px; }
+      .sc-form__checks { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -409,229 +438,110 @@
       </div>
     </section>
 
-    <!-- ¿Cómo podés sumarte? -->
-    <section class="sc-paths" id="ingreso">
-      <h2 class="sc-paths__title">¿Cómo podés sumarte?</h2>
-      <div class="sc-paths__inner">
-        <!-- Camino A: Ingreso por recomendación -->
-        <div class="sc-path sc-path--recommended">
-          <span class="sc-path__badge sc-path__badge--teal">Recomendado</span>
-          <h3 class="sc-path__title">Si una familia puede recomendarte</h3>
-          <p class="sc-path__desc">
-            Si trabajás o trabajaste con una familia que conoce tu forma de cuidar, pedile que te recomiende en Cuidy. Tu perfil se vuelve visible dentro de su red de confianza.
-          </p>
-          <ol class="sc-path__steps">
-            <li class="sc-path__step">
-              <span class="sc-path__step-num sc-path__step-num--teal">1</span>
-              <span>Dejanos tu nombre y el WhatsApp de la familia</span>
-            </li>
-            <li class="sc-path__step">
-              <span class="sc-path__step-num sc-path__step-num--teal">2</span>
-              <span>Le enviamos un mensaje pidiéndole que complete tu recomendación</span>
-            </li>
-            <li class="sc-path__step">
-              <span class="sc-path__step-num sc-path__step-num--teal">3</span>
-              <span>Revisamos la información y te indicamos cómo continuar</span>
-            </li>
-          </ol>
-          <button class="m-btn m-btn--primary m-btn--full" id="btnShowA">Pedir una recomendación</button>
-        </div>
-
-        <!-- Camino B: Sin recomendación -->
-        <div class="sc-path">
-          <span class="sc-path__badge sc-path__badge--coral">Alternativa</span>
-          <h3 class="sc-path__title">Si todavía no tenés quién te recomiende</h3>
-          <p class="sc-path__desc">
-            Contanos quién sos, qué experiencia tenés y en qué tipo de cuidado trabajás. Nuestro equipo revisará tu solicitud.
-          </p>
-          <ol class="sc-path__steps">
-            <li class="sc-path__step">
-              <span class="sc-path__step-num sc-path__step-num--muted">1</span>
-              <span>Completá tus datos y verificá tu WhatsApp</span>
-            </li>
-            <li class="sc-path__step">
-              <span class="sc-path__step-num sc-path__step-num--muted">2</span>
-              <span>Nuestro equipo revisa tu solicitud</span>
-            </li>
-            <li class="sc-path__step">
-              <span class="sc-path__step-num sc-path__step-num--muted">3</span>
-              <span>Te informamos los pasos para continuar</span>
-            </li>
-          </ol>
-          <button class="m-btn m-btn--teal m-btn--full" id="btnShowB">Quiero postularme</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========== FORM A: Pedir recomendación ========== -->
-    <section class="sc-form" id="formA">
+    <!-- ========== REGISTRO UNIFICADO ========== -->
+    <section class="sc-form is-visible" id="ingreso" style="display:block;background:var(--marfil,#F8F7F3)">
       <div class="sc-form__inner">
-        <h2 class="sc-form__title">Pedir una recomendación</h2>
-        <p class="sc-form__sub">Completá estos datos y le enviamos un WhatsApp a la familia para que comparta su experiencia.</p>
+        <!-- Invitation badge (hidden by default, shown with ?inv=) -->
+        <div id="invBanner" class="hidden" style="text-align:center;margin-bottom:12px">
+          <span class="m-badge m-badge--teal" id="invBadge"></span>
+        </div>
 
-        <div class="sc-form__card" id="formACard">
-          <form id="formSolicitarRec" novalidate>
+        <h2 class="sc-form__title" id="regTitle">Sumate como cuidador/a</h2>
+        <p class="sc-form__sub" id="regSub">Completá tus datos para crear tu perfil en la red de confianza. El registro es gratuito.</p>
+
+        <div class="sc-form__card" id="regFormCard">
+          <form id="regForm" novalidate>
             <p class="sc-form__section-label sc-form__section-label--teal">Tus datos</p>
             <div class="sc-form__row">
               <div class="sc-form__field">
-                <label for="a_nombre">Tu nombre completo *</label>
-                <input id="a_nombre" type="text" required placeholder="Ej: Ana Gómez" autocomplete="name" />
+                <label for="nombre">Nombre *</label>
+                <input id="nombre" type="text" required placeholder="Ej: Ana" autocomplete="given-name" />
               </div>
               <div class="sc-form__field">
-                <label for="a_telefono">Tu WhatsApp *</label>
-                <input id="a_telefono" type="tel" required value="+549" placeholder="+549 11 12345678" autocomplete="tel" />
-              </div>
-            </div>
-
-            <div class="sc-form__divider"></div>
-
-            <p class="sc-form__section-label sc-form__section-label--coral">Familia que te conoce</p>
-            <div class="sc-form__row">
-              <div class="sc-form__field">
-                <label for="a_fam_nombre">Nombre de la familia *</label>
-                <input id="a_fam_nombre" type="text" required placeholder="Ej: María López" />
-              </div>
-              <div class="sc-form__field">
-                <label for="a_fam_telefono">WhatsApp de la familia *</label>
-                <input id="a_fam_telefono" type="tel" required value="+549" placeholder="+549 11 12345678" />
+                <label for="apellido">Apellido *</label>
+                <input id="apellido" type="text" required placeholder="Ej: Gómez" autocomplete="family-name" />
               </div>
             </div>
             <div class="sc-form__field">
-              <label for="a_tipo_servicio">¿Qué tipo de servicio le prestás o prestaste? *</label>
-              <select id="a_tipo_servicio" required>
-                <option value="">Seleccionar...</option>
-                <option value="ninera">Niñera / Cuidado de niños</option>
-                <option value="adulto_mayor">Cuidado lúdico de adulto mayor</option>
-                <option value="domestica">Empleada doméstica / Limpieza</option>
-                <option value="cocinera">Cocinera/o</option>
-                <option value="otro">Otro tipo de cuidado</option>
-              </select>
+              <label for="email">Email *</label>
+              <input id="email" type="email" required placeholder="ana@ejemplo.com" autocomplete="email" />
             </div>
 
-            <button type="submit" class="m-btn m-btn--primary m-btn--full" style="padding:14px;font-size:15px;margin-top:20px">Enviar recomendación</button>
-            <p class="sc-form__note">A la familia le va a llegar un WhatsApp con un enlace para completar tu recomendación.</p>
-            <div class="sc-form__msg" id="formAMsg"></div>
-          </form>
-        </div>
-
-        <!-- Éxito camino A -->
-        <div class="sc-form__card" id="formASuccess" style="display:none">
-          <div class="sc-success">
-            <div class="sc-success__icon">📩</div>
-            <h3 class="sc-success__title">Gracias por compartir tu experiencia</h3>
-            <p class="sc-success__text">
-              Le enviamos un WhatsApp a <strong id="successFamNombre"></strong> para que complete tu recomendación.
-              Recibimos tu solicitud y revisaremos la información.
-            </p>
-            <a href="/" class="m-btn m-btn--teal">Volver al inicio</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========== FORM B: Lista de espera ========== -->
-    <section class="sc-form" id="formB">
-      <div class="sc-form__inner">
-        <h2 class="sc-form__title">Queremos conocer tu forma de cuidar</h2>
-        <p class="sc-form__sub">Contanos quién sos y qué experiencia tenés. Nuestro equipo revisará tu solicitud y te informará los pasos para continuar.</p>
-
-        <div class="sc-form__card" id="formBCard">
-          <form id="formListaEspera" novalidate>
-            <p class="sc-form__section-label sc-form__section-label--teal">Tus datos personales</p>
-            <div class="sc-form__row">
-              <div class="sc-form__field">
-                <label for="b_nombre">Nombre completo *</label>
-                <input id="b_nombre" type="text" required placeholder="Ej: Ana Gómez" autocomplete="name" />
-              </div>
-              <div class="sc-form__field">
-                <label for="b_telefono">Tu WhatsApp *</label>
-                <input id="b_telefono" type="tel" required value="+549" placeholder="+549 11 12345678" autocomplete="tel" />
+            <!-- WhatsApp con OTP -->
+            <div class="sc-form__field">
+              <label for="telefono">WhatsApp *</label>
+              <div class="field" style="margin:0">
+                <input id="telefono" type="tel" required value="+549" placeholder="+549 11 12345678" autocomplete="tel" style="width:100%;padding:10px 14px;border:1.5px solid var(--gris,#E6E8EB);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;color:var(--noche);background:#fff" />
                 <div class="sc-otp">
                   <div class="sc-otp__row">
-                    <button type="button" class="sc-otp__btn" id="btnBOtpSend">Verificar WhatsApp</button>
+                    <button type="button" class="sc-otp__btn" id="btnOtpSend">Verificar WhatsApp</button>
                   </div>
-                  <div class="sc-otp__verify-row" id="bOtpVerifyRow">
-                    <input type="text" class="sc-otp__input" id="bOtpCode" maxlength="6" pattern="[0-9]{6}" placeholder="000000" inputmode="numeric" />
-                    <button type="button" class="sc-otp__btn sc-otp__btn--verify" id="btnBOtpVerify">Confirmar</button>
+                  <div class="sc-otp__verify-row" id="otpVerifyRow">
+                    <input type="text" class="sc-otp__input" id="otpCode" maxlength="6" pattern="[0-9]{6}" placeholder="000000" inputmode="numeric" />
+                    <button type="button" class="sc-otp__btn sc-otp__btn--verify" id="btnOtpVerify">Confirmar</button>
                   </div>
-                  <p class="sc-otp__status" id="bOtpStatus"></p>
+                  <p class="sc-otp__status" id="otpStatus"></p>
                 </div>
-                <input type="hidden" id="b_telefono_verificado" value="" />
+                <input type="hidden" id="telefonoVerificado" value="" />
               </div>
             </div>
+
+            <!-- Contraseña -->
             <div class="sc-form__field">
-              <label for="b_email">Email *</label>
-              <input id="b_email" type="email" required placeholder="ana@ejemplo.com" autocomplete="email" />
+              <label for="password">Contraseña *</label>
+              <input id="password" type="password" required placeholder="Mínimo 8 caracteres" autocomplete="new-password" minlength="8" />
             </div>
 
             <div class="sc-form__divider"></div>
 
-            <p class="sc-form__section-label sc-form__section-label--coral">Tu experiencia</p>
-            <div class="sc-form__row">
-              <div class="sc-form__field">
-                <label for="b_tipo_servicio">¿En qué te especializás? *</label>
-                <select id="b_tipo_servicio" required>
-                  <option value="">Seleccionar...</option>
-                  <option value="ninera">Niñera / Cuidado de niños</option>
-                  <option value="adulto_mayor">Cuidado lúdico de adulto mayor</option>
-                  <option value="domestica">Empleada doméstica / Limpieza</option>
-                  <option value="cocinera">Cocinera/o</option>
-                  <option value="otro">Otro tipo de cuidado</option>
-                </select>
-              </div>
-              <div class="sc-form__field">
-                <label for="b_experiencia">Años de experiencia *</label>
-                <select id="b_experiencia" required>
-                  <option value="">Seleccionar...</option>
-                  <option value="menos_1">Menos de 1 año</option>
-                  <option value="1_3">Entre 1 y 3 años</option>
-                  <option value="3_5">Entre 3 y 5 años</option>
-                  <option value="mas_5">Más de 5 años</option>
-                </select>
-              </div>
-            </div>
-            <div class="sc-form__row">
-              <div class="sc-form__field">
-                <label for="b_provincia">Provincia *</label>
-                <select id="b_provincia" required>
-                  <option value="">Seleccionar...</option>
-                  <option value="caba">CABA</option>
-                  <option value="bsas">Buenos Aires</option>
-                  <option value="cordoba">Córdoba</option>
-                  <option value="santafe">Santa Fe</option>
-                  <option value="mendoza">Mendoza</option>
-                  <option value="tucuman">Tucumán</option>
-                  <option value="otra">Otra</option>
-                </select>
-              </div>
-              <div class="sc-form__field">
-                <label for="b_localidad">Localidad *</label>
-                <input id="b_localidad" type="text" required placeholder="Ej: Palermo, San Isidro" />
-              </div>
-            </div>
-            <div class="sc-form__field">
-              <label for="b_referencias">¿Tenés referencias que podamos contactar? (opcional)</label>
-              <textarea id="b_referencias" placeholder="Nombre y teléfono de una o más familias con las que trabajaste. Nuestro equipo puede contactarlas para validar tu experiencia."></textarea>
+            <!-- Especialidades -->
+            <p class="sc-form__section-label sc-form__section-label--coral">¿En qué te especializás?</p>
+            <div class="sc-form__checks">
+              <label class="sc-form__check"><input type="checkbox" name="especialidades" value="ninera" /> Niñera / Cuidado de niños</label>
+              <label class="sc-form__check"><input type="checkbox" name="especialidades" value="adulto_mayor" /> Cuidado de adulto mayor</label>
+              <label class="sc-form__check"><input type="checkbox" name="especialidades" value="domestica" /> Empleada doméstica</label>
+              <label class="sc-form__check"><input type="checkbox" name="especialidades" value="cocinera" /> Cocinera/o</label>
             </div>
 
-            <button type="submit" class="m-btn m-btn--teal m-btn--full" style="padding:14px;font-size:15px;margin-top:20px">Enviar mi solicitud</button>
-            <p class="sc-form__note">Recibimos tu solicitud. Te informaremos los próximos pasos por el medio de contacto que elegiste. Enviar una solicitud no significa que tu perfil ya esté publicado.</p>
-            <div class="sc-form__msg" id="formBMsg"></div>
+            <div class="sc-form__divider"></div>
+
+            <!-- Recomendación opcional (hidden when ?inv= is present) -->
+            <div id="recOptional">
+              <p class="sc-form__section-label sc-form__section-label--teal" style="border-bottom:none;margin-bottom:4px">¿Tenés una familia que pueda recomendarte? <span style="font-weight:400;text-transform:none;font-size:12px;letter-spacing:0">(opcional)</span></p>
+              <p style="font-size:13px;color:#555;margin-bottom:14px;line-height:1.6">Si trabajás o trabajaste con una familia que conoce tu forma de cuidar, dejanos su contacto y le pedimos que te recomiende.</p>
+              <div class="sc-form__row">
+                <div class="sc-form__field">
+                  <label for="rec_fam_nombre">Nombre de la familia</label>
+                  <input id="rec_fam_nombre" type="text" placeholder="Ej: María López" />
+                </div>
+                <div class="sc-form__field">
+                  <label for="rec_fam_telefono">WhatsApp de la familia</label>
+                  <input id="rec_fam_telefono" type="tel" placeholder="+549 11 12345678" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Consentimientos -->
+            <div class="sc-form__consents">
+              <label class="sc-form__check"><input type="checkbox" id="consent_privacidad" required /> Acepto la <a href="privacidad.html" target="_blank">política de privacidad</a></label>
+              <label class="sc-form__check"><input type="checkbox" id="consent_datos_veraces" required /> Declaro que los datos ingresados son verdaderos</label>
+            </div>
+
+            <button type="submit" class="m-btn m-btn--teal m-btn--full" id="btnRegSubmit" style="padding:14px;font-size:15px;margin-top:20px">Crear mi perfil</button>
+            <p class="sc-form__note">Registro 100% gratuito. Tu perfil solo es visible cuando una familia te recomienda.</p>
+            <div class="sc-form__msg" id="regMsg"></div>
           </form>
         </div>
 
-        <!-- Éxito camino B -->
-        <div class="sc-form__card" id="formBSuccess" style="display:none">
+        <!-- Success -->
+        <div class="sc-form__card hidden" id="regSuccess">
           <div class="sc-success">
-            <div class="sc-success__icon">📋</div>
-            <h3 class="sc-success__title">Recibimos tu solicitud</h3>
-            <p class="sc-success__text">
-              Te informaremos los próximos pasos por el medio de contacto que elegiste. Enviar una solicitud no significa que tu perfil ya esté publicado.
+            <div class="sc-success__icon" style="color:var(--teal);font-size:48px">&#10003;</div>
+            <h3 class="sc-success__title">¡Tu perfil fue creado!</h3>
+            <p class="sc-success__text" id="regSuccessText">
+              Tu cuenta está lista. Vamos a verificar tu identidad para que las familias puedan confiar en vos.
             </p>
-            <p class="sc-success__text" style="font-size:12px;color:#999;">
-              Si en algún momento una familia te recomienda en Cuidy, tu solicitud se prioriza automáticamente.
-            </p>
-            <a href="/" class="m-btn m-btn--teal">Volver al inicio</a>
+            <a id="regSuccessBtn" href="cuidador-enviado.html" class="m-btn m-btn--teal" style="padding:12px 28px">Continuar</a>
           </div>
         </div>
       </div>
@@ -658,84 +568,49 @@
   <script>
   (function() {
     const API = '/.netlify/functions/api';
+    let invitacionValidada = null;
+    let otpCooldown = null;
 
-    // Toggle forms
-    document.getElementById('btnShowA').addEventListener('click', () => {
-      document.getElementById('formA').classList.add('is-visible');
-      document.getElementById('formB').classList.remove('is-visible');
-      document.getElementById('formA').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-    document.getElementById('btnShowB').addEventListener('click', () => {
-      document.getElementById('formB').classList.add('is-visible');
-      document.getElementById('formA').classList.remove('is-visible');
-      document.getElementById('formB').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-
-    // ========== CAMINO A: Solicitar recomendación ==========
-    const formA = document.getElementById('formSolicitarRec');
-    const formAMsg = document.getElementById('formAMsg');
-
-    formA.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      formAMsg.className = 'sc-form__msg'; formAMsg.style.display = 'none';
-
-      const nombre = document.getElementById('a_nombre').value.trim();
-      const telefono = document.getElementById('a_telefono').value.trim();
-      const famNombre = document.getElementById('a_fam_nombre').value.trim();
-      const famTel = document.getElementById('a_fam_telefono').value.trim();
-      const tipoServicio = document.getElementById('a_tipo_servicio').value;
-
-      if (!nombre || !telefono || !famNombre || !famTel || !tipoServicio) {
-        showMsg(formAMsg, 'Completá todos los campos obligatorios.', 'error'); return;
-      }
-
-      const btn = formA.querySelector('.m-btn');
-      btn.disabled = true; btn.textContent = 'Enviando...';
+    // ========== Detectar invitación ==========
+    async function detectarInvitacion() {
+      const params = new URLSearchParams(window.location.search);
+      const invCode = params.get('inv');
+      if (!invCode) return;
 
       try {
-        const res = await fetch(API + '/recomendaciones/solicitar', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            cuidador_nombre: nombre,
-            cuidador_telefono: telefono,
-            familia_nombre: famNombre,
-            familia_telefono: famTel,
-            tipo_servicio: tipoServicio
-          })
-        });
+        const res = await fetch(`${API}/invitaciones/validar?codigo=${encodeURIComponent(invCode)}`);
         const json = await res.json();
-        if (!json.ok) {
-          showMsg(formAMsg, json.error || 'No pudimos enviar la solicitud.', 'error');
-          btn.disabled = false; btn.textContent = 'Enviar recomendación';
-          return;
+        if (json.ok && json.data) {
+          invitacionValidada = { codigo: invCode, familia_nombre: json.data.familia_nombre };
+          // Show invitation badge
+          document.getElementById('invBadge').textContent = 'Invitación de ' + json.data.familia_nombre;
+          document.getElementById('invBanner').classList.remove('hidden');
+          // Update title and subtitle
+          document.getElementById('regTitle').innerHTML = 'Te invitaron a <em style="font-style:normal;color:var(--teal)">Cuidy</em>';
+          document.getElementById('regSub').textContent = json.data.familia_nombre + ' te recomendó. Completá tu perfil para ser visible en su red.';
+          // Hide the optional recommendation section (already have one)
+          document.getElementById('recOptional').classList.add('hidden');
         }
-        document.getElementById('formACard').style.display = 'none';
-        document.getElementById('formASuccess').style.display = 'block';
-        document.getElementById('successFamNombre').textContent = famNombre;
-
-        if (typeof gtag === 'function') gtag('event', 'solicitar_recomendacion', { landing_page: 'sumate-cuidador' });
       } catch {
-        showMsg(formAMsg, 'Error de conexión. Intentá de nuevo.', 'error');
-        btn.disabled = false; btn.textContent = 'Enviar recomendación';
+        // Invitation code invalid or network error — continue without it
       }
-    });
+    }
+    detectarInvitacion();
 
-    // ========== CAMINO B: Lista de espera con OTP ==========
-    const telB = document.getElementById('b_telefono');
-    const btnBSend = document.getElementById('btnBOtpSend');
-    const btnBVerify = document.getElementById('btnBOtpVerify');
-    const bVerifyRow = document.getElementById('bOtpVerifyRow');
-    const bCode = document.getElementById('bOtpCode');
-    const bStatus = document.getElementById('bOtpStatus');
-    const bVerified = document.getElementById('b_telefono_verificado');
-    let bCooldown = null;
+    // ========== OTP WhatsApp ==========
+    const telInput = document.getElementById('telefono');
+    const btnSend = document.getElementById('btnOtpSend');
+    const btnVerify = document.getElementById('btnOtpVerify');
+    const verifyRow = document.getElementById('otpVerifyRow');
+    const codeInput = document.getElementById('otpCode');
+    const otpSt = document.getElementById('otpStatus');
+    const hiddenVerified = document.getElementById('telefonoVerificado');
 
-    btnBSend.addEventListener('click', async () => {
-      const tel = telB.value.trim();
-      if (!tel || tel.length < 10) { telB.focus(); return; }
-      btnBSend.disabled = true; btnBSend.textContent = 'Enviando...';
-      bStatus.textContent = ''; bStatus.className = 'sc-otp__status';
+    btnSend.addEventListener('click', async () => {
+      const tel = telInput.value.trim();
+      if (!tel || tel.length < 10) { telInput.focus(); return; }
+      btnSend.disabled = true; btnSend.textContent = 'Enviando...';
+      otpSt.textContent = ''; otpSt.className = 'sc-otp__status';
       try {
         const res = await fetch(`${API}/auth/otp-send`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -743,117 +618,185 @@
         });
         const json = await res.json();
         if (json.ok) {
-          bVerifyRow.classList.add('is-visible'); bCode.focus();
-          bStatus.textContent = 'Código enviado por WhatsApp.';
-          bStatus.className = 'sc-otp__status sc-otp__status--ok';
-          startBCooldown(30);
+          verifyRow.classList.add('is-visible'); codeInput.focus();
+          otpSt.textContent = 'Código enviado por WhatsApp.';
+          otpSt.className = 'sc-otp__status sc-otp__status--ok';
+          startCooldown(30);
         } else {
-          bStatus.textContent = json.error || 'Error al enviar.';
-          bStatus.className = 'sc-otp__status sc-otp__status--error';
-          btnBSend.textContent = 'Verificar WhatsApp'; btnBSend.disabled = false;
+          otpSt.textContent = json.error || 'Error al enviar.';
+          otpSt.className = 'sc-otp__status sc-otp__status--error';
+          btnSend.textContent = 'Verificar WhatsApp'; btnSend.disabled = false;
         }
       } catch {
-        bStatus.textContent = 'Sin conexión.';
-        bStatus.className = 'sc-otp__status sc-otp__status--error';
-        btnBSend.textContent = 'Verificar WhatsApp'; btnBSend.disabled = false;
+        otpSt.textContent = 'Sin conexión.';
+        otpSt.className = 'sc-otp__status sc-otp__status--error';
+        btnSend.textContent = 'Verificar WhatsApp'; btnSend.disabled = false;
       }
     });
 
-    btnBVerify.addEventListener('click', async () => {
-      const code = bCode.value.trim();
-      if (code.length !== 6) { bCode.focus(); return; }
-      btnBVerify.disabled = true; btnBVerify.textContent = 'Verificando...';
+    btnVerify.addEventListener('click', async () => {
+      const code = codeInput.value.trim();
+      if (code.length !== 6) { codeInput.focus(); return; }
+      btnVerify.disabled = true; btnVerify.textContent = 'Verificando...';
       try {
         const res = await fetch(`${API}/auth/otp-verify`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ telefono: telB.value.trim(), code })
+          body: JSON.stringify({ telefono: telInput.value.trim(), code })
         });
         const json = await res.json();
         if (json.ok) {
-          bVerified.value = json.telefono;
-          stopBCooldown();
-          btnBSend.textContent = '✓ Verificado'; btnBSend.disabled = true;
-          btnBSend.className = 'sc-otp__btn sc-otp__btn--verified';
-          telB.readOnly = true; bVerifyRow.classList.remove('is-visible');
-          bStatus.textContent = 'WhatsApp verificado.'; bStatus.className = 'sc-otp__status sc-otp__status--ok';
+          hiddenVerified.value = json.telefono;
+          stopCooldown();
+          btnSend.textContent = '✓ Verificado'; btnSend.disabled = true;
+          btnSend.className = 'sc-otp__btn sc-otp__btn--verified';
+          telInput.readOnly = true; verifyRow.classList.remove('is-visible');
+          otpSt.textContent = 'WhatsApp verificado.'; otpSt.className = 'sc-otp__status sc-otp__status--ok';
         } else {
-          bStatus.textContent = json.error || 'Código incorrecto.';
-          bStatus.className = 'sc-otp__status sc-otp__status--error';
-          btnBVerify.disabled = false; btnBVerify.textContent = 'Confirmar';
+          otpSt.textContent = json.error || 'Código incorrecto.';
+          otpSt.className = 'sc-otp__status sc-otp__status--error';
+          btnVerify.disabled = false; btnVerify.textContent = 'Confirmar';
         }
       } catch {
-        bStatus.textContent = 'Sin conexión.';
-        bStatus.className = 'sc-otp__status sc-otp__status--error';
-        btnBVerify.disabled = false; btnBVerify.textContent = 'Confirmar';
+        otpSt.textContent = 'Sin conexión.';
+        otpSt.className = 'sc-otp__status sc-otp__status--error';
+        btnVerify.disabled = false; btnVerify.textContent = 'Confirmar';
       }
     });
 
-    bCode.addEventListener('input', () => {
-      bCode.value = bCode.value.replace(/\D/g, '');
-      if (bCode.value.length === 6) btnBVerify.click();
+    codeInput.addEventListener('input', () => {
+      codeInput.value = codeInput.value.replace(/\D/g, '');
+      if (codeInput.value.length === 6) btnVerify.click();
     });
-    telB.addEventListener('input', () => {
-      if (bVerified.value) {
-        bVerified.value = ''; btnBSend.textContent = 'Verificar WhatsApp';
-        btnBSend.disabled = false; btnBSend.className = 'sc-otp__btn';
-        telB.readOnly = false; bVerifyRow.classList.remove('is-visible');
-        bStatus.textContent = ''; bCode.value = ''; stopBCooldown();
+    telInput.addEventListener('input', () => {
+      if (hiddenVerified.value) {
+        hiddenVerified.value = ''; btnSend.textContent = 'Verificar WhatsApp';
+        btnSend.disabled = false; btnSend.className = 'sc-otp__btn';
+        telInput.readOnly = false; verifyRow.classList.remove('is-visible');
+        otpSt.textContent = ''; codeInput.value = ''; stopCooldown();
       }
     });
-    function startBCooldown(s) { stopBCooldown(); let r=s; btnBSend.disabled=true; bCooldown=setInterval(()=>{r--;btnBSend.textContent=`Reenviar (${r}s)`;if(r<=0){stopBCooldown();btnBSend.textContent='Reenviar código';btnBSend.disabled=false;}},1000); }
-    function stopBCooldown() { if(bCooldown){clearInterval(bCooldown);bCooldown=null;} }
+    function startCooldown(s) { stopCooldown(); let r=s; btnSend.disabled=true; otpCooldown=setInterval(()=>{r--;btnSend.textContent='Reenviar ('+r+'s)';if(r<=0){stopCooldown();btnSend.textContent='Reenviar código';btnSend.disabled=false;}},1000); }
+    function stopCooldown() { if(otpCooldown){clearInterval(otpCooldown);otpCooldown=null;} }
 
-    // Form B submit
-    const formB = document.getElementById('formListaEspera');
-    const formBMsg = document.getElementById('formBMsg');
+    // ========== Registro ==========
+    const regForm = document.getElementById('regForm');
+    const regMsg = document.getElementById('regMsg');
 
-    formB.addEventListener('submit', async (e) => {
+    regForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      formBMsg.className = 'sc-form__msg'; formBMsg.style.display = 'none';
+      regMsg.className = 'sc-form__msg'; regMsg.style.display = 'none';
 
-      const nombre = document.getElementById('b_nombre').value.trim();
-      const telefono = telB.value.trim();
-      const email = document.getElementById('b_email').value.trim();
-      const tipoServicio = document.getElementById('b_tipo_servicio').value;
-      const experiencia = document.getElementById('b_experiencia').value;
-      const provincia = document.getElementById('b_provincia').value;
-      const localidad = document.getElementById('b_localidad').value.trim();
-      const referencias = document.getElementById('b_referencias').value.trim();
+      const nombre = document.getElementById('nombre').value.trim();
+      const apellido = document.getElementById('apellido').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const telefono = telInput.value.trim();
+      const password = document.getElementById('password').value;
+      const especialidades = Array.from(regForm.querySelectorAll('input[name="especialidades"]:checked')).map(i => i.value);
 
-      if (!nombre || !telefono || !email || !tipoServicio || !experiencia || !provincia || !localidad) {
-        showMsg(formBMsg, 'Completá todos los campos obligatorios.', 'error'); return;
+      // Validations
+      if (!nombre) { showMsg(regMsg, 'Ingresá tu nombre.', 'error'); document.getElementById('nombre').focus(); return; }
+      if (!apellido) { showMsg(regMsg, 'Ingresá tu apellido.', 'error'); document.getElementById('apellido').focus(); return; }
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showMsg(regMsg, 'Ingresá un email válido.', 'error'); document.getElementById('email').focus(); return; }
+      if (!telefono) { showMsg(regMsg, 'Ingresá tu WhatsApp.', 'error'); telInput.focus(); return; }
+      if (!hiddenVerified.value) { showMsg(regMsg, 'Verificá tu WhatsApp con el código OTP.', 'error'); btnSend.focus(); return; }
+      if (!password || password.length < 8) { showMsg(regMsg, 'La contraseña debe tener al menos 8 caracteres.', 'error'); document.getElementById('password').focus(); return; }
+      if (!especialidades.length) { showMsg(regMsg, 'Seleccioná al menos una especialidad.', 'error'); return; }
+      if (!document.getElementById('consent_privacidad').checked) { showMsg(regMsg, 'Tenés que aceptar la política de privacidad.', 'error'); return; }
+      if (!document.getElementById('consent_datos_veraces').checked) { showMsg(regMsg, 'Tenés que declarar que los datos son verdaderos.', 'error'); return; }
+
+      const btn = document.getElementById('btnRegSubmit');
+      btn.disabled = true; btn.textContent = 'Creando cuenta...';
+
+      // Build payload (same structure as registro-cuidador.js)
+      const payload = {
+        identidad: { nombre, apellido },
+        contacto: { email, telefono },
+        especialidades,
+        consentimientos: {
+          privacidad: true,
+          datos_veraces: true
+        },
+        password,
+        registro_simplificado: true
+      };
+
+      // Invitation code
+      if (invitacionValidada) {
+        payload.invitacion_codigo = invitacionValidada.codigo;
       }
-      if (!bVerified.value) {
-        showMsg(formBMsg, 'Verificá tu WhatsApp antes de enviar.', 'error');
-        btnBSend.focus(); return;
-      }
 
-      const btn = formB.querySelector('.m-btn');
-      btn.disabled = true; btn.textContent = 'Enviando...';
+      // UTM and referral tracking
+      const params = new URLSearchParams(window.location.search);
+      const refCode = params.get('ref') || sessionStorage.getItem('cuidy_ref_code') || null;
+      payload.utm_source = params.get('utm_source') || sessionStorage.getItem('cuidy_utm_source') || null;
+      payload.utm_campaign = params.get('utm_campaign') || sessionStorage.getItem('cuidy_utm_campaign') || null;
+      if (refCode) payload.ref_code = refCode;
 
       try {
-        const res = await fetch(API + '/cuidadores/lista-espera', {
+        // Validate referral if present
+        if (refCode) {
+          try {
+            const refRes = await fetch(`${API}/referidos/validar?codigo=${encodeURIComponent(refCode)}`);
+            const refData = await refRes.json();
+            if (refData.ok) payload.referred_by = refData.data.id;
+          } catch {}
+        }
+
+        // Create cuidador account
+        const res = await fetch(`${API}/cuidadores`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            nombre, telefono, telefono_verificado: bVerified.value,
-            email, tipo_servicio: tipoServicio, experiencia,
-            provincia, localidad, referencias
-          })
+          body: JSON.stringify(payload)
         });
         const json = await res.json();
-        if (!json.ok) {
-          showMsg(formBMsg, json.error || 'No pudimos registrar tu solicitud.', 'error');
-          btn.disabled = false; btn.textContent = 'Enviar mi solicitud';
-          return;
-        }
-        document.getElementById('formBCard').style.display = 'none';
-        document.getElementById('formBSuccess').style.display = 'block';
+        if (!json.ok) throw new Error(json.error || (json.detalles || []).join(', ') || 'Error al crear cuenta');
 
-        if (typeof gtag === 'function') gtag('event', 'lista_espera_cuidador', { landing_page: 'sumate-cuidador' });
-      } catch {
-        showMsg(formBMsg, 'Error de conexión. Intentá de nuevo.', 'error');
-        btn.disabled = false; btn.textContent = 'Enviar solicitud';
+        const cuidadorId = json.data.id;
+
+        // Complete referral if present
+        if (refCode) {
+          fetch(`${API}/referidos/completar`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ codigo: refCode, referee_id: cuidadorId, referee_tipo: 'cuidador' })
+          }).catch(() => {});
+        }
+
+        // Request recommendation if optional fields filled
+        const recFamNombre = document.getElementById('rec_fam_nombre')?.value?.trim();
+        const recFamTel = document.getElementById('rec_fam_telefono')?.value?.trim();
+        if (recFamNombre && recFamTel && !invitacionValidada) {
+          fetch(`${API}/recomendaciones/solicitar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              cuidador_nombre: nombre + ' ' + apellido,
+              cuidador_telefono: telefono,
+              familia_nombre: recFamNombre,
+              familia_telefono: recFamTel,
+              tipo_servicio: especialidades[0] || 'otro'
+            })
+          }).catch(() => {});
+        }
+
+        // Save registration info
+        localStorage.setItem('qqmc_cuidador_enviado', JSON.stringify({
+          id: cuidadorId, email,
+          creado_en: new Date().toISOString(),
+          estado: 'enviado'
+        }));
+
+        // GA4
+        if (window.CuidyAnalytics) CuidyAnalytics.registrationCompleted('cuidador', cuidadorId);
+        if (typeof gtag === 'function') gtag('event', 'registro_cuidador', { landing_page: 'sumate-cuidador' });
+
+        // Show success
+        document.getElementById('regFormCard').style.display = 'none';
+        document.getElementById('regSuccess').classList.remove('hidden');
+
+      } catch (err) {
+        showMsg(regMsg, 'No pudimos crear tu cuenta: ' + err.message, 'error');
+        btn.disabled = false; btn.textContent = 'Crear mi perfil';
       }
     });
 
@@ -863,17 +806,9 @@
       el.style.display = '';
     }
 
-    // Si viene con ?camino=b (desde follow-up de solicitud sin respuesta), abrir Camino B directo
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('camino') === 'b') {
-      document.getElementById('formB').classList.add('is-visible');
-      document.getElementById('formB').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
     // GA4
-    if (typeof gtag === 'function') {
-      gtag('event', 'landing_view', { landing_page: 'sumate-cuidador' });
-    }
+    if (typeof gtag === 'function') gtag('event', 'landing_view', { landing_page: 'sumate-cuidador' });
+    if (window.CuidyAnalytics) CuidyAnalytics.registrationStarted('cuidador');
   })();
   </script>
 </body>
