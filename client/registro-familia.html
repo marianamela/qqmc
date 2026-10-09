@@ -178,6 +178,86 @@
       font-size: 12px;
       margin-top: 4px;
     }
+
+    /* Verification step (same as sumate-cuidador) */
+    .rf-verif { max-width: 520px; margin: 40px auto; padding: 0 24px; }
+    .rf-verif__title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700; font-size: 20px; color: var(--noche);
+      text-align: center; margin-bottom: 6px;
+    }
+    .rf-verif__sub {
+      font-size: 14px; color: #888; text-align: center; margin-bottom: 24px;
+    }
+    .rf-verif__loading {
+      display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 40px 0;
+    }
+    .rf-verif__spinner {
+      width: 40px; height: 40px; border: 3px solid var(--gris);
+      border-top-color: var(--teal); border-radius: 50%;
+      animation: rfSpin 1s linear infinite;
+    }
+    @keyframes rfSpin { to { transform: rotate(360deg); } }
+    .rf-verif__iframe-wrap {
+      border-radius: 12px; overflow: hidden; border: 1.5px solid var(--gris);
+      background: #fff; min-height: 500px;
+    }
+    .rf-verif__iframe-wrap iframe {
+      width: 100%; height: 600px; border: none; display: block;
+    }
+    .rf-verif__sandbox, .rf-verif__error {
+      background: #fef3c7; border: 1px solid #f59e0b; border-radius: 12px;
+      padding: 20px; text-align: center;
+    }
+    .rf-verif__error { background: #fee2e2; border-color: #ef4444; }
+    .rf-verif__skip {
+      display: inline-block; margin-top: 12px; padding: 10px 20px;
+      background: var(--teal); color: #fff; border: none; border-radius: 8px;
+      font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 14px;
+      cursor: pointer;
+    }
+    .rf-verif__retry {
+      display: inline-block; margin-top: 8px; padding: 10px 20px;
+      background: transparent; color: var(--teal); border: 1.5px solid var(--teal);
+      border-radius: 8px; font-family: 'Montserrat', sans-serif; font-weight: 600;
+      font-size: 14px; cursor: pointer;
+    }
+
+    /* Result cards */
+    .rf-result {
+      max-width: 520px; margin: 40px auto; padding: 32px 24px;
+      text-align: center; border-radius: 16px;
+    }
+    .rf-result--approved {
+      background: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 100%);
+      border: 1.5px solid #10b981;
+    }
+    .rf-result--pending {
+      background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%);
+      border: 1.5px solid #f59e0b;
+    }
+    .rf-result__icon { font-size: 48px; margin-bottom: 12px; }
+    .rf-result__title {
+      font-family: 'Montserrat', sans-serif; font-weight: 700;
+      font-size: 20px; margin-bottom: 8px;
+    }
+    .rf-result--approved .rf-result__title { color: #065f46; }
+    .rf-result--pending .rf-result__title { color: #92400e; }
+    .rf-result__text { font-size: 14px; line-height: 1.6; margin-bottom: 16px; }
+    .rf-result--approved .rf-result__text { color: #047857; }
+    .rf-result--pending .rf-result__text { color: #78350f; }
+    .rf-result__btn {
+      display: inline-block; padding: 12px 28px; border-radius: 10px;
+      font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 15px;
+      text-decoration: none; transition: background .2s;
+    }
+    .rf-result__btn--teal { background: var(--teal); color: #fff; }
+    .rf-result__btn--teal:hover { background: #005a63; }
+    .rf-result__btn--secondary {
+      background: #fff; color: var(--teal); border: 1.5px solid var(--teal);
+    }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -241,15 +321,53 @@
     </div>
   </main>
 
-  <!-- Modal de éxito -->
-  <div id="okModal" class="modal hidden" role="dialog" aria-modal="true">
-    <div class="modal__backdrop" data-close></div>
-    <div class="modal__content ok-modal">
-      <div class="ok-modal__emoji"><span class="ci ci--xl"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.8 11.3 2 22l10.7-3.79"/><path d="M4 3h.01"/><path d="M22 8h.01"/><path d="M15 2h.01"/><path d="M22 20h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12v0c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11v0c-.11.7-.72 1.22-1.43 1.22H17"/><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98v0C9.52 4.9 9 5.52 9 6.23V7"/><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z"/></svg></span></div>
-      <h3 class="ok-modal__title">¡Bienvenida a Cuidy!</h3>
-      <p class="ok-modal__text">Tu cuenta se creó correctamente.<br>Ahora empezá a construir tu red: conectá con familias que conocés y recomendá cuidadores de confianza.</p>
-      <a href="feed-familia.html" class="m-btn m-btn--teal m-btn--full" style="margin-top:12px">Empezar</a>
+  <!-- Paso de verificación de identidad (post-registro) -->
+  <section id="verifStep" class="rf-verif hidden">
+    <h2 class="rf-verif__title">Verificación de identidad</h2>
+    <p class="rf-verif__sub">Para garantizar la seguridad de todos, necesitamos verificar tu identidad. Es rápido y solo toma un minuto.</p>
+
+    <!-- Loading -->
+    <div id="verifLoading" class="rf-verif__loading">
+      <div class="rf-verif__spinner"></div>
+      <p style="color:#888;font-size:14px">Preparando verificación…</p>
     </div>
+
+    <!-- Didit iframe -->
+    <div id="verifIframe" class="rf-verif__iframe-wrap hidden">
+      <iframe id="diditFrame" src="" allow="camera;microphone" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals"></iframe>
+    </div>
+
+    <!-- Sandbox mode -->
+    <div id="verifSandbox" class="rf-verif__sandbox hidden">
+      <p style="font-weight:600;color:#92400e;margin-bottom:8px">Modo de prueba</p>
+      <p style="font-size:13px;color:#78350f">La verificación de identidad no está configurada en este entorno. Podés continuar y tu cuenta quedará pendiente de revisión.</p>
+      <button id="btnSkipVerif" class="rf-verif__skip">Continuar</button>
+    </div>
+
+    <!-- Error -->
+    <div id="verifError" class="rf-verif__error hidden">
+      <p style="font-weight:600;color:#991b1b;margin-bottom:4px">No pudimos iniciar la verificación</p>
+      <p id="verifErrorMsg" style="font-size:13px;color:#7f1d1d;margin-bottom:12px"></p>
+      <button id="btnRetryVerif" class="rf-verif__retry">Reintentar</button>
+      <br>
+      <button id="btnSkipVerifError" class="rf-verif__skip" style="margin-top:8px">Continuar sin verificación</button>
+    </div>
+  </section>
+
+  <!-- Resultado: identidad aprobada -->
+  <div id="verifApproved" class="rf-result rf-result--approved hidden">
+    <div class="rf-result__icon">✓</div>
+    <h2 class="rf-result__title">¡Identidad verificada!</h2>
+    <p class="rf-result__text">Tu cuenta está activa. Ya podés empezar a construir tu red de confianza, conectar con familias y buscar cuidadores.</p>
+    <a href="feed-familia.html" class="rf-result__btn rf-result__btn--teal">Empezar a usar Cuidy</a>
+  </div>
+
+  <!-- Resultado: pendiente de revisión -->
+  <div id="verifPending" class="rf-result rf-result--pending hidden">
+    <div class="rf-result__icon">⏳</div>
+    <h2 class="rf-result__title">Tu cuenta está en revisión</h2>
+    <p class="rf-result__text">No pudimos verificar tu identidad de forma automática. Nuestro equipo va a analizar tu caso y te avisaremos por email los pasos a seguir.</p>
+    <a href="/" class="rf-result__btn rf-result__btn--secondary">Volver al inicio</a>
   </div>
 
   <footer class="footer">

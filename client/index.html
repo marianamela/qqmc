@@ -28,7 +28,7 @@
         <img class="brand__logo" src="assets/logo.svg" alt="Cuidy" />
       </a>
       <nav class="topbar__nav">
-        <a href="#asistente">Buscar en mi red</a>
+        <a href="#beneficios" data-visitor-only>Por qué Cuidy</a>
         <a href="sumate-cuidador.html" id="navSoyCuidador">Trabajar cuidando</a>
         <script>try{if(JSON.parse(localStorage.getItem('qqmc_cuidador')||'null')?.id){var l=document.getElementById('navSoyCuidador');l.href='panel-cuidador.html';l.textContent='Mi panel';}}catch(e){}</script>
         <a href="#como-funciona">Cómo funciona</a>
@@ -152,8 +152,114 @@
     </div>
   </div>
 
-  <!-- Asistente de búsqueda -->
-  <section class="landing-section landing-section--alt asistente-section" id="asistente">
+  <!-- Por qué recomendar cuidadores — solo visitantes -->
+  <section data-visitor-only id="recomendar-section" style="padding:40px 0;background:white;">
+    <div class="container">
+      <p style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--coral);font-weight:700;text-align:center;margin:0 0 6px">Tu recomendación importa</p>
+      <h2 style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(20px,3vw,26px);text-align:center;color:var(--noche);margin:0 0 8px">¿Por qué recomendar cuidadores?</h2>
+      <p style="font-size:14px;color:#555;text-align:center;line-height:1.6;max-width:600px;margin:0 auto 24px">En Cuidy, un cuidador solo existe si una familia lo recomienda. Tu experiencia real es lo que le da visibilidad y credibilidad.</p>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:800px;margin:0 auto;">
+        <div style="flex:1;min-width:220px;max-width:260px;background:var(--marfil);border-radius:12px;padding:20px;">
+          <div style="font-size:24px;margin-bottom:8px">⭐</div>
+          <h4 style="font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;margin:0 0 6px;color:var(--noche)">Ayudás a otras familias</h4>
+          <p style="font-size:13px;color:#666;line-height:1.5;margin:0">Cuando recomendás, las familias de tu red pueden encontrar a alguien que ya conocés y en quien confiás.</p>
+        </div>
+        <div style="flex:1;min-width:220px;max-width:260px;background:var(--marfil);border-radius:12px;padding:20px;">
+          <div style="font-size:24px;margin-bottom:8px">🤝</div>
+          <h4 style="font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;margin:0 0 6px;color:var(--noche)">Fortalecés la comunidad</h4>
+          <p style="font-size:13px;color:#666;line-height:1.5;margin:0">Cada recomendación construye una red más sólida donde el cuidado circula entre personas reales.</p>
+        </div>
+        <div style="flex:1;min-width:220px;max-width:260px;background:var(--marfil);border-radius:12px;padding:20px;">
+          <div style="font-size:24px;margin-bottom:8px">💼</div>
+          <h4 style="font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;margin:0 0 6px;color:var(--noche)">Valorás su trabajo</h4>
+          <p style="font-size:13px;color:#666;line-height:1.5;margin:0">Le das visibilidad a un profesional del cuidado y lo conectás con nuevas oportunidades laborales.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Conectá con familias — solo visitantes -->
+  <section data-visitor-only style="padding:40px 0;background:linear-gradient(135deg,rgba(0,109,119,0.04),rgba(0,180,184,0.02));">
+    <div class="container">
+      <div style="display:flex;gap:40px;align-items:center;flex-wrap:wrap;max-width:800px;margin:0 auto;">
+        <div style="flex:1;min-width:280px;">
+          <p style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--teal);font-weight:700;margin:0 0 6px">Tu red, tu tranquilidad</p>
+          <h2 style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(18px,3vw,24px);color:var(--noche);margin:0 0 10px;line-height:1.2">Conectá con familias que conocés</h2>
+          <p style="font-size:14px;color:#555;line-height:1.6;margin:0 0 12px">Cuidy funciona como una red social del cuidado. Invitás familias de tu confianza, compartís recomendaciones y entre todas construyen un espacio donde encontrar cuidadores es más fácil y más seguro.</p>
+          <p style="font-size:14px;color:#555;line-height:1.6;margin:0">Cuanto más grande sea tu red, más cuidadores recomendados vas a tener disponibles para vos.</p>
+        </div>
+        <div style="width:240px;flex-shrink:0;">
+          <div style="background:white;border-radius:14px;padding:16px;border:1px solid var(--gris);box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+              <div style="width:36px;height:36px;border-radius:50%;background:var(--teal);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">M</div>
+              <div><strong style="font-size:13px">María</strong><br><span style="font-size:11px;color:#888">Tu red · 3 recomendaciones</span></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+              <div style="width:36px;height:36px;border-radius:50%;background:var(--coral);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">L</div>
+              <div><strong style="font-size:13px">Laura</strong><br><span style="font-size:11px;color:#888">Tu red · 2 recomendaciones</span></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <div style="width:36px;height:36px;border-radius:50%;background:var(--aqua);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">S</div>
+              <div><strong style="font-size:13px">Sofía</strong><br><span style="font-size:11px;color:#888">Tu red · 1 recomendación</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Beneficios de pertenecer — solo visitantes -->
+  <section data-visitor-only id="beneficios" style="padding:40px 0;background:white;">
+    <div class="container">
+      <p style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--teal);font-weight:700;text-align:center;margin:0 0 6px">Beneficios</p>
+      <h2 style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(20px,3vw,26px);text-align:center;color:var(--noche);margin:0 0 24px">¿Por qué ser parte de Cuidy?</h2>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:900px;margin:0 auto;">
+        <div style="flex:1;min-width:180px;max-width:210px;text-align:center;padding:16px;">
+          <div style="width:44px;height:44px;border-radius:50%;background:rgba(0,109,119,0.1);color:var(--teal);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:20px">🔒</div>
+          <h4 style="font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;margin:0 0 4px">Confianza real</h4>
+          <p style="font-size:12px;color:#666;line-height:1.5;margin:0">Cada cuidador tiene el respaldo de una familia que lo conoce de verdad.</p>
+        </div>
+        <div style="flex:1;min-width:180px;max-width:210px;text-align:center;padding:16px;">
+          <div style="width:44px;height:44px;border-radius:50%;background:rgba(0,109,119,0.1);color:var(--teal);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:20px">🧠</div>
+          <h4 style="font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;margin:0 0 4px">Búsqueda inteligente</h4>
+          <p style="font-size:12px;color:#666;line-height:1.5;margin:0">Contale a Caro, nuestra asistente, qué necesitás y te muestra opciones compatibles de tu red.</p>
+        </div>
+        <div style="flex:1;min-width:180px;max-width:210px;text-align:center;padding:16px;">
+          <div style="width:44px;height:44px;border-radius:50%;background:rgba(0,109,119,0.1);color:var(--teal);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:20px">👥</div>
+          <h4 style="font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;margin:0 0 4px">Comunidad cercana</h4>
+          <p style="font-size:12px;color:#666;line-height:1.5;margin:0">Conectás con familias como la tuya y compartís experiencias de cuidado.</p>
+        </div>
+        <div style="flex:1;min-width:180px;max-width:210px;text-align:center;padding:16px;">
+          <div style="width:44px;height:44px;border-radius:50%;background:rgba(255,107,107,0.1);color:var(--coral);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:20px">✅</div>
+          <h4 style="font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;margin:0 0 4px">Identidad verificada</h4>
+          <p style="font-size:12px;color:#666;line-height:1.5;margin:0">Todas las personas pasan por verificación de identidad antes de conectar.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Caro, tu asistente (descriptivo, sin acceso) — solo visitantes -->
+  <section data-visitor-only style="padding:40px 0;background:linear-gradient(135deg,rgba(0,109,119,0.06),rgba(0,180,184,0.04));border-top:1px solid rgba(0,109,119,0.1);">
+    <div class="container">
+      <div style="display:flex;gap:40px;align-items:center;flex-wrap:wrap;max-width:800px;margin:0 auto;">
+        <div style="width:200px;flex-shrink:0;text-align:center;">
+          <img src="assets/caro-avatar.png" alt="Caro — Asistente Cuidy" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--teal);margin-bottom:8px" onerror="this.style.display='none'"/>
+          <p style="font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:var(--teal);margin:0">Caro</p>
+          <p style="font-size:12px;color:#888;margin:0">Asistente Cuidy</p>
+        </div>
+        <div style="flex:1;min-width:280px;">
+          <p style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--coral);font-weight:700;margin:0 0 6px">Búsqueda personalizada</p>
+          <h2 style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(18px,3vw,22px);color:var(--noche);margin:0 0 10px;line-height:1.2">Contale a Caro qué necesitás</h2>
+          <p style="font-size:14px;color:#555;line-height:1.6;margin:0 0 10px">Cuando te registrás, accedés a Caro: nuestra asistente virtual que te ayuda a encontrar cuidadores compatibles con lo que buscás.</p>
+          <p style="font-size:14px;color:#555;line-height:1.6;margin:0 0 16px">Le contás a quién necesitás cuidar, en qué zona, en qué horarios y qué es importante para vos. Caro busca dentro de tu red y te muestra opciones recomendadas por familias de confianza.</p>
+          <a href="registro-familia.html" class="m-btn m-btn--primary" style="padding:10px 20px;font-size:14px">Registrate para usar a Caro</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Asistente de búsqueda (solo logueados) -->
+  <section class="landing-section landing-section--alt asistente-section hidden" id="asistente" data-familia-only>
     <div class="container">
       <h2 class="landing-section__title" id="asistenteTitulo">Contanos qué necesitás</h2>
       <p class="landing-section__sub" id="asistenteSubtitulo">Hablá con Caro, nuestra asistente virtual.<br>Contale a quién necesitás cuidar, en qué zona, en qué horarios y qué es importante para vos.<br>Te ayudará a explorar opciones compatibles.</p>

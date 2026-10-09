@@ -1,6 +1,6 @@
 /* Registro de familia — formulario simplificado (Red de Confianza)
    Campos: nombre completo, email, zona, contraseña
-   Flujo: formulario → crear cuenta → modal éxito → home
+   Flujo: formulario → crear cuenta → verificación Didit → aprobada/pendiente
 */
 (() => {
   const API_BASE = '/.netlify/functions/api';
@@ -90,8 +90,9 @@
 
         // 2. Actualizar la familia con zona (localidad)
         const session = getSession();
-        if (session?.id) {
-          await fetch(`${API_BASE}/familias/${session.id}`, {
+        const familiaId = session?.id;
+        if (familiaId) {
+          await fetch(`${API_BASE}/familias/${familiaId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -102,22 +103,144 @@
 
         // GA4
         if (window.CuidyAnalytics) {
-          CuidyAnalytics.registrationCompleted('familia', session?.id);
+          CuidyAnalytics.registrationCompleted('familia', familiaId);
         }
 
-        document.getElementById('okModal').classList.remove('hidden');
+        // Hide form, show verification step
+        document.querySelector('.registro-split').style.display = 'none';
+        document.getElementById('verifStep').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Start identity verification
+        iniciarVerificacion(familiaId, email);
+
       } catch (err) {
         alert('No pudimos crear la cuenta: ' + err.message);
         btn.disabled = false;
         btn.textContent = 'Crear cuenta';
       }
     });
+  }
 
-    // Cerrar modal OK
-    document.getElementById('okModal').addEventListener('click', (e) => {
-      if (e.target.dataset.close !== undefined) {
-        document.getElementById('okModal').classList.add('hidden');
+  // ========== Verificación de identidad (Didit.me) ==========
+  let diditVerificado = false;
+  let pollingTimer = null;
+
+  async function iniciarVerificacion(familiaId, email) {
+    showVerifState('loading');
+
+    try {
+      const res = await fetch(`${API_BASE}/verificacion/iniciar`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tipo: 'familia', id: familiaId })
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || 'Error al iniciar verificación');
+
+      // Already verified
+      if (json.ya_verificado) {
+        diditVerificado = true;
+        mostrarResultadoAprobado();
+        return;
       }
+
+      // Sandbox mode (Didit not configured)
+      if (json.sandbox) {
+        showVerifState('sandbox');
+        return;
+      }
+
+      // Didit session URL → show iframe
+      if (json.url) {
+        const iframe = document.getElementById('diditFrame');
+        iframe.src = json.url;
+        showVerifState('iframe');
+        window.addEventListener('message', function onDiditMsg(event) {
+          if (!event.data) return;
+          const data = typeof event.data === 'string' ? (() => { try { return JSON.parse(event.data); } catch { return {}; } })() : event.data;
+          if (data.type === 'didit_verification_complete' || data.status === 'Approved' || data.event === 'session_completed') {
+            diditVerificado = true;
+            window.removeEventListener('message', onDiditMsg);
+            mostrarResultadoAprobado();
+          }
+        });
+        startPolling(familiaId);
+      } else {
+        // No URL, poll for status
+        startPolling(familiaId);
+      }
+    } catch (err) {
+      console.error('[verificacion familia]', err);
+      document.getElementById('verifErrorMsg').textContent = err.message;
+      showVerifState('error');
+    }
+
+    // Retry button
+    document.getElementById('btnRetryVerif').onclick = () => iniciarVerificacion(familiaId, email);
+
+    // Skip buttons → go to pending review
+    document.getElementById('btnSkipVerif').onclick = () => mostrarResultadoPendiente();
+    document.getElementById('btnSkipVerifError').onclick = () => mostrarResultadoPendiente();
+  }
+
+  function showVerifState(state) {
+    const map = {
+      loading: 'verifLoading',
+      iframe: 'verifIframe',
+      sandbox: 'verifSandbox',
+      error: 'verifError'
+    };
+    Object.values(map).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('hidden', map[state] !== id);
     });
+  }
+
+  function startPolling(familiaId) {
+    if (pollingTimer) clearInterval(pollingTimer);
+    let attempts = 0;
+    pollingTimer = setInterval(async () => {
+      attempts++;
+      if (attempts > 60 || diditVerificado) { clearInterval(pollingTimer); return; }
+      try {
+        const res = await fetch(`${API_BASE}/verificacion/estado/${familiaId}?tipo=familia`);
+        const json = await res.json();
+        if (json.ok && json.verificacion) {
+          if (json.verificacion.estado === 'approved') {
+            diditVerificado = true;
+            clearInterval(pollingTimer);
+            mostrarResultadoAprobado();
+          } else if (json.verificacion.estado === 'declined') {
+            clearInterval(pollingTimer);
+            mostrarResultadoPendiente();
+          }
+        }
+      } catch {}
+    }, 5000);
+  }
+
+  function mostrarResultadoAprobado() {
+    document.getElementById('verifStep').classList.add('hidden');
+    document.getElementById('verifApproved').classList.remove('hidden');
+    // Update session state
+    try {
+      const session = JSON.parse(localStorage.getItem('qqmc_familia') || '{}');
+      session.estado = 'identidad_aprobada';
+      localStorage.setItem('qqmc_familia', JSON.stringify(session));
+    } catch {}
+    if (window.CuidyAnalytics) CuidyAnalytics.registrationStep('familia', 2, 'identidad_aprobada');
+  }
+
+  function mostrarResultadoPendiente() {
+    if (pollingTimer) clearInterval(pollingTimer);
+    document.getElementById('verifStep').classList.add('hidden');
+    document.getElementById('verifPending').classList.remove('hidden');
+    // Update session state
+    try {
+      const session = JSON.parse(localStorage.getItem('qqmc_familia') || '{}');
+      session.estado = 'pendiente_revision';
+      localStorage.setItem('qqmc_familia', JSON.stringify(session));
+    } catch {}
   }
 })();

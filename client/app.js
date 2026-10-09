@@ -1047,6 +1047,9 @@
       // Ocultar secciones de landing (solo visitantes)
       document.querySelectorAll('[data-visitor-only]').forEach(el => el.classList.add('hidden'));
 
+      // Mostrar secciones solo para familia logueada
+      document.querySelectorAll('[data-familia-only]').forEach(el => el.classList.remove('hidden'));
+
       // Mostrar bienvenida personalizada
       const welcomeEl = document.getElementById('welcomeFamilia');
       if (welcomeEl) {
