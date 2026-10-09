@@ -592,6 +592,28 @@
 
             <div class="sc-form__divider"></div>
 
+            <!-- Disponibilidad básica -->
+            <p class="sc-form__section-label sc-form__section-label--teal" style="border-bottom:none;margin-bottom:8px">Disponibilidad</p>
+            <div class="sc-form__row">
+              <div class="sc-form__field">
+                <label for="modalidad">Modalidad</label>
+                <select id="modalidad" class="m-input" required>
+                  <option value="">Seleccioná...</option>
+                  <option value="full_time">Full time (jornada completa)</option>
+                  <option value="part_time">Part time (media jornada)</option>
+                  <option value="por_hora">Por hora</option>
+                  <option value="eventual">Eventual / suplencias</option>
+                  <option value="con_cama">Con cama</option>
+                </select>
+              </div>
+              <div class="sc-form__field">
+                <label for="zona_trabajo">Zona de trabajo</label>
+                <input id="zona_trabajo" type="text" class="m-input" placeholder="Ej: Palermo, Belgrano, Zona Norte" required />
+              </div>
+            </div>
+
+            <div class="sc-form__divider"></div>
+
             <!-- Recomendación opcional (hidden when ?inv= is present) -->
             <div id="recOptional">
               <p class="sc-form__section-label sc-form__section-label--teal" style="border-bottom:none;margin-bottom:4px">¿Tenés una familia que pueda recomendarte? <span style="font-weight:400;text-transform:none;font-size:12px;letter-spacing:0">(opcional)</span></p>
@@ -821,6 +843,8 @@
       const telefono = telInput.value.trim();
       const password = document.getElementById('password').value;
       const especialidades = Array.from(regForm.querySelectorAll('input[name="especialidades"]:checked')).map(i => i.value);
+      const modalidad = document.getElementById('modalidad').value;
+      const zona_trabajo = document.getElementById('zona_trabajo').value.trim();
 
       // Validations
       if (!nombre) { showMsg(regMsg, 'Ingresá tu nombre.', 'error'); document.getElementById('nombre').focus(); return; }
@@ -830,6 +854,8 @@
       if (!hiddenVerified.value) { showMsg(regMsg, 'Verificá tu WhatsApp con el código OTP.', 'error'); btnSend.focus(); return; }
       if (!password || password.length < 8) { showMsg(regMsg, 'La contraseña debe tener al menos 8 caracteres.', 'error'); document.getElementById('password').focus(); return; }
       if (!especialidades.length) { showMsg(regMsg, 'Seleccioná al menos una especialidad.', 'error'); return; }
+      if (!modalidad) { showMsg(regMsg, 'Seleccioná tu modalidad de trabajo.', 'error'); document.getElementById('modalidad').focus(); return; }
+      if (!zona_trabajo) { showMsg(regMsg, 'Ingresá tu zona de trabajo.', 'error'); document.getElementById('zona_trabajo').focus(); return; }
       if (!document.getElementById('consent_privacidad').checked) { showMsg(regMsg, 'Tenés que aceptar la política de privacidad.', 'error'); return; }
       if (!document.getElementById('consent_datos_veraces').checked) { showMsg(regMsg, 'Tenés que declarar que los datos son verdaderos.', 'error'); return; }
 
@@ -841,6 +867,8 @@
         identidad: { nombre, apellido },
         contacto: { email, telefono },
         especialidades,
+        modalidades: [modalidad],
+        zonas_trabajo: zona_trabajo,
         consentimientos: {
           privacidad: true,
           datos_veraces: true
