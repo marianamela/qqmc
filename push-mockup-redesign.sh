@@ -1,14 +1,13 @@
 #!/bin/bash
 cd "$(dirname "$0")"
 git add -A
-git commit -m "fix: landing pública — sacar asistente interactivo, agregar secciones informativas
+git commit -m "fix: landing pública — iconos SVG, alineación y armonía visual
 
-- index.html: el asistente de búsqueda (Caro) ahora solo se muestra
-  para familias logueadas (data-familia-only). Visitantes ven secciones
-  informativas: por qué recomendar, conectá con familias, beneficios
-  de pertenecer, y descripción de Caro sin acceso interactivo.
-- app.js: agrega lógica para mostrar data-familia-only al loguearse.
-- sw.js: cache version 13
+- index.html: reemplazar todos los emojis (⭐🤝💼🔒🧠👥✅) por iconos
+  SVG Lucide inline (star, users, heart, shieldCheck, search, userCheck).
+  Alinear texto consistentemente en todas las secciones. Sección Caro
+  usa icono SVG en vez de imagen avatar.
+- sw.js: cache version 14
 "
 git push origin dev
 echo "✅ Push completado. Verificá en https://dev--cuidy-ar.netlify.app"
