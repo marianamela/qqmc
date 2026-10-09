@@ -1,15 +1,13 @@
 #!/bin/bash
 cd "$(dirname "$0")"
 git add -A
-git commit -m "feat: registro cuidador unificado en sumate-cuidador.html
+git commit -m "feat: verificación de identidad Didit post-registro
 
-- sumate-cuidador.html: reemplaza dos caminos (solicitar rec + lista espera)
-  con un solo formulario de registro que crea la cuenta via POST /cuidadores.
-  Soporta ?inv= para invitación con badge, sección opcional de recomendación,
-  OTP WhatsApp, especialidades, consentimientos. Mismo payload que registro-cuidador.js.
-- registro-cuidador.html: convertido en redirect a sumate-cuidador.html
-  preservando ?inv= y otros params.
-- sw.js: cache version 10
+- sumate-cuidador.html: después de crear cuenta, muestra paso de
+  verificación Didit.me embebido. Si aprueba → ingresa a la plataforma.
+  Si no aprueba → mensaje de revisión pendiente por equipo Cuidy.
+  Eliminado botón redundante del cierre.
+- sw.js: cache version 11
 "
 git push origin dev
 echo "✅ Push completado. Verificá en https://dev--cuidy-ar.netlify.app"
