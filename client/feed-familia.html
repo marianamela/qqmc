@@ -265,7 +265,7 @@
         const res = await fetch(`${API}/verificacion/estado/${familiaId}`);
         const data = await res.json();
         // Show banner if NOT verified
-        if (!data.ok || !data.data || data.data.estado !== 'aprobada') {
+        if (!data.ok || !data.verificacion || data.verificacion.estado !== 'aprobada') {
           document.getElementById('bannerVerificacion').classList.remove('hidden');
         }
       } catch {
@@ -286,8 +286,8 @@
         const stats = await statsRes.json();
         const feed = await feedRes.json();
 
-        const conexiones = stats.data?.conexiones || 0;
-        const cuidadoresTotal = stats.data?.cuidadores?.total || 0;
+        const conexiones = stats.stats?.conexiones || 0;
+        const cuidadoresTotal = stats.stats?.cuidadores?.total || 0;
 
         if (conexiones === 0) {
           document.getElementById('feedVacio').classList.remove('hidden');
@@ -295,9 +295,9 @@
           document.getElementById('feedActivo').classList.remove('hidden');
           document.getElementById('statFamilias').textContent = conexiones;
           document.getElementById('statCuidadores').textContent = cuidadoresTotal;
-          document.getElementById('statNuevos').textContent = stats.data?.cuidadores?.nivel_1 || 0;
+          document.getElementById('statNuevos').textContent = stats.stats?.cuidadores?.nivel_1 || 0;
 
-          renderFeed(feed.data || []);
+          renderFeed(feed.feed || {});
           loadCuidadoresDestacados();
 
           // Show Caro section when there are cuidadores
@@ -311,29 +311,51 @@
       }
     }
 
-    function renderFeed(items) {
+    function renderFeed(feedData) {
       const container = document.getElementById('feedList');
+      const recs = feedData.recomendaciones || [];
+      const conns = feedData.nuevas_conexiones || [];
+
+      // Build unified feed items
+      const items = [];
+      recs.forEach(r => {
+        const famNombre = r.familias ? (r.familias.nombre + ' ' + (r.familias.apellido || '')) : '';
+        const cuidNombre = r.cuidadores ? (r.cuidadores.nombre + ' ' + (r.cuidadores.apellido || '')) : '';
+        items.push({
+          nombre: famNombre,
+          texto: famNombre + ' recomendó a ' + cuidNombre + (r.tipo_servicio ? ' (' + r.tipo_servicio + ')' : ''),
+          fecha: r.created_at,
+          tipo: 'recomendacion'
+        });
+      });
+      conns.forEach(c => {
+        const fam1 = c['familias!conexiones_familia_familia_id_fkey'];
+        const fam2 = c['familias!conexiones_familia_conectada_id_fkey'];
+        const n1 = fam1 ? (fam1.nombre + ' ' + (fam1.apellido || '')) : '';
+        const n2 = fam2 ? (fam2.nombre + ' ' + (fam2.apellido || '')) : '';
+        items.push({
+          nombre: n1 || n2,
+          texto: n1 + ' y ' + n2 + ' se conectaron',
+          fecha: c.aceptada_at,
+          tipo: 'conexion'
+        });
+      });
+
+      // Sort by date descending
+      items.sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
+
       if (!items.length) {
-        container.innerHTML = `
-          <div class="m-card" style="text-align:center;padding:20px">
-            <p style="color:#888;font-size:13px">Todavía no hay novedades. Invitá familias para empezar a ver actividad.</p>
-          </div>`;
+        container.innerHTML = '<div class="m-card" style="text-align:center;padding:20px"><p style="color:#888;font-size:13px">Todavía no hay novedades. Invitá familias para empezar a ver actividad.</p></div>';
         return;
       }
       container.innerHTML = items.map(item => {
         const initial = (item.nombre || '?').charAt(0).toUpperCase();
         const colors = ['var(--coral)', 'var(--aqua)', 'var(--teal)', '#f59e0b', '#8b5cf6'];
         const color = colors[initial.charCodeAt(0) % colors.length];
-        return `
-          <div class="m-card" style="padding:10px">
-            <div style="display:flex;gap:8px;align-items:center">
-              <div style="width:32px;height:32px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:600;flex-shrink:0">${initial}</div>
-              <div style="flex:1">
-                <p style="font-size:12px;margin:0">${esc(item.texto || item.descripcion || '')}</p>
-                <p style="font-size:10px;color:#999;margin-top:2px">${timeAgo(item.fecha || item.created_at)}</p>
-              </div>
-            </div>
-          </div>`;
+        const icon = item.tipo === 'recomendacion'
+          ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+          : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>';
+        return '<div class="m-card" style="padding:10px"><div style="display:flex;gap:8px;align-items:center"><div style="width:32px;height:32px;border-radius:50%;background:' + color + ';display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:600;flex-shrink:0">' + initial + '</div><div style="flex:1"><p style="font-size:12px;margin:0;display:flex;align-items:center;gap:4px">' + icon + ' ' + esc(item.texto) + '</p><p style="font-size:10px;color:#999;margin-top:2px">' + timeAgo(item.fecha) + '</p></div></div></div>';
       }).join('');
     }
 
@@ -342,7 +364,7 @@
       try {
         const res = await fetch(`${API}/red/cuidadores?familia_id=${familiaId}&limit=3`);
         const data = await res.json();
-        const cuidadores = data.data || [];
+        const cuidadores = data.cuidadores || [];
 
         if (!cuidadores.length) {
           container.innerHTML = `
@@ -418,8 +440,8 @@
           body: JSON.stringify({ familia_id: familiaId, canal: 'whatsapp' })
         });
         const data = await res.json();
-        if (data.ok && data.data?.codigo) {
-          const url = `${window.location.origin}/registro-familia.html?ref=${data.data.codigo}`;
+        if (data.ok && data.codigo) {
+          const url = data.link || `${window.location.origin}/registro-familia.html?invita=${data.codigo}`;
           const text = encodeURIComponent(`¡Hola! Te invito a unirte a mi red de confianza en Cuidy. Es una plataforma donde las familias recomiendan cuidadores entre sí. Registrate gratis acá: ${url}`);
           window.open(`https://wa.me/?text=${text}`, '_blank');
         }
@@ -436,8 +458,8 @@
           body: JSON.stringify({ familia_id: familiaId, canal: 'link' })
         });
         const data = await res.json();
-        if (data.ok && data.data?.codigo) {
-          const url = `${window.location.origin}/registro-familia.html?ref=${data.data.codigo}`;
+        if (data.ok && data.codigo) {
+          const url = data.link || `${window.location.origin}/registro-familia.html?invita=${data.codigo}`;
           await navigator.clipboard.writeText(url);
           document.getElementById('invitarStatus').textContent = '¡Enlace copiado!';
           setTimeout(() => document.getElementById('invitarStatus').textContent = '', 3000);
