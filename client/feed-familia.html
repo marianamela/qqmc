@@ -395,7 +395,10 @@
     }
 
     function esc(s) {
-      return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
+      const map = {'&':'&amp;','<':'&lt;','>':'&gt;'};
+      map['\x22'] = '&quot;';
+      map['\x27'] = '&#39;';
+      return String(s || '').replace(/[&<>\x22\x27]/g, c => map[c] || c);
     }
 
     // === Invitar modal ===
