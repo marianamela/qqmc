@@ -94,7 +94,7 @@ async function authLogin(email, password) {
   const familiaData = json.ok ? json.data : null;
 
   saveSession(session, familiaData);
-  window.location.href = '/';
+  window.location.href = '/feed-familia.html';
 }
 
 // ---- Registro con email/password ----

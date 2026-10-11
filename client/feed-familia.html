@@ -50,6 +50,18 @@
   <!-- Main content -->
   <div class="m-page-content" style="padding-top:12px">
 
+    <!-- Banner verificación de identidad (visible solo si no verificó) -->
+    <div id="bannerVerificacion" class="hidden" style="background:linear-gradient(135deg,#FFF8E6,#FFF3D0);border:1px solid #FFD54F;border-radius:12px;padding:14px;margin-bottom:12px;display:flex;gap:12px;align-items:center">
+      <div style="flex-shrink:0">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+      </div>
+      <div style="flex:1">
+        <p style="font-size:13px;font-weight:600;color:#92400E;margin-bottom:2px">Verificá tu identidad</p>
+        <p style="font-size:12px;color:#78350F">Para contactar cuidadores, necesitás verificar tu identidad. Es rápido y solo toma un minuto.</p>
+      </div>
+      <a href="verificar-identidad.html" class="m-btn m-btn--primary" style="font-size:12px;padding:8px 14px;flex-shrink:0;background:#B45309">Verificar</a>
+    </div>
+
     <!-- ==================== F01 · FEED VACÍO ==================== -->
     <div id="feedVacio" class="hidden">
       <div class="m-empty-state">
@@ -104,6 +116,20 @@
       <p class="m-section-label m-section-label--coral">Cuidadores destacados</p>
       <div id="cuidadoresDestacados">
         <!-- Populated by JS -->
+      </div>
+
+      <!-- Caro asistente (visible cuando hay cuidadores en la red) -->
+      <div id="caroSection" class="hidden" style="margin-top:16px">
+        <div class="m-card" style="padding:16px;text-align:center;border:2px solid var(--aqua)">
+          <div style="display:flex;justify-content:center;margin-bottom:10px">
+            <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--aqua),var(--teal));display:flex;align-items:center;justify-content:center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            </div>
+          </div>
+          <p style="font-weight:600;font-size:14px;color:var(--noche);margin-bottom:4px">Buscá con Caro</p>
+          <p style="font-size:12px;color:#666;margin-bottom:12px">Contale a Caro qué tipo de cuidado necesitás y te ayuda a encontrar opciones en tu red de confianza.</p>
+          <a href="/#asistente" class="m-btn m-btn--teal" style="font-size:13px;padding:10px 24px">Buscar cuidadores</a>
+        </div>
       </div>
 
       <!-- CTA recomendar -->
@@ -231,6 +257,23 @@
       window.location.href = 'recomendar.html';
     });
 
+    // Check identity verification status
+    checkVerificacion();
+
+    async function checkVerificacion() {
+      try {
+        const res = await fetch(`${API}/verificacion/estado/${familiaId}`);
+        const data = await res.json();
+        // Show banner if NOT verified
+        if (!data.ok || !data.data || data.data.estado !== 'aprobada') {
+          document.getElementById('bannerVerificacion').classList.remove('hidden');
+        }
+      } catch {
+        // If endpoint fails, show banner as safety (can't confirm verification)
+        document.getElementById('bannerVerificacion').classList.remove('hidden');
+      }
+    }
+
     // Load feed data
     loadFeed();
 
@@ -256,6 +299,11 @@
 
           renderFeed(feed.data || []);
           loadCuidadoresDestacados();
+
+          // Show Caro section when there are cuidadores
+          if (cuidadoresTotal > 0) {
+            document.getElementById('caroSection')?.classList.remove('hidden');
+          }
         }
       } catch (err) {
         console.error('Error loading feed:', err);
