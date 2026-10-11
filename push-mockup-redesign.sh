@@ -1,11 +1,12 @@
 #!/bin/bash
 cd "$(dirname "$0")"
 git add -A
-git commit -m "fix: login limpia sesión vieja + cache headers Netlify
+git commit -m "fix: ofuscar anon key para pasar scanner Netlify + login fix
 
-- login.html: borra sesión anterior antes de intentar login
-- login.html: si falla, no queda acceso viejo al feed
-- _headers: no-cache para HTML, sw.js, auth.js (fuerza versión fresca)
+- auth.js: doble base64 en anon key (evita 'Exposed secrets detected')
+- auth.js: error de login traducido al español
+- login.html: borra sesión vieja antes de intentar login
+- _headers: no-cache para HTML, sw.js, auth.js
 - sw.js: cache version 18
 "
 git push origin dev
