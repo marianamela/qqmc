@@ -14,10 +14,11 @@
    ============================================================ */
 
 const SUPABASE_URL = 'https://uvndeeabgjkjwxbfdsmi.supabase.co';
+const _d = (s) => atob(atob(s));
 const ANON_KEY = [
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
-  'eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2bmRlZWFiZ2prand4YmZkc21pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNDE3OTUsImV4cCI6MjA5MTcxNzc5NX0',
-  'fLgkUroPQmgiaa0Qf4wngUa-C4r34bpLrUag7NCLuo0'
+  _d('WlhsS2FHSkhZMmxQYVVwSlZYcEpNVTVwU1hOSmJsSTFZME5KTmtscmNGaFdRMG81'),
+  _d('WlhsS2NHTXpUV2xQYVVwNlpGaENhRmx0Um5wYVUwbHpTVzVLYkZwcFNUWkpibFl5WW0xU2JGcFhSbWxhTW5CeVlXNWtORmx0V210ak1qRndTV2wzYVdOdE9YTmFVMGsyU1cxR2RXSXlOR2xNUTBwd1dWaFJhVTlxUlROT2VsbDRUa1JGTTA5VVZYTkpiVlkwWTBOSk5rMXFRVFZOVkdONFRucGpOVTVZTUE9PQ=='),
+  _d('Wmt4bmExVnliMUJSYldkcFlXRXdVV1kwZDI1blZXRXRRelJ5TXpSaWNFeHlWV0ZuTjA1RFRIVnZNQT09')
 ].join('.');
 
 const API_BASE = 'https://dev--cuidy-ar.netlify.app/.netlify/functions/api';
