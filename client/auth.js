@@ -38,7 +38,11 @@ const supabaseAuth = {
       body: JSON.stringify({ email, password })
     });
     const json = await res.json();
-    if (json.error || json.error_description) throw new Error(json.error_description || json.error || 'Credenciales incorrectas');
+    if (json.error || json.error_description) {
+      const msg = json.error_description || json.error || '';
+      if (msg.toLowerCase().includes('invalid login')) throw new Error('Email o contraseña incorrectos');
+      throw new Error(msg || 'Error al iniciar sesión');
+    }
     return json;
   },
 

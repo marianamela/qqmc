@@ -85,21 +85,6 @@
 
   <script src="auth.js"></script>
   <script>
-    // Si ya hay sesión de familia, ir directo al feed
-    (function() {
-      const s = typeof getSession === 'function' ? getSession() : null;
-      if (s?.id && s?.nombre) {
-        window.location.href = '/feed-familia.html';
-        return;
-      }
-      // Si hay sesión de cuidador, ir al panel
-      const sc = JSON.parse(localStorage.getItem('qqmc_cuidador') || 'null');
-      if (sc?.id) {
-        window.location.href = '/panel-cuidador.html';
-        return;
-      }
-    })();
-
     // === Tabs ===
     document.querySelectorAll('.auth-tab').forEach(tab => {
       tab.addEventListener('click', () => {
@@ -138,10 +123,12 @@
       error.classList.add('hidden');
       btn.disabled = true;
       btn.textContent = 'Ingresando…';
+      // Limpiar sesión anterior para que si falla no quede acceso viejo
+      localStorage.removeItem('qqmc_familia');
       try {
         await authLogin(email, password);
       } catch (err) {
-        error.textContent = err.message;
+        error.textContent = err.message || 'Email o contraseña incorrectos';
         error.classList.remove('hidden');
         btn.disabled = false;
         btn.textContent = 'Ingresar';
