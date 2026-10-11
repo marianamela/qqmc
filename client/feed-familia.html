@@ -14,103 +14,114 @@
   <script src="js/analytics.js"></script>
 </head>
 <body>
-  <!-- Navbar -->
-  <header class="topbar">
-    <div class="container topbar__row">
-      <a class="brand" href="/" aria-label="Cuidy">
-        <img class="brand__logo" src="assets/logo.svg" alt="Cuidy" />
-      </a>
-      <nav class="topbar__nav">
-        <a href="feed-familia.html" class="topbar__nav-active">Inicio</a>
-        <a href="#" id="navBuscar">Buscar</a>
-        <a href="mi-red.html">Mi Red</a>
-        <div class="user-menu" id="userMenu">
-          <button class="user-menu__trigger" id="userMenuBtn">
-            <span class="user-menu__avatar" id="userAvatar"></span>
-            <span class="user-menu__name" id="userName"></span>
-            <svg class="user-menu__chevron" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          </button>
-          <div class="user-menu__dropdown hidden" id="userDropdown">
-            <button class="user-menu__item" id="menuMisContactos"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span> Mis contactos</button>
-            <button class="user-menu__item" id="menuRecomendar"><span class="ci" style="color:#f59e0b"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span> Recomendar cuidador</button>
-            <button class="user-menu__item" id="menuMisDatos"><span class="ci"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> Mis datos</button>
-            <hr class="user-menu__divider" />
-            <button class="user-menu__item user-menu__item--logout" id="menuSalir">Cerrar sesión</button>
-          </div>
-        </div>
-      </nav>
+
+  <!-- Navbar mockup -->
+  <div class="m-navbar" style="position:sticky;top:0;z-index:50;background:white">
+    <a href="/" class="m-navbar-logo" style="text-decoration:none">
+      <svg viewBox="0 0 200 200" width="22"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>
+      Cuidy
+    </a>
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="m-avatar" id="userAvatar" style="border:none;cursor:pointer;position:relative" aria-label="Menú de usuario">M</button>
     </div>
-  </header>
+  </div>
 
-  <main class="dashboard" id="feedMain" style="padding-bottom:70px">
-    <div class="container">
+  <!-- User dropdown (hidden by default) -->
+  <div class="hidden" id="userDropdown" style="position:fixed;top:56px;right:12px;z-index:60;background:white;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.12);border:1px solid var(--gris);padding:8px 0;min-width:200px">
+    <div style="padding:12px 16px;border-bottom:1px solid var(--gris)">
+      <p style="font-weight:600;font-size:14px;color:var(--noche)" id="userName"></p>
+    </div>
+    <button class="user-menu__item" id="menuMisContactos" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:13px;color:var(--noche)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
+      Mis contactos
+    </button>
+    <button class="user-menu__item" id="menuRecomendar" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:13px;color:var(--noche)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="#f59e0b"/></svg>
+      Recomendar cuidador
+    </button>
+    <button class="user-menu__item" id="menuMisDatos" style="display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:13px;color:var(--noche)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Mis datos
+    </button>
+    <div style="border-top:1px solid var(--gris);margin:4px 0"></div>
+    <button id="menuSalir" style="display:block;width:100%;text-align:left;padding:10px 16px;border:none;background:none;cursor:pointer;font-size:13px;color:var(--coral)">Cerrar sesión</button>
+  </div>
 
-      <!-- ==================== F01 · FEED VACÍO ==================== -->
-      <div id="feedVacio" class="hidden">
-        <div class="m-empty-state">
-          <svg viewBox="0 0 200 200" width="64"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>
-          <h3>Tu red está vacía</h3>
-          <p>Conectá con familias que conocés para ver cuidadores recomendados por tu comunidad.</p>
-          <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
-            <button class="m-btn m-btn--primary" id="btnInvitarVacio" style="min-width:220px">Invitar familias</button>
-            <button class="m-btn m-btn--secondary" id="btnBuscarFamVacio" style="min-width:220px;font-size:13px">Buscar familias por nombre</button>
-          </div>
-        </div>
+  <!-- Main content -->
+  <div class="m-page-content" style="padding-top:12px">
 
-        <div class="m-card" style="text-align:center;max-width:480px;margin:16px auto">
-          <p class="m-section-label m-section-label--teal">¿Conocés a un buen cuidador?</p>
-          <p style="font-size:13px;color:#666;margin-bottom:12px">Recomendalo para que otras familias de tu red lo encuentren.</p>
-          <a href="recomendar.html" class="m-btn m-btn--teal" style="font-size:13px">Recomendar cuidador</a>
+    <!-- ==================== F01 · FEED VACÍO ==================== -->
+    <div id="feedVacio" class="hidden">
+      <div class="m-empty-state">
+        <svg viewBox="0 0 200 200" width="60"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>
+        <h3>Tu red está vacía</h3>
+        <p>Conectá con familias que conocés para ver cuidadores recomendados por tu comunidad.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
+          <button class="m-btn m-btn--primary" id="btnInvitarVacio" style="min-width:220px">Invitar familias</button>
+          <button class="m-btn m-btn--secondary" id="btnBuscarFamVacio" style="min-width:220px;font-size:13px">Buscar familias por nombre</button>
         </div>
       </div>
 
-      <!-- ==================== F02 · FEED ACTIVO ==================== -->
-      <div id="feedActivo" class="hidden">
-        <!-- Stats card (mockup: teal gradient) -->
-        <div class="m-stats-card" id="statsRow">
-          <div class="m-stats-row">
-            <div>
-              <div class="stat-num" id="statFamilias">0</div>
-              <div class="stat-label">familias</div>
-            </div>
-            <div>
-              <div class="stat-num" id="statCuidadores">0</div>
-              <div class="stat-label">cuidadores</div>
-            </div>
-            <div>
-              <div class="stat-num" id="statNuevos">0</div>
-              <div class="stat-label">nuevos</div>
-            </div>
+      <div style="background:var(--marfil);border-radius:12px;padding:14px;margin-top:8px">
+        <p class="m-section-label m-section-label--teal">¿Conocés a un buen cuidador?</p>
+        <p style="font-size:12px;color:#666;margin-bottom:8px">Recomendalo para que otras familias de tu red lo encuentren.</p>
+        <a href="recomendar.html" class="m-btn m-btn--teal" style="font-size:12px;padding:6px 14px">Recomendar cuidador</a>
+      </div>
+    </div>
+
+    <!-- ==================== F02 · FEED ACTIVO ==================== -->
+    <div id="feedActivo" class="hidden">
+      <!-- Stats card (teal gradient — mockup F02) -->
+      <div class="m-stats-card">
+        <p style="font-size:11px;opacity:0.8;margin-bottom:8px">Tu red</p>
+        <div class="m-stats-row">
+          <div>
+            <div class="stat-num" id="statFamilias">0</div>
+            <div class="stat-label">familias</div>
           </div>
-        </div>
-
-        <!-- Activity feed -->
-        <div class="feed-section">
-          <h3 class="feed-section__title" style="color:var(--teal)">Novedades en tu red</h3>
-          <div id="feedList">
-            <div class="feed-item" id="feedLoading">
-              <p style="color:#999;font-size:13px;text-align:center;padding:20px 0">Cargando novedades…</p>
-            </div>
+          <div>
+            <div class="stat-num" id="statCuidadores">0</div>
+            <div class="stat-label">cuidadores</div>
           </div>
-        </div>
-
-        <!-- CTA recomendar -->
-        <div class="m-card" style="text-align:center;margin-top:16px">
-          <p class="m-section-label m-section-label--teal">¿Conocés a un buen cuidador?</p>
-          <p style="font-size:13px;color:#666;margin-bottom:12px">Recomendalo para que otras familias de tu red lo encuentren.</p>
-          <a href="recomendar.html" class="m-btn m-btn--teal" style="font-size:13px">Recomendar cuidador</a>
-        </div>
-
-        <!-- Shortcut buttons -->
-        <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;justify-content:center">
-          <a href="mi-red.html" class="m-btn m-btn--secondary" style="font-size:13px">Ver mi red</a>
-          <button class="m-btn m-btn--secondary" id="btnBuscarFeedActivo" style="font-size:13px">Buscar cuidadores</button>
-          <button class="m-btn m-btn--secondary" id="btnInvitarActivo" style="font-size:13px">Invitar familias</button>
+          <div>
+            <div class="stat-num" id="statNuevos">0</div>
+            <div class="stat-label">nuevos</div>
+          </div>
         </div>
       </div>
 
+      <!-- Activity feed -->
+      <p class="m-section-label m-section-label--teal">Novedades en tu red</p>
+      <div id="feedList" style="margin-bottom:16px">
+        <div id="feedLoading">
+          <div class="m-card" style="text-align:center;padding:20px">
+            <p style="color:#999;font-size:13px">Cargando novedades…</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cuidadores destacados -->
+      <p class="m-section-label m-section-label--coral">Cuidadores destacados</p>
+      <div id="cuidadoresDestacados">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- CTA recomendar -->
+      <div style="background:var(--marfil);border-radius:12px;padding:14px;margin-top:12px;text-align:center">
+        <p class="m-section-label m-section-label--teal">¿Conocés a un buen cuidador?</p>
+        <p style="font-size:12px;color:#666;margin-bottom:8px">Recomendalo para que otras familias de tu red lo encuentren.</p>
+        <a href="recomendar.html" class="m-btn m-btn--teal" style="font-size:12px;padding:6px 14px">Recomendar cuidador</a>
+      </div>
+
+      <!-- Shortcut buttons -->
+      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center">
+        <a href="mi-red.html" class="m-btn m-btn--secondary" style="font-size:13px">Ver mi red</a>
+        <button class="m-btn m-btn--secondary" id="btnBuscarFeedActivo" style="font-size:13px">Buscar cuidadores</button>
+        <button class="m-btn m-btn--primary" id="btnInvitarActivo" style="font-size:13px">Invitar familias</button>
+      </div>
     </div>
-  </main>
+
+  </div>
 
   <!-- Mobile tab bar (mockup) -->
   <nav class="m-tab-bar" id="tabBar">
@@ -126,7 +137,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 22c0-4 4-7 8-7s8 3 8 7"/></svg>
       Mi Red
     </a>
-    <a href="#" class="m-tab" id="tabDiario">
+    <a href="diario-familia.html" class="m-tab" id="tabDiario">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>
       Diario
     </a>
@@ -162,7 +173,7 @@
     </div>
   </div>
 
-  <footer class="footer">
+  <footer class="footer" style="display:none">
     <div class="container footer__row">
       <span>© <span id="year"></span> Cuidy</span>
       <em class="footer__tagline">Cuidy. Tu red de confianza para el cuidado.</em>
@@ -187,21 +198,25 @@
     const familiaId = session.id;
     const nombre = session.nombre || '';
 
-    // User menu
+    // Avatar & name
     const avatar = document.getElementById('userAvatar');
     const userName = document.getElementById('userName');
     if (avatar) avatar.textContent = nombre.charAt(0).toUpperCase();
     if (userName) userName.textContent = nombre;
 
-    const menuBtn = document.getElementById('userMenuBtn');
+    // User dropdown toggle
     const dropdown = document.getElementById('userDropdown');
-    if (menuBtn && dropdown) {
-      menuBtn.addEventListener('click', () => dropdown.classList.toggle('hidden'));
-      document.addEventListener('click', (e) => {
-        if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.add('hidden');
-      });
-    }
+    avatar.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('hidden');
+    });
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target) && e.target !== avatar) {
+        dropdown.classList.add('hidden');
+      }
+    });
 
+    // Menu actions
     document.getElementById('menuSalir')?.addEventListener('click', () => {
       if (typeof logout === 'function') logout();
       window.location.href = '/';
@@ -232,20 +247,18 @@
         const cuidadoresTotal = stats.data?.cuidadores?.total || 0;
 
         if (conexiones === 0) {
-          // F01: Feed vacío
           document.getElementById('feedVacio').classList.remove('hidden');
         } else {
-          // F02: Feed activo
           document.getElementById('feedActivo').classList.remove('hidden');
           document.getElementById('statFamilias').textContent = conexiones;
           document.getElementById('statCuidadores').textContent = cuidadoresTotal;
           document.getElementById('statNuevos').textContent = stats.data?.cuidadores?.nivel_1 || 0;
 
           renderFeed(feed.data || []);
+          loadCuidadoresDestacados();
         }
       } catch (err) {
         console.error('Error loading feed:', err);
-        // Fallback: show empty state
         document.getElementById('feedVacio').classList.remove('hidden');
       }
     }
@@ -254,7 +267,7 @@
       const container = document.getElementById('feedList');
       if (!items.length) {
         container.innerHTML = `
-          <div class="feed-item" style="text-align:center;padding:20px 0">
+          <div class="m-card" style="text-align:center;padding:20px">
             <p style="color:#888;font-size:13px">Todavía no hay novedades. Invitá familias para empezar a ver actividad.</p>
           </div>`;
         return;
@@ -264,14 +277,60 @@
         const colors = ['var(--coral)', 'var(--aqua)', 'var(--teal)', '#f59e0b', '#8b5cf6'];
         const color = colors[initial.charCodeAt(0) % colors.length];
         return `
-          <div class="m-profile-card">
-            <div class="m-profile-avatar" style="background:${color};width:36px;height:36px;font-size:14px">${initial}</div>
-            <div class="m-profile-info">
-              <p style="font-size:13px;margin:0">${esc(item.texto || item.descripcion || '')}</p>
-              <p class="m-profile-meta">${timeAgo(item.fecha || item.created_at)}</p>
+          <div class="m-card" style="padding:10px">
+            <div style="display:flex;gap:8px;align-items:center">
+              <div style="width:32px;height:32px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:600;flex-shrink:0">${initial}</div>
+              <div style="flex:1">
+                <p style="font-size:12px;margin:0">${esc(item.texto || item.descripcion || '')}</p>
+                <p style="font-size:10px;color:#999;margin-top:2px">${timeAgo(item.fecha || item.created_at)}</p>
+              </div>
             </div>
           </div>`;
       }).join('');
+    }
+
+    async function loadCuidadoresDestacados() {
+      const container = document.getElementById('cuidadoresDestacados');
+      try {
+        const res = await fetch(`${API}/red/cuidadores?familia_id=${familiaId}&limit=3`);
+        const data = await res.json();
+        const cuidadores = data.data || [];
+
+        if (!cuidadores.length) {
+          container.innerHTML = `
+            <div class="m-card" style="text-align:center;padding:16px">
+              <p style="font-size:12px;color:#888">Todavía no hay cuidadores recomendados en tu red.</p>
+            </div>`;
+          return;
+        }
+
+        container.innerHTML = cuidadores.map(c => {
+          const init = (c.nombre || '?').charAt(0).toUpperCase();
+          const esp = (c.especialidades || []).map(e => {
+            const labels = { ninera: 'Niñera', adulto_mayor: 'Adultos mayores', domestica: 'Doméstica', cocinera: 'Cocinera' };
+            return labels[e] || e;
+          }).join(', ');
+          const zona = c.localidad || c.provincia || '';
+          const meta = [esp, zona].filter(Boolean).join(' · ');
+          const chain = c.familias_que_recomiendan || '';
+
+          return `
+            <div class="m-profile-card" style="cursor:pointer" onclick="window.location.href='perfil-cuidador.html?id=${c.cuidador_id}'">
+              <div class="m-profile-avatar" style="background:var(--teal)">${init}</div>
+              <div class="m-profile-info">
+                <div class="m-profile-name">${esc(c.nombre || '')} ${esc(c.apellido || '')}</div>
+                <div class="m-profile-meta">${esc(meta)}</div>
+                ${chain ? `<div class="trust-chain" style="margin-top:4px">
+                  <span class="dot"></span><span class="line"></span>
+                  <span>${esc(chain)} lo recomienda</span>
+                </div>` : ''}
+              </div>
+            </div>`;
+        }).join('');
+      } catch (err) {
+        console.error('Error loading cuidadores destacados:', err);
+        container.innerHTML = '';
+      }
     }
 
     function timeAgo(dateStr) {
@@ -288,7 +347,7 @@
     }
 
     function esc(s) {
-      return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
     }
 
     // === Invitar modal ===
@@ -385,7 +444,7 @@
                 body: JSON.stringify({ familia_id: familiaId, conectar_con_id: btn.dataset.id })
               });
               btn.textContent = 'Enviada ✓';
-              btn.classList.remove('btn--primary');
+              btn.style.background = 'var(--aqua)';
             } catch {
               btn.textContent = 'Error';
               btn.disabled = false;
@@ -398,92 +457,11 @@
     });
 
     // Buscar cuidadores → Caro
-    document.getElementById('navBuscar')?.addEventListener('click', (e) => { e.preventDefault(); window.location.href = '/#asistente'; });
     document.getElementById('tabBuscar')?.addEventListener('click', (e) => { e.preventDefault(); window.location.href = '/#asistente'; });
     document.getElementById('btnBuscarFeedActivo')?.addEventListener('click', () => { window.location.href = '/#asistente'; });
 
   })();
   </script>
 
-  <style>
-    .dashboard { padding: 24px 0 100px; }
-
-    .stats-row { margin-bottom: 20px; }
-    .stat-card--gradient {
-      background: linear-gradient(135deg, var(--teal), #005A63);
-      border-radius: 16px;
-      padding: 18px 20px;
-      color: #fff;
-    }
-    .stat-card__label { font-size: 12px; opacity: .8; }
-    .stat-card__number {
-      font-family: 'Montserrat', sans-serif;
-      font-weight: 800;
-      font-size: 24px;
-    }
-    .stat-card__sub { font-size: 11px; opacity: .8; }
-
-    .feed-section { margin-bottom: 16px; }
-    .feed-section__title {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-    .feed-item {
-      background: #fff;
-      border-radius: 12px;
-      padding: 12px 14px;
-      margin-bottom: 8px;
-      border: 1px solid var(--gris);
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-    }
-
-    /* Tab bar */
-    .tab-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #fff;
-      border-top: 1px solid var(--gris);
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 0 env(safe-area-inset-bottom, 8px);
-      z-index: 100;
-    }
-    .tab-bar__item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      font-size: 10px;
-      color: #999;
-      text-decoration: none;
-      padding: 4px 12px;
-    }
-    .tab-bar__item--active {
-      color: var(--teal);
-    }
-    .tab-bar__item--active svg { stroke: var(--teal); }
-
-    .topbar__nav-active {
-      color: var(--teal) !important;
-      font-weight: 600;
-    }
-
-    @media (min-width: 768px) {
-      .tab-bar { display: none; }
-      .dashboard { padding-bottom: 40px; }
-    }
-    @media (max-width: 767px) {
-      .topbar__nav > a:not(.topbar__nav-active) { display: none; }
-    }
-  </style>
 </body>
 </html>
