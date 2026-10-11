@@ -85,7 +85,20 @@
 
   <script src="auth.js"></script>
   <script>
-    // API ya está definida en auth.js
+    // Si ya hay sesión de familia, ir directo al feed
+    (function() {
+      const s = typeof getSession === 'function' ? getSession() : null;
+      if (s?.id && s?.nombre) {
+        window.location.href = '/feed-familia.html';
+        return;
+      }
+      // Si hay sesión de cuidador, ir al panel
+      const sc = JSON.parse(localStorage.getItem('qqmc_cuidador') || 'null');
+      if (sc?.id) {
+        window.location.href = '/panel-cuidador.html';
+        return;
+      }
+    })();
 
     // === Tabs ===
     document.querySelectorAll('.auth-tab').forEach(tab => {
