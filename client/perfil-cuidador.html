@@ -300,24 +300,30 @@
         // Ficha completa visible pero contacto directo requiere desbloqueo
         const solicitudPendiente = solicitud && solicitud.estado === 'pendiente';
         actionSection = `
-          <div class="perfil-locked" style="background:linear-gradient(135deg,#F0FDFA,#E6F7F7);border:1px solid var(--aqua)">
+          <div class="perfil-contact-cta">
             <svg viewBox="0 0 24 24" width="28" fill="none" stroke="var(--teal)" stroke-width="2" style="margin-bottom:8px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <p class="perfil-locked__title" style="color:var(--teal)">Datos de contacto</p>
-            <p class="perfil-locked__text">Para ver el teléfono y email de ${escapeHtml(c.nombre || '')} y contactarl${c.genero === 'M' ? 'o' : 'a'} directamente, desbloqueá sus datos.</p>
+            <p class="perfil-contact-cta__title">Datos de contacto</p>
+            <p class="perfil-contact-cta__text">Para ver el teléfono y email de ${escapeHtml(c.nombre || '')} y contactarl${c.genero === 'M' ? 'o' : 'a'} directamente, desbloqueá sus datos.</p>
             ${solicitudPendiente
-              ? '<button class="m-btn m-btn--secondary m-btn--full perfil-locked__btn" disabled>Solicitud enviada</button>'
-              : '<button class="m-btn m-btn--primary m-btn--full perfil-locked__btn" id="btnDesbloquear">Desbloquear contacto</button>'}
-            <p class="perfil-locked__note">Pago único. Sin suscripción.</p>
+              ? '<button class="m-btn m-btn--secondary m-btn--full" disabled>Solicitud enviada</button>'
+              : '<button class="m-btn m-btn--primary m-btn--full" id="btnDesbloquear">Desbloquear contacto</button>'}
+            <p class="perfil-contact-cta__note">Pago único. Sin suscripción.</p>
           </div>`;
       } else {
         // F06: No access at all — locked profile
         actionSection = `
-          <div class="perfil-locked">
-            <svg viewBox="0 0 24 24" width="28" fill="none" stroke="var(--gris-medio)" stroke-width="2" style="margin-bottom:8px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <p class="perfil-locked__title">Perfil completo bloqueado</p>
-            <p class="perfil-locked__text">Desbloqueá para ver experiencia detallada, datos de contacto y enviar mensaje.</p>
-            <button class="m-btn m-btn--primary m-btn--full perfil-locked__btn" id="btnDesbloquear">Desbloquear perfil</button>
-            <p class="perfil-locked__note">Pago único. Sin suscripción.</p>
+          <div style="position:relative;margin-top:16px">
+            <div class="perfil-locked">
+              <p style="font-size:15px;font-weight:600;color:var(--noche);margin-bottom:6px">Experiencia, contacto y más</p>
+              <p style="font-size:13px;color:#888;line-height:1.5">Información detallada del perfil profesional, datos de contacto directo, capacitaciones verificadas y recomendaciones de otras familias.</p>
+            </div>
+            <div class="perfil-unlock-cta">
+              <svg viewBox="0 0 24 24" width="28" fill="none" stroke="var(--gris-medio)" stroke-width="2" style="margin-bottom:8px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <p style="font-size:15px;font-weight:600;color:var(--noche);margin-bottom:6px">Perfil completo bloqueado</p>
+              <p style="font-size:13px;color:#888;margin-bottom:16px;line-height:1.5">Desbloqueá para ver experiencia detallada, datos de contacto y enviar mensaje.</p>
+              <button class="m-btn m-btn--primary m-btn--full" id="btnDesbloquear">Desbloquear perfil</button>
+              <p style="font-size:11px;color:#999;margin-top:8px">Pago único. Sin suscripción.</p>
+            </div>
           </div>`;
       }
 
@@ -589,6 +595,23 @@
     }
     .perfil-locked__btn { font-size: 15px; padding: 14px; }
     .perfil-locked__note {
+      font-size: 11px; color: #999; margin-top: 8px;
+    }
+
+    /* Contact CTA (fichaCompleta, no blur) */
+    .perfil-contact-cta {
+      background: linear-gradient(135deg, #F0FDFA, #E6F7F7);
+      border: 1px solid var(--aqua);
+      border-radius: 14px;
+      padding: 24px 20px; text-align: center; margin-top: 16px;
+    }
+    .perfil-contact-cta__title {
+      font-size: 15px; font-weight: 600; color: var(--teal); margin-bottom: 6px;
+    }
+    .perfil-contact-cta__text {
+      font-size: 13px; color: #888; margin-bottom: 16px; line-height: 1.5;
+    }
+    .perfil-contact-cta__note {
       font-size: 11px; color: #999; margin-top: 8px;
     }
 
