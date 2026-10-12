@@ -129,34 +129,43 @@
         if (!json.ok) throw new Error(json.error);
 
         const c = json.data;
-        const contactoVisible = json.contacto_visible;
+        // tieneAcceso = puede ver ficha completa (familia activa/aprobada)
+        const tieneAcceso = !json.requiere_suscripcion;
+        // contactoDesbloqueado = puede ver tel/email directo (pagó desbloqueo)
+        let contactoDesbloqueado = !!json.contacto_visible;
+        let contactoData = null;
 
         // Check if already unlocked via contactos_desbloqueados
-        let desbloqueado = false;
-        let contactoData = null;
-        try {
-          const cdRes = await fetch(`${API}/red/contactos?familia_id=${familiaId}`);
-          const cdJson = await cdRes.json();
-          if (cdJson.ok && cdJson.contactos) {
-            const found = cdJson.contactos.find(ct => ct.cuidador_id === cuidadorId);
-            if (found) {
-              desbloqueado = true;
-              contactoData = found.cuidador_info || found.cuidadores;
+        if (!contactoDesbloqueado) {
+          try {
+            const cdRes = await fetch(`${API}/red/contactos?familia_id=${familiaId}`);
+            const cdJson = await cdRes.json();
+            if (cdJson.ok && cdJson.contactos) {
+              const found = cdJson.contactos.find(ct => ct.cuidador_id === cuidadorId);
+              if (found) {
+                contactoDesbloqueado = true;
+                contactoData = found.cuidador_info || found.cuidadores;
+              }
             }
-          }
-        } catch(e) {}
+          } catch(e) {}
+        }
 
-        // Also check legacy contacto_visible
-        if (contactoVisible && c.contacto) desbloqueado = true;
+        // If API already sent contact data
+        if (json.contacto_visible && c.contacto) contactoDesbloqueado = true;
+
+        // For rendering: desbloqueado means full access (ficha + contacto visible)
+        // tieneAcceso alone means ficha completa visible but contacto locked
+        const desbloqueado = contactoDesbloqueado;
 
         // Fetch trust chain info (recomendaciones for this cuidador in the family's network)
-        let recomendaciones = [];
+        let enMiRed = false;
         try {
           const recRes = await fetch(`${API}/red/cuidadores?familia_id=${familiaId}`);
           const recJson = await recRes.json();
           if (recJson.ok && recJson.cuidadores) {
             const match = recJson.cuidadores.find(rc => rc.cuidador_id === cuidadorId);
             if (match) {
+              enMiRed = true;
               c._nivel_confianza = match.nivel_confianza;
               c._familias_que_recomiendan = match.familias_que_recomiendan;
               c._total_recomendaciones = match.total_recomendaciones;
@@ -165,19 +174,26 @@
         } catch(e) {}
 
         // Fetch recomendaciones detalladas
+        let recomendaciones = [];
         try {
           const detRes = await fetch(`${API}/red/mis-recomendaciones?cuidador_id=${cuidadorId}`);
           const detJson = await detRes.json();
           if (detJson.ok) recomendaciones = detJson.recomendaciones || [];
         } catch(e) {}
 
-        renderPerfil(c, desbloqueado, contactoData, recomendaciones);
+        // Pass tieneAcceso so ficha completa shows even without contact unlock
+        renderPerfil(c, desbloqueado, contactoData, recomendaciones, tieneAcceso, enMiRed, json.solicitud);
       } catch (err) {
         document.getElementById('perfilMain').innerHTML = `<div style="text-align:center;padding:60px 20px"><p style="color:var(--coral)">Error al cargar el perfil: ${err.message}</p><a href="/#asistente" class="m-btn m-btn--secondary" style="margin-top:16px;padding:10px 20px">Volver a buscar</a></div>`;
       }
     }
 
-    function renderPerfil(c, desbloqueado, contactoData, recomendaciones) {
+    function renderPerfil(c, desbloqueado, contactoData, recomendaciones, tieneAcceso, enMiRed, solicitud) {
+      // tieneAcceso = familia activa, puede ver ficha completa
+      // desbloqueado = contacto directo visible (pagó desbloqueo)
+      // enMiRed = cuidador encontrado en la red de confianza
+      // Si tiene acceso O está en su red → mostrar ficha completa
+      const fichaCompleta = tieneAcceso || enMiRed || desbloqueado;
       const main = document.getElementById('perfilMain');
       const nombre = c.nombre || '';
       const primerNombre = nombre.split(' ')[0];
@@ -220,9 +236,9 @@
           </div>`;
       }
 
-      // Recomendaciones section (for unlocked profiles)
+      // Recomendaciones section (visible with ficha completa)
       let recsSection = '';
-      if (desbloqueado && recomendaciones.length > 0) {
+      if (fichaCompleta && recomendaciones.length > 0) {
         recsSection = `
           <div class="perfil-section">
             <h4 class="perfil-section__title perfil-section__title--coral">Recomendaciones (${recomendaciones.length})</h4>
@@ -249,9 +265,9 @@
           </div>`;
       }
 
-      // Experiencia & bio (only full for unlocked)
+      // Experiencia & bio (visible with ficha completa)
       let expSection = '';
-      if (desbloqueado) {
+      if (fichaCompleta) {
         expSection = `
           <div class="perfil-section">
             <h4 class="perfil-section__title">Experiencia</h4>
@@ -259,10 +275,10 @@
           </div>`;
       }
 
-      // Contact section or locked section
+      // Contact section — depends on desbloqueado (contacto directo) vs fichaCompleta
       let actionSection = '';
       if (desbloqueado) {
-        // F08: Full profile unlocked
+        // F08: Full profile unlocked — contact info visible
         const tel = contactoData?.telefono || c.contacto?.telefono || c.telefono || '';
         const email = contactoData?.email || c.contacto?.email || c.email || '';
         actionSection = `
@@ -280,8 +296,21 @@
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
             <a href="mailto:${escapeHtml(email)}" style="color:var(--teal)">${escapeHtml(email)}</a>
           </p>` : ''}`;
+      } else if (fichaCompleta) {
+        // Ficha completa visible pero contacto directo requiere desbloqueo
+        const solicitudPendiente = solicitud && solicitud.estado === 'pendiente';
+        actionSection = `
+          <div class="perfil-locked" style="background:linear-gradient(135deg,#F0FDFA,#E6F7F7);border:1px solid var(--aqua)">
+            <svg viewBox="0 0 24 24" width="28" fill="none" stroke="var(--teal)" stroke-width="2" style="margin-bottom:8px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <p class="perfil-locked__title" style="color:var(--teal)">Datos de contacto</p>
+            <p class="perfil-locked__text">Para ver el teléfono y email de ${escapeHtml(c.nombre || '')} y contactarl${c.genero === 'M' ? 'o' : 'a'} directamente, desbloqueá sus datos.</p>
+            ${solicitudPendiente
+              ? '<button class="m-btn m-btn--secondary m-btn--full perfil-locked__btn" disabled>Solicitud enviada</button>'
+              : '<button class="m-btn m-btn--primary m-btn--full perfil-locked__btn" id="btnDesbloquear">Desbloquear contacto</button>'}
+            <p class="perfil-locked__note">Pago único. Sin suscripción.</p>
+          </div>`;
       } else {
-        // F06: Locked profile
+        // F06: No access at all — locked profile
         actionSection = `
           <div class="perfil-locked">
             <svg viewBox="0 0 24 24" width="28" fill="none" stroke="var(--gris-medio)" stroke-width="2" style="margin-bottom:8px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -292,9 +321,9 @@
           </div>`;
       }
 
-      // Capacitaciones (for unlocked)
+      // Capacitaciones (visible with ficha completa)
       let capsSection = '';
-      if (desbloqueado && c.capacitaciones && c.capacitaciones.length) {
+      if (fichaCompleta && c.capacitaciones && c.capacitaciones.length) {
         capsSection = `
           <div class="perfil-section">
             <h4 class="perfil-section__title">Capacitaciones</h4>
@@ -341,7 +370,7 @@
 
             ${capsSection}
 
-            ${desbloqueado ? recsSection : ''}
+            ${fichaCompleta ? recsSection : ''}
 
             ${!desbloqueado ? actionSection : ''}
           </div>

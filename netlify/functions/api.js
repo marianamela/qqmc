@@ -1613,10 +1613,10 @@ exports.handler = async (event) => {
       let tieneSuscripcion = false
       if (params.familia_id && supabaseAdmin) {
         try {
-          // Familia aprobada → puede ver ficha completa y expresar interés
+          // Familia activa/aprobada → puede ver ficha completa y expresar interés
           const { data: fam } = await supabaseAdmin.from('familias')
             .select('estado').eq('id', params.familia_id).maybeSingle()
-          if (fam && fam.estado === 'aprobada') tieneAcceso = true
+          if (fam && (fam.estado === 'aprobada' || fam.estado === 'activa')) tieneAcceso = true
 
           // ¿Ya desbloqueó este contacto? (legacy o match)
           const { data: desbloqueado } = await supabaseAdmin.from('contactos_desbloqueados')
