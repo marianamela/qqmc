@@ -329,12 +329,12 @@
         const enRed = _familiaLogueada && _familiaLogueada.id;
         if (enRed) {
           const frases = {
-            ninera: 'Perfecto, voy a buscar niñeras recomendadas en tu red de confianza…',
-            adulto_mayor: 'Voy a buscar cuidadores recomendados en tu red para tu familiar…',
-            cocinera: 'Buscando cocineras recomendadas en tu red…',
-            domestica: 'Buscando en tu red de confianza…'
+            ninera: 'Perfecto, voy a buscar niñeras en tu red y entre los cuidadores verificados…',
+            adulto_mayor: 'Voy a buscar cuidadores en tu red y verificados para tu familiar…',
+            cocinera: 'Buscando cocineras en tu red y verificadas…',
+            domestica: 'Buscando en tu red y entre los verificados…'
           };
-          return [frases[a.tipo] || 'Buscando en tu red de confianza…'];
+          return [frases[a.tipo] || 'Buscando en tu red y entre los cuidadores verificados…'];
         }
         const frases = {
           ninera: 'Perfecto, ya tengo todo. Voy a buscar niñeras para tu familia…',
@@ -352,8 +352,8 @@
         const enRed = _familiaLogueada && _familiaLogueada.id;
         if (enRed) {
           return [
-            'No encontré cuidadores en tu red de confianza con esos criterios.',
-            'Esto puede pasar si tu red es todavía chica. ¿Querés ampliar la búsqueda o invitar a más familias a tu red?'
+            'No encontré cuidadores en tu red ni verificados con esos criterios.',
+            '¿Querés ampliar la búsqueda o invitar a más familias a tu red?'
           ];
         }
         const tipo = a.tipo || 'todos';
@@ -392,21 +392,24 @@
       bot: (a, count) => {
         const msgs = [];
         const enRed = _familiaLogueada && _familiaLogueada.id;
-        if (count === 1) {
-          msgs.push(enRed
-            ? 'Encontré 1 cuidador en tu red de confianza.'
-            : 'Encontré 1 persona que coincide con lo que buscás.');
+        // Contar por grupo si hay datos
+        const nRed = (cuidadoresActuales || []).filter(c => c._es_red).length;
+        const nExt = (cuidadoresActuales || []).filter(c => c._verificado_externo).length;
+
+        if (enRed && (nRed > 0 || nExt > 0)) {
+          const partes = [];
+          if (nRed > 0) partes.push(`${nRed} de tu red de confianza`);
+          if (nExt > 0) partes.push(`${nExt} verificado${nExt === 1 ? '' : 's'} de la plataforma`);
+          msgs.push(`Encontré ${partes.join(' y ')}.`);
+        } else if (count === 1) {
+          msgs.push('Encontré 1 persona que coincide con lo que buscás.');
         } else if (count <= 3) {
-          msgs.push(enRed
-            ? `Encontré ${count} cuidadores en tu red que coinciden con lo que me contaste.`
-            : `Encontré ${count} personas que coinciden con lo que me contaste.`);
+          msgs.push(`Encontré ${count} personas que coinciden con lo que me contaste.`);
         } else {
-          msgs.push(enRed
-            ? `Encontré ${count} cuidadores en tu red de confianza.`
-            : `Encontré ${count} personas que podrían ser ideales para vos.`);
+          msgs.push(`Encontré ${count} personas que podrían ser ideales para vos.`);
         }
         msgs.push(enRed
-          ? 'Hacé click en cualquier perfil para ver más detalles. Debajo de cada uno podés ver quién lo recomienda.'
+          ? 'Hacé click en cualquier perfil para ver más detalles. Los de tu red muestran quién los recomienda.'
           : 'Hacé click en cualquier perfil para ver más detalles, su disponibilidad y su experiencia.');
         return msgs;
       },
@@ -783,30 +786,40 @@
     }
   }
 
-  // Búsqueda filtrada por red de confianza
+  // Búsqueda filtrada por red de confianza + cuidadores verificados externos
   async function doBusquedaRed(wide) {
-    const qs = new URLSearchParams();
-    qs.set('familia_id', _familiaLogueada.id);
+    const qsRed = new URLSearchParams();
+    qsRed.set('familia_id', _familiaLogueada.id);
+
+    const qsExt = new URLSearchParams();
+    qsExt.set('valoracion_min', '3');
+    qsExt.set('verificado', '1');
 
     if (answers.tipo && answers.tipo !== 'todos') {
-      qs.set('especialidad', answers.tipo);
+      qsRed.set('especialidad', answers.tipo);
+      qsExt.set('tipo', answers.tipo);
     }
 
     if (wide && answers._ampliar === 'ampliar_zona') {
-      // no ponemos zona
+      // no ponemos zona en ninguno
     } else if (answers.zona) {
-      qs.set('zona', answers.zona);
+      qsRed.set('zona', answers.zona);
+      qsExt.set('zona', answers.zona);
     }
 
     try {
-      const res = await fetch(`${API_BASE}/red/cuidadores?${qs.toString()}`);
-      const json = await res.json();
+      // Llamar ambos endpoints en paralelo
+      const [resRed, resExt] = await Promise.all([
+        fetch(`${API_BASE}/red/cuidadores?${qsRed.toString()}`),
+        fetch(`${API_BASE}/cuidadores?${qsExt.toString()}`)
+      ]);
+      const [jsonRed, jsonExt] = await Promise.all([resRed.json(), resExt.json()]);
       removeTyping();
 
-      if (!json.ok) throw new Error(json.error);
+      if (!jsonRed.ok) throw new Error(jsonRed.error);
 
-      // Mapear campos de la función cuidadores_en_red al formato esperado por las cards
-      cuidadoresActuales = (json.cuidadores || []).map(c => ({
+      // Mapear campos de la red al formato esperado
+      let cuidadoresRed = (jsonRed.cuidadores || []).map(c => ({
         id: c.cuidador_id,
         nombre: (c.nombre || '') + (c.apellido ? ' ' + c.apellido : ''),
         foto: c.foto_url || '',
@@ -824,10 +837,16 @@
         _es_red: true
       }));
 
+      // Cuidadores verificados externos (deduplicar contra los de la red)
+      const idsRed = new Set(cuidadoresRed.map(c => c.id));
+      let cuidadoresVerificados = (jsonExt.ok ? (jsonExt.data || []) : [])
+        .filter(c => !idsRed.has(c.id))
+        .map(c => ({ ...c, _es_red: false, _verificado_externo: true }));
+
       // Filtro de distancia en el cliente
       if (answers.user_lat && answers.distancia_km) {
         const maxKm = Number(answers.distancia_km);
-        cuidadoresActuales = cuidadoresActuales
+        const filtrarDistancia = (arr) => arr
           .map(c => {
             if (c.lat != null && c.lng != null) {
               c._distancia = haversineKm(answers.user_lat, answers.user_lng, c.lat, c.lng);
@@ -838,19 +857,24 @@
           })
           .filter(c => c._distancia <= maxKm)
           .sort((a, b) => a._distancia - b._distancia);
+        cuidadoresRed = filtrarDistancia(cuidadoresRed);
+        cuidadoresVerificados = filtrarDistancia(cuidadoresVerificados);
       }
+
+      // Combinar para el estado global (mapa, etc.)
+      cuidadoresActuales = [...cuidadoresRed, ...cuidadoresVerificados];
 
       if (cuidadoresActuales.length === 0) {
         runStep('sin_resultados');
       } else {
-        renderResultsInChat(cuidadoresActuales);
-        showMapResults(cuidadoresActuales);
+        renderResultsInChat(cuidadoresRed, cuidadoresVerificados);
+        showMapResults(cuidadoresRed, cuidadoresVerificados);
         guardarBusqueda();
         runStep('resultados_ok');
       }
     } catch (err) {
       removeTyping();
-      addBotMessage('Ups, tuve un problema al buscar en tu red. ¿Podés intentar de nuevo en unos segundos?');
+      addBotMessage('Ups, tuve un problema al buscar. ¿Podés intentar de nuevo en unos segundos?');
     }
   }
 
@@ -949,42 +973,88 @@
   }
 
   // ---- Render cards en el chat ----
-  function renderResultsInChat(cuidadores) {
+  // Acepta dos grupos opcionales: cuidadoresRed y cuidadoresVerificados
+  // Si se llama con un solo argumento (búsqueda general sin red), muestra lista plana
+  function renderResultsInChat(cuidadoresRedOrAll, cuidadoresVerificados) {
     const container = document.createElement('div');
     container.className = 'chat-results';
 
-    cuidadores.slice(0, 6).forEach(c => {
-      const card = document.createElement('div');
-      card.className = 'chat-card';
-      card.addEventListener('click', () => abrirFicha(c.id));
+    const tieneDosGrupos = Array.isArray(cuidadoresVerificados);
+    const cuidadoresRed = tieneDosGrupos ? cuidadoresRedOrAll : [];
+    const cuidadoresExt = tieneDosGrupos ? cuidadoresVerificados : [];
+    const todosPlano = tieneDosGrupos ? null : cuidadoresRedOrAll;
 
-      const rating = Number(c.valoracion) > 0
-        ? `<span class="chat-card__stars">${icon('starFilled', 'gold')} ${Number(c.valoracion).toFixed(1)}</span>`
-        : '';
+    function renderCards(lista, max) {
+      lista.slice(0, max).forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'chat-card';
+        card.addEventListener('click', () => abrirFicha(c.id));
 
-      card.innerHTML = `
-        ${avatarHtml(c)}
-        <div class="chat-card__info">
-          <div class="chat-card__name">
-            ${escapeHtml(c.nombre)}
-            ${nivelBadgeHtml(c)}
+        const rating = Number(c.valoracion) > 0
+          ? `<span class="chat-card__stars">${icon('starFilled', 'gold')} ${Number(c.valoracion).toFixed(1)}</span>`
+          : '';
+
+        const badgeHtml = c._es_red ? nivelBadgeHtml(c)
+          : (c._verificado_externo ? '<span class="nivel-badge nivel-badge--verificado">Verificado</span>' : '');
+
+        card.innerHTML = `
+          ${avatarHtml(c)}
+          <div class="chat-card__info">
+            <div class="chat-card__name">
+              ${escapeHtml(c.nombre)}
+              ${badgeHtml}
+            </div>
+            <div class="chat-card__meta">${labelEspecialidad(c)} · ${escapeHtml(c.zona)}</div>
+            <div class="chat-card__exp">${rating}${rating ? ' · ' : ''}${c.experiencia_anios || 0} años exp.${c._distancia != null && c._distancia !== Infinity ? ' · ' + c._distancia.toFixed(1) + ' km' : ''}</div>
+            ${trustChainHtml(c)}
           </div>
-          <div class="chat-card__meta">${labelEspecialidad(c)} · ${escapeHtml(c.zona)}</div>
-          <div class="chat-card__exp">${rating}${rating ? ' · ' : ''}${c.experiencia_anios || 0} años exp.${c._distancia != null && c._distancia !== Infinity ? ' · ' + c._distancia.toFixed(1) + ' km' : ''}</div>
-          ${trustChainHtml(c)}
-        </div>
-        <div class="chat-card__arrow">
-          <span class="chat-card__ver-perfil">Ver perfil</span>
-        </div>
-      `;
-      container.appendChild(card);
-    });
+          <div class="chat-card__arrow">
+            <span class="chat-card__ver-perfil">Ver perfil</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
 
-    if (cuidadores.length > 6) {
-      const more = document.createElement('div');
-      more.className = 'chat-results__more';
-      more.textContent = `+${cuidadores.length - 6} más — mirá el mapa abajo`;
-      container.appendChild(more);
+    if (todosPlano) {
+      // Búsqueda general sin red — lista plana como antes
+      renderCards(todosPlano, 6);
+      if (todosPlano.length > 6) {
+        const more = document.createElement('div');
+        more.className = 'chat-results__more';
+        more.textContent = `+${todosPlano.length - 6} más — mirá el mapa abajo`;
+        container.appendChild(more);
+      }
+    } else {
+      // Dos secciones: red + verificados
+      if (cuidadoresRed.length > 0) {
+        const headerRed = document.createElement('div');
+        headerRed.className = 'chat-results__section-header chat-results__section-header--red';
+        headerRed.innerHTML = `${icon('shield', 'var(--teal)')} En tu red de confianza`;
+        container.appendChild(headerRed);
+        renderCards(cuidadoresRed, 4);
+        if (cuidadoresRed.length > 4) {
+          const more = document.createElement('div');
+          more.className = 'chat-results__more';
+          more.textContent = `+${cuidadoresRed.length - 4} más de tu red — mirá el mapa`;
+          container.appendChild(more);
+        }
+      }
+
+      if (cuidadoresExt.length > 0) {
+        const headerExt = document.createElement('div');
+        headerExt.className = 'chat-results__section-header chat-results__section-header--ext';
+        headerExt.innerHTML = `${icon('starFilled', 'var(--aqua)')} Otros cuidadores verificados`;
+        container.appendChild(headerExt);
+        renderCards(cuidadoresExt, cuidadoresRed.length > 0 ? 3 : 6);
+        const maxExt = cuidadoresRed.length > 0 ? 3 : 6;
+        if (cuidadoresExt.length > maxExt) {
+          const more = document.createElement('div');
+          more.className = 'chat-results__more';
+          more.textContent = `+${cuidadoresExt.length - maxExt} más verificados — mirá el mapa`;
+          container.appendChild(more);
+        }
+      }
     }
 
     const msgWrap = document.createElement('div');
@@ -996,18 +1066,45 @@
   }
 
   // ---- Mapa ----
-  function showMapResults(cuidadores) {
+  // Acepta dos grupos opcionales, igual que renderResultsInChat
+  function showMapResults(cuidadoresRedOrAll, cuidadoresVerificados) {
     resultsPane.classList.remove('hidden');
 
-    if (!cuidadores.length) {
+    const tieneDosGrupos = Array.isArray(cuidadoresVerificados);
+    const cuidadoresRed = tieneDosGrupos ? cuidadoresRedOrAll : [];
+    const cuidadoresExt = tieneDosGrupos ? cuidadoresVerificados : [];
+    const todosPlano = tieneDosGrupos ? null : cuidadoresRedOrAll;
+    const todos = todosPlano || [...cuidadoresRed, ...cuidadoresExt];
+
+    if (!todos.length) {
       resultsList.innerHTML = '<p class="results__hint">No hay resultados.</p>';
+    } else if (todosPlano) {
+      // Lista plana (búsqueda general)
+      resultsList.innerHTML = `<p class="results__hint" style="margin-bottom:10px">${todos.length} resultado${todos.length === 1 ? '' : 's'}</p>`;
+      todos.forEach(c => resultsList.appendChild(cardEl(c)));
     } else {
-      resultsList.innerHTML = `<p class="results__hint" style="margin-bottom:10px">${cuidadores.length} resultado${cuidadores.length === 1 ? '' : 's'}</p>`;
-      cuidadores.forEach(c => resultsList.appendChild(cardEl(c)));
+      // Dos secciones
+      resultsList.innerHTML = '';
+      if (cuidadoresRed.length > 0) {
+        const hdr = document.createElement('p');
+        hdr.className = 'results__hint results__section-label';
+        hdr.style.cssText = 'margin-bottom:8px;font-weight:600;color:var(--teal)';
+        hdr.textContent = `En tu red de confianza (${cuidadoresRed.length})`;
+        resultsList.appendChild(hdr);
+        cuidadoresRed.forEach(c => resultsList.appendChild(cardEl(c)));
+      }
+      if (cuidadoresExt.length > 0) {
+        const hdr = document.createElement('p');
+        hdr.className = 'results__hint results__section-label';
+        hdr.style.cssText = 'margin:16px 0 8px;font-weight:600;color:var(--aqua)';
+        hdr.textContent = `Otros cuidadores verificados (${cuidadoresExt.length})`;
+        resultsList.appendChild(hdr);
+        cuidadoresExt.forEach(c => resultsList.appendChild(cardEl(c)));
+      }
     }
 
     if (typeof window.renderMarkers === 'function') {
-      window.renderMarkers(cuidadores);
+      window.renderMarkers(todos);
     }
 
     setTimeout(() => {

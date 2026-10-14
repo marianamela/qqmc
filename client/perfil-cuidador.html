@@ -206,12 +206,14 @@
         ? `★ ${Number(c.valoracion).toFixed(1)}`
         : '';
 
-      // Nivel badge
+      // Nivel badge (red) o verificado badge (externo)
       let nivelBadge = '';
       if (c._nivel_confianza != null) {
         const cls = c._nivel_confianza <= 1 ? 'nivel-badge--1' : 'nivel-badge--2';
         const lbl = c._nivel_confianza <= 1 ? 'Nivel 1' : 'Nivel 2';
         nivelBadge = `<span class="nivel-badge ${cls}" style="background:rgba(255,255,255,0.15);color:white">${lbl}</span>`;
+      } else if (fichaCompleta && !enMiRed && c.verificado) {
+        nivelBadge = `<span class="nivel-badge nivel-badge--verificado">Verificado por Cuidy</span>`;
       }
 
       // Trust chain section

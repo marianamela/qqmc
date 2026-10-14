@@ -121,7 +121,7 @@
     <div class="container welcome-familia__inner">
       <div class="welcome-familia__greeting">
         <h1 class="welcome-familia__title">Hola <span id="welcomeNombre"></span>, qué bueno tenerte de vuelta</h1>
-        <p class="welcome-familia__sub">Explorá tu red de confianza y encontrá cuidadores recomendados por familias como la tuya.</p>
+        <p class="welcome-familia__sub">Explorá tu red de confianza y encontrá cuidadores recomendados por familias como la tuya. Si no hay en tu red, te mostramos cuidadores verificados de la plataforma.</p>
       </div>
       <div class="welcome-familia__shortcuts">
         <button class="shortcut-btn" id="shortcutContactos">
@@ -186,7 +186,7 @@
           <p style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--teal);font-weight:700;margin:0 0 6px">Tu red, tu tranquilidad</p>
           <h2 style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(18px,3vw,24px);color:var(--noche);margin:0 0 10px;line-height:1.2">Conectá con familias que conocés</h2>
           <p style="font-size:14px;color:#555;line-height:1.6;margin:0 0 12px">Cuidy funciona como una red social del cuidado. Invitás familias de tu confianza, compartís recomendaciones y entre todas construyen un espacio donde encontrar cuidadores es más fácil y más seguro.</p>
-          <p style="font-size:14px;color:#555;line-height:1.6;margin:0">Cuanto más grande sea tu red, más cuidadores recomendados vas a tener disponibles para vos.</p>
+          <p style="font-size:14px;color:#555;line-height:1.6;margin:0">Cuanto más grande sea tu red, más cuidadores recomendados vas a tener. Y si todavía no tenés red, también podés encontrar cuidadores verificados por Cuidy con capacitaciones aprobadas y documentación al día.</p>
         </div>
         <div style="width:240px;flex-shrink:0;">
           <div style="background:white;border-radius:14px;padding:16px;border:1px solid var(--gris);box-shadow:0 2px 8px rgba(0,0,0,0.04);">
@@ -222,7 +222,7 @@
         <div style="flex:1;min-width:180px;max-width:210px;text-align:center;padding:16px;">
           <div style="width:44px;height:44px;border-radius:50%;background:rgba(0,109,119,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 10px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></div>
           <h4 style="font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;margin:0 0 4px;color:var(--noche)">Búsqueda inteligente</h4>
-          <p style="font-size:12px;color:#666;line-height:1.5;margin:0">Contale a Caro, nuestra asistente, qué necesitás y te muestra opciones compatibles de tu red.</p>
+          <p style="font-size:12px;color:#666;line-height:1.5;margin:0">Contale a Caro qué necesitás y te muestra opciones de tu red. Si no hay en tu red, te ofrece cuidadores verificados de la plataforma.</p>
         </div>
         <div style="flex:1;min-width:180px;max-width:210px;text-align:center;padding:16px;">
           <div style="width:44px;height:44px;border-radius:50%;background:rgba(0,109,119,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 10px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
@@ -251,7 +251,7 @@
           <p style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--coral);font-weight:700;margin:0 0 6px">Búsqueda personalizada</p>
           <h2 style="font-family:'Montserrat',sans-serif;font-weight:700;font-size:clamp(18px,3vw,22px);color:var(--noche);margin:0 0 10px;line-height:1.2">Contale a Caro qué necesitás</h2>
           <p style="font-size:14px;color:#555;line-height:1.6;margin:0 0 10px">Cuando te registrás, accedés a Caro: nuestra asistente virtual que te ayuda a encontrar cuidadores compatibles con lo que buscás.</p>
-          <p style="font-size:14px;color:#555;line-height:1.6;margin:0 0 16px">Le contás a quién necesitás cuidar, en qué zona, en qué horarios y qué es importante para vos. Caro busca dentro de tu red y te muestra opciones recomendadas por familias de confianza.</p>
+          <p style="font-size:14px;color:#555;line-height:1.6;margin:0 0 16px">Le contás a quién necesitás cuidar, en qué zona, en qué horarios y qué es importante para vos. Caro busca primero en tu red de confianza y, si no hay suficientes opciones, te muestra cuidadores verificados de la plataforma con capacitaciones aprobadas y al menos 3 estrellas de valoración.</p>
           <a href="registro-familia.html" class="m-btn m-btn--primary" style="padding:10px 20px;font-size:14px">Registrate para usar a Caro</a>
         </div>
       </div>
@@ -262,7 +262,7 @@
   <section class="landing-section landing-section--alt asistente-section hidden" id="asistente" data-familia-only>
     <div class="container">
       <h2 class="landing-section__title" id="asistenteTitulo">Contanos qué necesitás</h2>
-      <p class="landing-section__sub" id="asistenteSubtitulo">Hablá con Caro, nuestra asistente virtual.<br>Contale a quién necesitás cuidar, en qué zona, en qué horarios y qué es importante para vos.<br>Te ayudará a explorar opciones compatibles.</p>
+      <p class="landing-section__sub" id="asistenteSubtitulo">Hablá con Caro, nuestra asistente virtual.<br>Contale a quién necesitás cuidar, en qué zona, en qué horarios y qué es importante para vos.<br>Caro busca primero en tu red y después entre los cuidadores verificados de la plataforma.</p>
 
       <div class="asistente-chat-wrap">
         <div class="caro-intro">
@@ -318,7 +318,7 @@
         <div style="flex:1;min-width:140px;max-width:220px;background:var(--marfil, #F8F7F3);border-radius:12px;padding:16px;text-align:center;">
           <div style="width:28px;height:28px;border-radius:50%;background:var(--coral, #FF6B6B);color:white;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">4</div>
           <h4 style="font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;margin:0 0 4px">Encontrá con confianza</h4>
-          <p style="font-size:11px;color:#666;line-height:1.4;margin:0">Solo ves cuidadores recomendados por tu comunidad. Sabés quién los conoce y por qué.</p>
+          <p style="font-size:11px;color:#666;line-height:1.4;margin:0">Primero ves cuidadores de tu red. Si necesitás más opciones, Cuidy te muestra profesionales verificados con capacitaciones y documentación al día.</p>
         </div>
       </div>
     </div>
@@ -328,7 +328,7 @@
   <section data-visitor-only style="padding:48px 0;background:var(--marfil, #F8F7F3);text-align:center;">
     <div class="container">
       <svg viewBox="0 0 200 200" width="56" style="margin-bottom:20px"><g transform="translate(20,30)"><path d="M 150 20 A 80 80 0 0 0 20 80" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><path d="M 20 80 A 80 80 0 0 0 150 140" fill="none" stroke="#006D77" stroke-width="22" stroke-linecap="round"/><circle cx="115" cy="80" r="18" fill="#FF6B6B"/><circle cx="165" cy="80" r="9" fill="#006D77"/></g></svg>
-      <p style="font-size:15px;color:#555;line-height:1.6;max-width:480px;margin:0 auto 16px">Registrate gratis y empezá a construir tu red: conectá con familias, recomendá cuidadores y encontrá ayuda a través de personas de confianza.</p>
+      <p style="font-size:15px;color:#555;line-height:1.6;max-width:480px;margin:0 auto 16px">Registrate gratis y empezá a buscar: encontrá cuidadores recomendados por tu red o verificados por Cuidy. Conectá con familias, recomendá cuidadores y construí tu comunidad de cuidado.</p>
       <p style="font-family:'Montserrat',sans-serif;font-size:14px;color:var(--teal);font-weight:700;letter-spacing:.1em;margin:0 0 24px">CUIDY. TU RED DE CONFIANZA.</p>
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
         <a href="registro-familia.html" class="m-btn m-btn--primary" style="padding:12px 24px;font-size:15px">Soy familia</a>
